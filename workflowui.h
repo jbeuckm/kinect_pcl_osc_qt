@@ -2,6 +2,8 @@
 #define WORKFLOWUI_H
 
 #include <QMainWindow>
+#include "oscsender.h"
+
 
 namespace Ui {
 class WorkflowUI;
@@ -17,6 +19,8 @@ public:
     
 private:
     Ui::WorkflowUI *ui;
+
+    oscSender osc;
 };
 
 #endif // WORKFLOWUI_H

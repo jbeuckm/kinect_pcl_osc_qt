@@ -12,10 +12,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         workflowui.cpp \
-        vtkpointcloudviewer.cpp
+#        vtkpointcloudviewer.cpp \
+    oscsender.cpp
 
 HEADERS  += workflowui.h \
-            vtkpointcloudviewer.h
+#            vtkpointcloudviewer.h \
+    oscsender.h
 
 FORMS    += workflowui.ui
 
@@ -23,10 +25,10 @@ OTHER_FILES += \
     CMakeLists.txt
 
 LIBS += -L/usr/lib/vtk-5.8
-LIBS += -lQTVK
+#LIBS += -lQTVK
 
 LIBS += -L/usr/lib/pcl-1.7
-LIBS += pcl_visualization
+#LIBS += pcl_visualization
 
 INCLUDEPATH += /usr/include/vtk-5.8 /usr/include/pcl-1.7 /usr/include/eigen3 /usr/include/flann
 #INCLUDEPATH += /usr/include/c++/4.3

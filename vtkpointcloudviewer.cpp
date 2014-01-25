@@ -1,6 +1,4 @@
 
-
-
 #include "vtkpointcloudviewer.h"
 
 
@@ -28,7 +26,7 @@ VTKPointCloudWidget::VTKPointCloudWidget(QWidget *parent) : QVTKWidget(parent)
 
        vtkSmartPointer<vtkRenderWindow> renderWindow = pv->getRenderWindow();
 
-       this->SetRenderWindow( renderWindow );
+//       this->SetRenderWindow( renderWindow );
        this->update();
 
 }
