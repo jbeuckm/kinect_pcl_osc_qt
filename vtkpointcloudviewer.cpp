@@ -12,7 +12,7 @@ VTKPointCloudWidget::VTKPointCloudWidget(QWidget *parent) : QVTKWidget(parent)
   this->show();
 }
 
-
+/*
 void VTKPointCloudWidget::showPointCloud(SensorPicture pic)
 {
   // converts the sensor image to a point cloud
@@ -25,3 +25,4 @@ void VTKPointCloudWidget::showPointCloud(SensorPicture pic)
 
   this->update();
 }
+*/
