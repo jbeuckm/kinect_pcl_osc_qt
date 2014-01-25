@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "oscsender.h"
+#include <pcl/visualization/cloud_viewer.h>
 
 
 namespace Ui {
@@ -19,6 +20,8 @@ public:
     
 private:
     Ui::WorkflowUI *ui;
+
+    pcl::visualization::PCLVisualizer vis;
 
     oscSender osc;
 };
