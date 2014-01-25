@@ -1,15 +1,36 @@
+
+
+
 #include "vtkpointcloudviewer.h"
 
 
 VTKPointCloudWidget::VTKPointCloudWidget(QWidget *parent) : QVTKWidget(parent)
 {
+    /*
   this->resize(500, 500);
   pcl::PointCloud<pcl::PointXYZ>::Ptr pc (new pcl::PointCloud<pcl::PointXYZ>);
 
   vis.addPointCloud<pcl::PointXYZ>(pc);
-  vtkSmartPointer<vtkRenderWindow> renderWindow = vis.getRenderWindow();
-  this->SetRenderWindow(renderWindow);
+
+  this->SetRenderWindow(vis.getRenderWindow());
   this->show();
+
+*/
+
+      boost::shared_ptr<pcl::visualization::PCLVisualizer> pv(new pcl::visualization::PCLVisualizer("3D Viewer"));
+/*
+       if ( m_cloud.size() > 0 )
+       {
+               pv->addPointCloud<pcl::PointXYZ>(m_cloud.makeShared());
+       }
+*/
+       pv->setBackgroundColor(0, 0, 0.1);
+
+       vtkSmartPointer<vtkRenderWindow> renderWindow = pv->getRenderWindow();
+
+       this->SetRenderWindow( renderWindow );
+       this->update();
+
 }
 
 /*

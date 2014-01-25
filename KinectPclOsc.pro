@@ -29,6 +29,14 @@ LIBS += -L/usr/lib/pcl-1.7
 LIBS += pcl_visualization
 
 INCLUDEPATH += /usr/include/vtk-5.8 /usr/include/pcl-1.7 /usr/include/eigen3 /usr/include/flann
-INCLUDEPATH += /usr/include/c++/4.3
+#INCLUDEPATH += /usr/include/c++/4.3
 
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -loscpack
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -loscpack
+else:symbian: LIBS += -loscpack
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -loscpack
+
+INCLUDEPATH += $$PWD/../../../usr/include/oscpack
+DEPENDPATH += $$PWD/../../../usr/include/oscpack
