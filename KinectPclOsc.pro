@@ -11,11 +11,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        workflowui.cpp \
-    oscsender.cpp
+    oscsender.cpp \
+    workflow.cpp
 
-HEADERS  += workflowui.h \
-    oscsender.h
+HEADERS  += \
+    oscsender.h \
+    workflow.h
 
 FORMS    += workflowui.ui
 

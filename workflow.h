@@ -4,24 +4,24 @@
 #include <QMainWindow>
 #include "oscsender.h"
 #include <pcl/visualization/cloud_viewer.h>
-
+#include <vtkSmartPointer.h>
 
 namespace Ui {
 class WorkflowUI;
 }
 
-class WorkflowUI : public QMainWindow
+class Workflow : public QMainWindow
 {
     Q_OBJECT
     
 public:
-    explicit WorkflowUI(QWidget *parent = 0);
-    ~WorkflowUI();
+    explicit Workflow(QWidget *parent = 0);
+    ~Workflow();
     
 private:
     Ui::WorkflowUI *ui;
 
-    pcl::visualization::PCLVisualizer vis;
+    pcl::visualization::PCLVisualizer *vis;
 
     oscSender osc;
 };

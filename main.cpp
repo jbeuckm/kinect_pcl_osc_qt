@@ -1,10 +1,10 @@
 #include <QtGui/QApplication>
-#include "workflowui.h"
+#include "workflow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    WorkflowUI w;
+    Workflow w;
     w.show();
     
     return a.exec();
