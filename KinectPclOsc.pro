@@ -105,3 +105,30 @@ else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_common
 
 INCLUDEPATH += $$PWD/../../../usr/include
 DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lOpenNI
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lOpenNI
+else:symbian: LIBS += -lOpenNI
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lOpenNI
+
+INCLUDEPATH += $$PWD/../../../usr/include
+#INCLUDEPATH += /opt/sources/OpenNI2/ThirdParty/PSCommon/XnLib/Include/
+INCLUDEPATH += /usr/include/openni/
+
+DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lpcl_io
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lpcl_io
+else:symbian: LIBS += -lpcl_io
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_io
+
+INCLUDEPATH += $$PWD/../../../usr/include
+DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lpcl_io_ply
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lpcl_io_ply
+else:symbian: LIBS += -lpcl_io_ply
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_io_ply
+
+INCLUDEPATH += $$PWD/../../../usr/include
+DEPENDPATH += $$PWD/../../../usr/include

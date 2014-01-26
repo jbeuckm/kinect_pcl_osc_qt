@@ -6,6 +6,10 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <vtkSmartPointer.h>
 
+#include <pcl/io/openni_grabber.h>
+#include <vtkRenderWindow.h>
+
+
 namespace Ui {
 class WorkflowUI;
 }
@@ -21,7 +25,15 @@ public:
 private:
     Ui::WorkflowUI *ui;
 
+    pcl::Grabber* interface;
+//    pcl::visualization::CloudViewer viewer;
+
+//    pcl::PointCloud<pcl::PointXYZ>::Ptr pc;
+
     pcl::visualization::PCLVisualizer *vis;
+
+    void cloud_cb_ (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud);
+    void startKinect();
 
     oscSender osc;
 };

@@ -1,6 +1,6 @@
 #include "workflow.h"
 #include "ui_workflowui.h"
-#include <vtkRenderWindow.h>
+
 
 
 Workflow::Workflow(QWidget *parent) :
@@ -11,9 +11,11 @@ Workflow::Workflow(QWidget *parent) :
 
     vis = new pcl::visualization::PCLVisualizer();
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pc (new pcl::PointCloud<pcl::PointXYZ>);
+//    vis->addPointCloud<pcl::PointXYZ>(pc);
 
-    vis->addPointCloud<pcl::PointXYZ>(pc);
+    interface = new pcl::OpenNIGrabber();
+
+//    pc = new pcl::PointCloud<pcl::PointXYZ>();
 
     vtkSmartPointer< vtkRenderWindow > rw = vis->getRenderWindow();
 
@@ -28,4 +30,29 @@ Workflow::~Workflow()
     delete ui;
 }
 
+
+void Workflow::cloud_cb_ (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud)
+{
+//  if (!viewer.wasStopped())
+//    viewer.showCloud (cloud);
+}
+
+void Workflow::startKinect()
+{
+  pcl::Grabber* interface = new pcl::OpenNIGrabber();
+
+  boost::function<void (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&)> f =
+    boost::bind (&Workflow::cloud_cb_, this, _1);
+
+  interface->registerCallback (f);
+
+  interface->start ();
+/*
+  while (!viewer.wasStopped())
+    {
+  boost::this_thread::sleep (boost::posix_time::seconds (1));
+    }
+*/
+  interface->stop ();
+}
 
