@@ -9,13 +9,12 @@ Workflow::Workflow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    vis = new pcl::visualization::PCLVisualizer();
-
-//    vis->addPointCloud<pcl::PointXYZ>(pc);
-
     interface = new pcl::OpenNIGrabber();
 
-//    pc = new pcl::PointCloud<pcl::PointXYZ>();
+    pc = pcl::PointCloud<pcl::PointXYZ>::Ptr (new pcl::PointCloud<pcl::PointXYZ>());
+    vis = new pcl::visualization::PCLVisualizer();
+
+    vis->addPointCloud<pcl::PointXYZ> (pc, "kinect", 0);
 
     vtkSmartPointer< vtkRenderWindow > rw = vis->getRenderWindow();
 
@@ -31,17 +30,16 @@ Workflow::~Workflow()
 }
 
 
-void Workflow::cloud_cb_ (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud)
+void Workflow::cloud_cb_ (const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud)
 {
-//  if (!viewer.wasStopped())
-//    viewer.showCloud (cloud);
+    vis->updatePointCloud<pcl::PointXYZ>(cloud);
 }
 
 void Workflow::startKinect()
 {
   pcl::Grabber* interface = new pcl::OpenNIGrabber();
 
-  boost::function<void (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&)> f =
+  boost::function<void (const pcl::PointCloud<pcl::PointXYZ>::ConstPtr&)> f =
     boost::bind (&Workflow::cloud_cb_, this, _1);
 
   interface->registerCallback (f);
