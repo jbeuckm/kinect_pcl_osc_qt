@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2014-01-24T22:22:39
+# Project created by QtCreator 2014-01-26T19:09:10
 #
 #-------------------------------------------------
 
@@ -10,28 +10,24 @@ TARGET = KinectPclOsc
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-    oscsender.cpp \
-    workflow.cpp
+SOURCES += \
+    kinect_pcl_osc.cpp \
+    oscsender.cpp
 
-HEADERS  += \
-    oscsender.h \
-    workflow.h
+HEADERS += \
+    openni_passthrough_qt.h \
+    kinect_pcl_osc.h \
+    oscsender.h
 
-FORMS    += workflowui.ui
+FORMS += \
+    kinect_pcl_osc.ui
 
-OTHER_FILES += \
-    CMakeLists.txt
 
 LIBS += -L/usr/lib/vtk-5.8
-#LIBS += -lvtkRendering -l libQVTKWidget
 
 LIBS += -L/usr/lib/pcl-1.7
-#LIBS += pcl_visualization
 
 INCLUDEPATH += /usr/include/vtk-5.8 /usr/include/pcl-1.7 /usr/include/eigen3 /usr/include/flann
-#INCLUDEPATH += /usr/include/c++/4.3
-
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -loscpack
@@ -112,7 +108,6 @@ else:symbian: LIBS += -lOpenNI
 else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lOpenNI
 
 INCLUDEPATH += $$PWD/../../../usr/include
-#INCLUDEPATH += /opt/sources/OpenNI2/ThirdParty/PSCommon/XnLib/Include/
 INCLUDEPATH += /usr/include/openni/
 
 DEPENDPATH += $$PWD/../../../usr/include
@@ -132,3 +127,66 @@ else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_io_ply
 
 INCLUDEPATH += $$PWD/../../../usr/include
 DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lvtkRendering
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lvtkRendering
+else:symbian: LIBS += -lvtkRendering
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lvtkRendering
+
+INCLUDEPATH += $$PWD/../../../usr/include
+DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lQVTK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lQVTK
+else:symbian: LIBS += -lQVTK
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lQVTK
+
+INCLUDEPATH += $$PWD/../../../usr/include
+DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lboost_system
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lboost_system
+else:symbian: LIBS += -lboost_system
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lboost_system
+
+INCLUDEPATH += $$PWD/../../../usr/include
+DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lpcl_visualization
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lpcl_visualization
+else:symbian: LIBS += -lpcl_visualization
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_visualization
+
+INCLUDEPATH += $$PWD/../../../usr/include
+DEPENDPATH += $$PWD/../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lvtkWidgets
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lvtkWidgets
+else:symbian: LIBS += -lvtkWidgets
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lvtkWidgets
+
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lboost_iostreams
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lboost_iostreams
+else:symbian: LIBS += -lboost_iostreams
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lboost_iostreams
+
+INCLUDEPATH += $$PWD/../../../../usr/include
+DEPENDPATH += $$PWD/../../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lboost_thread
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lboost_thread
+else:symbian: LIBS += -lboost_thread
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lboost_thread
+
+INCLUDEPATH += $$PWD/../../../../usr/include
+DEPENDPATH += $$PWD/../../../../usr/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_filters
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_filters
+else:symbian: LIBS += -lpcl_filters
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_filters
+
+INCLUDEPATH += $$PWD/../../../../usr/include
+DEPENDPATH += $$PWD/../../../../usr/include
