@@ -120,6 +120,8 @@ void KinectPclOsc::timeoutSlot ()
   {
     vis_->addPointCloud (temp_cloud, "cloud_pass");
     vis_->resetCameraViewpoint ("cloud_pass");
+//    vis_->createViewPort(0.0, 0.0, 0.5, 1.0, 0);
+    vis_->setCameraPosition(0, 0, -1, 0, 0, 1, 0, 1, 0);
   }
 
   FPS_CALC ("visualization");
