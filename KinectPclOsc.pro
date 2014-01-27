@@ -128,52 +128,7 @@ else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_io_ply
 INCLUDEPATH += $$PWD/../../../usr/include
 DEPENDPATH += $$PWD/../../../usr/include
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lvtkRendering
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lvtkRendering
-else:symbian: LIBS += -lvtkRendering
-else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lvtkRendering
 
-INCLUDEPATH += $$PWD/../../../usr/include
-DEPENDPATH += $$PWD/../../../usr/include
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lQVTK
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lQVTK
-else:symbian: LIBS += -lQVTK
-else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lQVTK
-
-INCLUDEPATH += $$PWD/../../../usr/include
-DEPENDPATH += $$PWD/../../../usr/include
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lboost_system
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lboost_system
-else:symbian: LIBS += -lboost_system
-else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lboost_system
-
-INCLUDEPATH += $$PWD/../../../usr/include
-DEPENDPATH += $$PWD/../../../usr/include
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lpcl_visualization
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lpcl_visualization
-else:symbian: LIBS += -lpcl_visualization
-else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_visualization
-
-INCLUDEPATH += $$PWD/../../../usr/include
-DEPENDPATH += $$PWD/../../../usr/include
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lvtkWidgets
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lvtkWidgets
-else:symbian: LIBS += -lvtkWidgets
-else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lvtkWidgets
-
-
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lboost_iostreams
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lboost_iostreams
-else:symbian: LIBS += -lboost_iostreams
-else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lboost_iostreams
-
-INCLUDEPATH += $$PWD/../../../../usr/include
-DEPENDPATH += $$PWD/../../../../usr/include
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lboost_thread
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lboost_thread

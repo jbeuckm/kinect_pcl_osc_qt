@@ -101,6 +101,10 @@ class KinectPclOsc : public QMainWindow
 
   public slots:
 
+    void adjustZoffset (int new_value)
+    {
+    }
+
     void adjustPassThroughValues (int new_value)
     {
       pass_.setFilterLimits (0.0f, float (new_value) / 10.0f);

@@ -83,7 +83,9 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   
   ui_->fieldValueSlider->setRange (5, 50);
   ui_->fieldValueSlider->setValue (50);
+
   connect (ui_->fieldValueSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustPassThroughValues (int)));
+  connect (ui_->zOffsetSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustZoffset (int)));
 }
 
 
@@ -119,6 +121,7 @@ void KinectPclOsc::timeoutSlot ()
     vis_->addPointCloud (temp_cloud, "cloud_pass");
     vis_->resetCameraViewpoint ("cloud_pass");
   }
+
   FPS_CALC ("visualization");
   ui_->qvtk_widget->update ();
 }
