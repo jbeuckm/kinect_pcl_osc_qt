@@ -122,7 +122,9 @@ class KinectPclOsc : public QMainWindow
     void
     timeoutSlot ();
     
-  signals:
+    void on_pushButton_clicked();
+
+signals:
     void 
     valueChanged (int new_value);
 };

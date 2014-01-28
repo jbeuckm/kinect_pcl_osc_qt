@@ -164,3 +164,8 @@ int main (int argc, char ** argv)
   v.show ();
   return (app.exec ());
 }
+
+void KinectPclOsc::on_pushButton_clicked()
+{
+
+}
