@@ -54,7 +54,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   , cloud_pass_()
   , depth_filter_ ()
   , mtx_ ()
-  , ui_ (new Ui::kpoApp)
+  , ui_ (new Ui::KinectPclOsc)
   , vis_timer_ (new QTimer (this))
 {
   // Create a timer and fire it up every 5ms
@@ -112,7 +112,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   depth_filter_.setInputCloud (compressedCloud);
   depth_filter_.filter (*cloud_pass_);
 
-  pcl_functions_.computeNormals(cloud_pass_, normals_);
+//  pcl_functions_.computeNormals(cloud_pass_, normals_);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -68,7 +68,7 @@ do \
 
 namespace Ui
 {
-  class kpoApp;
+  class KinectPclOsc;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ class KinectPclOsc : public QMainWindow
 
   private:
     QMutex mtx_;
-    Ui::kpoApp *ui_;
+    Ui::KinectPclOsc *ui_;
     QTimer *vis_timer_;
 
     kpoPclFunctions pcl_functions_;
