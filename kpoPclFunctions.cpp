@@ -12,8 +12,9 @@ kpoPclFunctions::kpoPclFunctions()
 }
 
 
-void kpoPclFunctions::computeNormals(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud, pcl::PointCloud<pcl::PointNormal>::Ptr &normals)
+void kpoPclFunctions::computeNormals(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud, pcl::PointCloud<pcl::PointNormal> &normals)
 {
+
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
 
     pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
@@ -25,5 +26,5 @@ void kpoPclFunctions::computeNormals(const pcl::PointCloud<pcl::PointXYZ>::Const
     mls.setSearchMethod (tree);
     mls.setSearchRadius (0.03);
 
-//    mls.process (*normals);
+    mls.process (normals);
 }

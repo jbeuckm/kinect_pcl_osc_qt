@@ -94,7 +94,7 @@ class KinectPclOsc : public QMainWindow
     pcl::OpenNIGrabber& grabber_;
     std::string device_id_;
 
-    pcl::PointCloud<pcl::PointNormal>::Ptr normals_;
+    pcl::PointCloud<pcl::PointNormal> normals_;
     CloudPtr cloud_pass_;
     pcl::PassThrough<pcl::PointXYZ> depth_filter_;
 
