@@ -47,6 +47,8 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/filters/passthrough.h>
 
+#include "kpoPclFunctions.h"
+
 // Useful macros
 #define FPS_CALC(_WHAT_) \
 do \
@@ -98,6 +100,8 @@ class KinectPclOsc : public QMainWindow
     QMutex mtx_;
     Ui::MainWindow *ui_;
     QTimer *vis_timer_;
+
+    kpoPclFunctions pcl_functions_;
 
   public slots:
 

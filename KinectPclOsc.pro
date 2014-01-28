@@ -11,13 +11,15 @@ TEMPLATE = app
 
 
 SOURCES += \
-    kinect_pcl_osc.cpp \
-    oscsender.cpp
+    kpoPclFunctions.cpp \
+    kpoApp.cpp \
+    kpoOscSender.cpp
 
 HEADERS += \
     openni_passthrough_qt.h \
-    kinect_pcl_osc.h \
-    oscsender.h
+    kpoPclFunctions.h \
+    kpoApp.h \
+    kpoOscSender.h
 
 FORMS += \
     kinect_pcl_osc.ui
@@ -122,4 +124,15 @@ win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/releas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_filters
 else:symbian: LIBS += -lpcl_filters
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_filters
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_search
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_search
+else:symbian: LIBS += -lpcl_search
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_search
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_surface
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_surface
+else:symbian: LIBS += -lpcl_surface
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_surface
 

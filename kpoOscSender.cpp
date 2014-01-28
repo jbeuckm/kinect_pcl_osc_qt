@@ -1,4 +1,4 @@
-#include "oscsender.h"
+#include "kpoOscSender.h"
 
 
 oscSender::oscSender()

@@ -35,7 +35,7 @@
  *	
  */
 
-#include "kinect_pcl_osc.h"
+#include "kpoApp.h"
 // QT4
 #include <QApplication>
 #include <QMutexLocker>
@@ -129,6 +129,7 @@ void KinectPclOsc::timeoutSlot ()
   FPS_CALC ("visualization");
   ui_->qvtk_widget->update ();
 }
+
 
 
 int main (int argc, char ** argv)
