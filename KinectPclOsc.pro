@@ -106,6 +106,11 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/
 else:symbian: LIBS += -lpcl_io
 else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_io
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lpcl_octree
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lpcl_octree
+else:symbian: LIBS += -lpcl_octree
+else:unix: LIBS += -L$$PWD/../../../usr/lib/ -lpcl_octree
+
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/lib/release/ -lpcl_io_ply
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/lib/debug/ -lpcl_io_ply

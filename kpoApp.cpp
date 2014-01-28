@@ -96,8 +96,20 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   FPS_CALC ("computation");
 
   // Computation goes here
+  pcl::PointCloud<pcl::PointXYZ>::Ptr compressedCloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+  pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::MED_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
+  std::stringstream compressedData;
+
+  // Compress the cloud (you would save the stream to disk).
+  octreeCompression.encodePointCloud(cloud, compressedData);
+
+  // Decompress the cloud.
+  octreeCompression.decodePointCloud(compressedData, compressedCloud);
+
+
   cloud_pass_.reset (new Cloud);
-  depth_filter_.setInputCloud (cloud);
+  depth_filter_.setInputCloud (compressedCloud);
   depth_filter_.filter (*cloud_pass_);
 
   pcl_functions_.computeNormals(cloud_pass_, normals_);
