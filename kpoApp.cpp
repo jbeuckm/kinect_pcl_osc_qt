@@ -54,7 +54,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   , cloud_pass_()
   , depth_filter_ ()
   , mtx_ ()
-  , ui_ (new Ui::MainWindow)
+  , ui_ (new Ui::kpoApp)
   , vis_timer_ (new QTimer (this))
 {
   // Create a timer and fire it up every 5ms

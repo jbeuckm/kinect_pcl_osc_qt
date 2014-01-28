@@ -26,5 +26,5 @@ void kpoPclFunctions::computeNormals(const pcl::PointCloud<pcl::PointXYZ>::Const
     mls.setSearchMethod (tree);
     mls.setSearchRadius (0.03);
 
-    mls.process (normals);
+//    mls.process (normals);
 }
