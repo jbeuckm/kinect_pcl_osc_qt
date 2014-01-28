@@ -98,7 +98,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   // Computation goes here
   pcl::PointCloud<pcl::PointXYZ>::Ptr compressedCloud(new pcl::PointCloud<pcl::PointXYZ>);
 
-  pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::MED_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
+  pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::LOW_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
   std::stringstream compressedData;
 
   // Compress the cloud (you would save the stream to disk).
