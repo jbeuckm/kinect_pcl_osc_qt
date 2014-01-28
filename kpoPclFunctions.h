@@ -9,7 +9,7 @@ class kpoPclFunctions
 public:
     kpoPclFunctions();
 
-    void computeNormals(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl::PointNormal>::Ptr &normals);
+    void computeNormals(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud, pcl::PointCloud<pcl::PointNormal>::Ptr &normals);
 
 };
 

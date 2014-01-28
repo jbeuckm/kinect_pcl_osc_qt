@@ -12,11 +12,6 @@ oscSender::~oscSender()
 }
 
 
-void oscSender::init()
-{
-
-}
-
 void oscSender::send()
 {
 

@@ -19,7 +19,6 @@ private:
 public:
     oscSender();
     ~oscSender();
-    void init();
 
     void send();
 };

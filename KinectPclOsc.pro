@@ -22,7 +22,7 @@ HEADERS += \
     kpoOscSender.h
 
 FORMS += \
-    kinect_pcl_osc.ui
+    kpoApp.ui
 
 
 LIBS += -L/usr/lib/vtk-5.8

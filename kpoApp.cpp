@@ -52,7 +52,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   , grabber_(grabber)
   , device_id_ ()
   , cloud_pass_()
-  , pass_ ()
+  , depth_filter_ ()
   , mtx_ ()
   , ui_ (new Ui::MainWindow)
   , vis_timer_ (new QTimer (this))
@@ -78,8 +78,8 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   grabber_.start ();
 
   // Set defaults
-  pass_.setFilterFieldName ("z");
-  pass_.setFilterLimits (0.5, 5.0);
+  depth_filter_.setFilterFieldName ("z");
+  depth_filter_.setFilterLimits (0.5, 5.0);
   
   ui_->fieldValueSlider->setRange (5, 50);
   ui_->fieldValueSlider->setValue (50);
@@ -97,8 +97,10 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
   // Computation goes here
   cloud_pass_.reset (new Cloud);
-  pass_.setInputCloud (cloud);
-  pass_.filter (*cloud_pass_);
+  depth_filter_.setInputCloud (cloud);
+  depth_filter_.filter (*cloud_pass_);
+
+  pcl_functions_.computeNormals(cloud_pass_, normals_);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +142,7 @@ int main (int argc, char ** argv)
   // Open the first available camera
   pcl::OpenNIGrabber grabber ("#1");
   // Check if an RGB stream is provided
-  if (!grabber.providesCallback<pcl::OpenNIGrabber::sig_cb_openni_point_cloud_rgb> ())
+  if (!grabber.providesCallback<pcl::OpenNIGrabber::sig_cb_openni_point_cloud> ())
   {
     PCL_ERROR ("Device #1 does not provide an RGB stream!\n");
     return (-1);

@@ -75,7 +75,7 @@ class KinectPclOsc : public QMainWindow
 {
   Q_OBJECT
   public:
-    typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
+    typedef pcl::PointCloud<pcl::PointXYZ> Cloud;
     typedef Cloud::Ptr CloudPtr;
     typedef Cloud::ConstPtr CloudConstPtr;
 
@@ -93,8 +93,10 @@ class KinectPclOsc : public QMainWindow
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;
     pcl::OpenNIGrabber& grabber_;
     std::string device_id_;
+
+    pcl::PointCloud<pcl::PointNormal>::Ptr normals_;
     CloudPtr cloud_pass_;
-    pcl::PassThrough<pcl::PointXYZRGBA> pass_;
+    pcl::PassThrough<pcl::PointXYZ> depth_filter_;
 
   private:
     QMutex mtx_;
@@ -111,7 +113,7 @@ class KinectPclOsc : public QMainWindow
 
     void adjustPassThroughValues (int new_value)
     {
-      pass_.setFilterLimits (0.0f, float (new_value) / 10.0f);
+      depth_filter_.setFilterLimits (0.0f, float (new_value) / 10.0f);
       PCL_INFO ("Changed passthrough maximum value to: %f\n", float (new_value) / 10.0f);
     }
 

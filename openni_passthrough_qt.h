@@ -42,7 +42,7 @@
 #pragma GCC system_header
 #endif
 
-#include <ui_kinect_pcl_osc.h>
+#include <ui_kpoApp.h>
 // QT4
 #include <QMainWindow>
 #include <QMutex>
