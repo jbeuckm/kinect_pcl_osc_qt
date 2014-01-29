@@ -75,6 +75,7 @@ namespace Ui
 class KinectPclOsc : public QMainWindow
 {
   Q_OBJECT
+
   public:
     typedef pcl::PointCloud<pcl::PointXYZ> Cloud;
     typedef Cloud::Ptr CloudPtr;
@@ -105,6 +106,7 @@ class KinectPclOsc : public QMainWindow
     QTimer *vis_timer_;
 
     kpoPclFunctions pcl_functions_;
+    bool paused_;
 
   public slots:
 

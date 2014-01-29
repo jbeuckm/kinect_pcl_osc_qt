@@ -57,6 +57,8 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   , ui_ (new Ui::KinectPclOsc)
   , vis_timer_ (new QTimer (this))
 {
+  paused_ = false;
+
   // Create a timer and fire it up every 5ms
   vis_timer_->start (5);
 
@@ -92,6 +94,8 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 {
+    if (paused_) return;
+
   QMutexLocker locker (&mtx_);  
   FPS_CALC ("computation");
 
@@ -167,5 +171,5 @@ int main (int argc, char ** argv)
 
 void KinectPclOsc::on_pushButton_clicked()
 {
-
+    paused_ = !paused_;
 }

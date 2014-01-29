@@ -27,3 +27,18 @@ void kpoPclFunctions::computeNormals(const pcl::PointCloud<pcl::PointXYZ>::Const
 
     mls.process (normals);
 }
+
+
+
+void computeShotDescriptors(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud, const pcl::PointCloud<pcl::PointNormal>::ConstPtr &normals)
+{
+/*
+    pcl::SHOTEstimation<... > shot;
+    shot.setSearchMethod (tree); //kdtree
+    shot.setIndices (indices); //keypoints
+    shot.setInputCloud (cloud); //input
+    shot.setInputNormals(normals);//normals
+    shot.setRadiusSearch (0.06); //support
+    shot.compute (*shots); //descriptors
+*/
+}
