@@ -141,3 +141,4 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/deb
 else:symbian: LIBS += -lpcl_surface
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_surface
 
+

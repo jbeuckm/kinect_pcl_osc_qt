@@ -96,8 +96,9 @@ class KinectPclOsc : public QMainWindow
     pcl::OpenNIGrabber& grabber_;
     std::string device_id_;
 
-    pcl::PointCloud<pcl::PointNormal> normals_;
+    pcl::PointCloud<pcl::PointNormal>::Ptr normals_;
     CloudPtr cloud_pass_;
+
     pcl::PassThrough<pcl::PointXYZ> depth_filter_;
 
   private:
@@ -124,7 +125,9 @@ class KinectPclOsc : public QMainWindow
     void
     timeoutSlot ();
     
-    void on_pushButton_clicked();
+    void on_ShowNormalsButton_clicked();
+
+    void on_PauseButton_clicked();
 
 signals:
     void 

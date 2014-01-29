@@ -11,7 +11,7 @@ class kpoPclFunctions
 public:
     kpoPclFunctions();
 
-    void computeNormals(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud, pcl::PointCloud<pcl::PointNormal> &normals);
+    void computeNormals(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud, pcl::PointCloud<pcl::PointNormal>::Ptr &normals);
 
     void computeShotDescriptors(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud, const pcl::PointCloud<pcl::PointNormal>::ConstPtr &normals);
 

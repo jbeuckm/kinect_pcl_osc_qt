@@ -136,17 +136,30 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="PauseButton">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>98</width>
+      <width>141</width>
       <height>27</height>
      </rect>
     </property>
     <property name="text">
      <string>Pause</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ShowNormalsButton">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>141</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show Normals</string>
     </property>
    </widget>
   </widget>

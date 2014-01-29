@@ -116,7 +116,8 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   depth_filter_.setInputCloud (compressedCloud);
   depth_filter_.filter (*cloud_pass_);
 
-//  pcl_functions_.computeNormals(cloud_pass_, normals_);
+  pcl_functions_.computeNormals(cloud_pass_, normals_);
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,9 +130,13 @@ void KinectPclOsc::timeoutSlot ()
   }
 
   CloudPtr temp_cloud;
+  pcl::PointCloud<pcl::PointNormal>::Ptr temp_normals_cloud;
   {
     QMutexLocker locker (&mtx_);
-    temp_cloud.swap (cloud_pass_); 
+
+    temp_cloud.swap (cloud_pass_);
+
+    temp_normals_cloud.swap (normals_);
   }
   // Add to the 3D viewer
   if (!vis_->updatePointCloud (temp_cloud, "cloud_pass"))
@@ -143,6 +148,10 @@ void KinectPclOsc::timeoutSlot ()
                             0, 0, 1, //view
                             0, -1, 0); // up
   }
+
+  vis_->removePointCloud("normals", 0);
+  vis_->addPointCloudNormals<pcl::PointNormal> (temp_normals_cloud, 10, .05, "normals");
+
 
   FPS_CALC ("visualization");
   ui_->qvtk_widget->update ();
@@ -169,7 +178,13 @@ int main (int argc, char ** argv)
   return (app.exec ());
 }
 
-void KinectPclOsc::on_pushButton_clicked()
+
+
+void KinectPclOsc::on_ShowNormalsButton_clicked()
+{
+}
+
+void KinectPclOsc::on_PauseButton_clicked()
 {
     paused_ = !paused_;
 }
