@@ -47,11 +47,19 @@ void kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::C
     uniform_sampling.compute (sampled_indices);
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
     std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
-/*
 
+/*
     pcl::PointCloud<DescriptorType>::Ptr descriptors (new pcl::PointCloud<DescriptorType> ());
     pcl::SHOTEstimation<PointType, NormalType, DescriptorType> shot;
 
+    shot.setRadiusSearch (0.02f);
+
+    shot.setInputCloud (keypoints);
+    shot.setInputNormals (normals);
+    shot.setSearchSurface (cloud);
+//    shot.compute (*descriptors);
+
+    /*
     shot.setSearchMethod (tree); //kdtree
     shot.setIndices (indices); //keypoints
     shot.setInputCloud (cloud); //input

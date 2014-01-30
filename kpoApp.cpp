@@ -134,7 +134,7 @@ void KinectPclOsc::timeoutSlot ()
   }
 
   CloudPtr temp_cloud;
-  pcl::PointCloud<pcl::PointNormal>::Ptr temp_normals_cloud;
+  pcl::PointCloud<NormalType>::Ptr temp_normals_cloud;
   {
     QMutexLocker locker (&mtx_);
 
@@ -155,7 +155,7 @@ void KinectPclOsc::timeoutSlot ()
 
   vis_->removePointCloud("normals", 0);
   if (show_normals_) {
-      vis_->addPointCloudNormals<pcl::PointNormal> (temp_normals_cloud, 10, .05, "normals");
+//      vis_->addPointCloudNormals<NormalType> (temp_normals_cloud, 10, .05, "normals");
   }
 
   FPS_CALC ("visualization");
@@ -199,7 +199,7 @@ void KinectPclOsc::on_computeDescriptorsButton_clicked()
     }
 
     CloudPtr temp_cloud;
-    pcl::PointCloud<pcl::PointNormal>::Ptr temp_normals_cloud;
+    pcl::PointCloud<NormalType>::Ptr temp_normals_cloud;
     {
       QMutexLocker locker (&mtx_);
 

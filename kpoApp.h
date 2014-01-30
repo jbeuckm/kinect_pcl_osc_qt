@@ -81,6 +81,8 @@ class KinectPclOsc : public QMainWindow
     typedef Cloud::Ptr CloudPtr;
     typedef Cloud::ConstPtr CloudConstPtr;
 
+    typedef pcl::PointNormal NormalType;
+
     KinectPclOsc (pcl::OpenNIGrabber& grabber);
 
     ~KinectPclOsc ()
@@ -96,7 +98,7 @@ class KinectPclOsc : public QMainWindow
     pcl::OpenNIGrabber& grabber_;
     std::string device_id_;
 
-    pcl::PointCloud<pcl::PointNormal>::Ptr normals_;
+    pcl::PointCloud<NormalType>::Ptr normals_;
     CloudPtr cloud_pass_;
 
     pcl::PassThrough<pcl::PointXYZ> depth_filter_;
