@@ -58,6 +58,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   , vis_timer_ (new QTimer (this))
 {
   paused_ = false;
+  show_normals_ = false;
 
   // Create a timer and fire it up every 5ms
   vis_timer_->start (5);
@@ -150,7 +151,8 @@ void KinectPclOsc::timeoutSlot ()
   }
 
   vis_->removePointCloud("normals", 0);
-  vis_->addPointCloudNormals<pcl::PointNormal> (temp_normals_cloud, 10, .05, "normals");
+  if (show_normals_)
+      vis_->addPointCloudNormals<pcl::PointNormal> (temp_normals_cloud, 10, .05, "normals");
 
 
   FPS_CALC ("visualization");

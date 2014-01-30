@@ -108,6 +108,7 @@ class KinectPclOsc : public QMainWindow
 
     kpoPclFunctions pcl_functions_;
     bool paused_;
+    bool show_normals_;
 
   public slots:
 
