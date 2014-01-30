@@ -136,30 +136,43 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QPushButton" name="PauseButton">
+   <widget class="QPushButton" name="computeDescriptorsButton">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>141</width>
+      <x>10</x>
+      <y>70</y>
+      <width>171</width>
       <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Compute Descriptors</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="pauseCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>97</width>
+      <height>22</height>
      </rect>
     </property>
     <property name="text">
      <string>Pause</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="ShowNormalsButton">
+   <widget class="QCheckBox" name="computeNormalsCheckbox">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>30</y>
-      <width>141</width>
-      <height>27</height>
+      <x>10</x>
+      <y>40</y>
+      <width>151</width>
+      <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>Show Normals</string>
+     <string>Compute Normals</string>
     </property>
    </widget>
   </widget>

@@ -130,6 +130,12 @@ class KinectPclOsc : public QMainWindow
 
     void on_PauseButton_clicked();
 
+    void on_computeDescriptorsButton_clicked();
+
+    void on_computeNormalsCheckbox_toggled(bool checked);
+
+    void on_pauseCheckBox_toggled(bool checked);
+
 signals:
     void 
     valueChanged (int new_value);

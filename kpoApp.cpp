@@ -58,7 +58,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   , vis_timer_ (new QTimer (this))
 {
   paused_ = false;
-  show_normals_ = false;
+  show_normals_ = true;
 
   // Create a timer and fire it up every 5ms
   vis_timer_->start (5);
@@ -117,6 +117,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   depth_filter_.setInputCloud (compressedCloud);
   depth_filter_.filter (*cloud_pass_);
 
+  if (show_normals_)
   pcl_functions_.computeNormals(cloud_pass_, normals_);
 
 }
@@ -182,11 +183,17 @@ int main (int argc, char ** argv)
 
 
 
-void KinectPclOsc::on_ShowNormalsButton_clicked()
+void KinectPclOsc::on_computeDescriptorsButton_clicked()
 {
+    pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
 }
 
-void KinectPclOsc::on_PauseButton_clicked()
+void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
 {
-    paused_ = !paused_;
+    show_normals_ = checked;
+}
+
+void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
+{
+    paused_ = checked;
 }
