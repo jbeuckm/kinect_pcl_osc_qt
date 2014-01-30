@@ -58,7 +58,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   , vis_timer_ (new QTimer (this))
 {
   paused_ = false;
-  show_normals_ = true;
+  show_normals_ = false;
 
   // Create a timer and fire it up every 5ms
   vis_timer_->start (5);
@@ -117,8 +117,10 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   depth_filter_.setInputCloud (compressedCloud);
   depth_filter_.filter (*cloud_pass_);
 
-  if (show_normals_)
-  pcl_functions_.computeNormals(cloud_pass_, normals_);
+  if (show_normals_) {
+    pcl_functions_.computeNormals(cloud_pass_, normals_);
+    pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
+  }
 
 }
 
@@ -152,9 +154,9 @@ void KinectPclOsc::timeoutSlot ()
   }
 
   vis_->removePointCloud("normals", 0);
-  if (show_normals_)
+  if (show_normals_) {
       vis_->addPointCloudNormals<pcl::PointNormal> (temp_normals_cloud, 10, .05, "normals");
-
+  }
 
   FPS_CALC ("visualization");
   ui_->qvtk_widget->update ();
@@ -185,7 +187,28 @@ int main (int argc, char ** argv)
 
 void KinectPclOsc::on_computeDescriptorsButton_clicked()
 {
-    pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
+    if (!cloud_pass_)
+    {
+        std::cout << "cloud_pass_ looks empty." << std::endl;
+      return;
+    }
+    if (!normals_)
+    {
+       std::cout << "normals_ looks empty." << std::endl;
+      return;
+    }
+
+    CloudPtr temp_cloud;
+    pcl::PointCloud<pcl::PointNormal>::Ptr temp_normals_cloud;
+    {
+      QMutexLocker locker (&mtx_);
+
+      temp_cloud.swap (cloud_pass_);
+
+      temp_normals_cloud.swap (normals_);
+    }
+
+    pcl_functions_.computeShotDescriptors(temp_cloud, temp_normals_cloud);
 }
 
 void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)

@@ -17,9 +17,9 @@ kpoPclFunctions::kpoPclFunctions()
 
 void kpoPclFunctions::computeNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals)
 {
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+    pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType>);
 
-    pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+    pcl::MovingLeastSquares<PointType, NormalType> mls;
 
     mls.setComputeNormals (true);
 
@@ -28,7 +28,7 @@ void kpoPclFunctions::computeNormals(const pcl::PointCloud<PointType>::ConstPtr 
     mls.setSearchMethod (tree);
     mls.setSearchRadius (0.03);
 
-    normals.reset (new pcl::PointCloud<pcl::PointNormal>);
+    normals.reset (new pcl::PointCloud<NormalType>);
     mls.process (*normals);
 }
 
@@ -39,14 +39,15 @@ void kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::C
 
     pcl::PointCloud<int> sampled_indices;
     pcl::PointCloud<PointType>::Ptr keypoints (new pcl::PointCloud<PointType> ());
-/*
+
     pcl::UniformSampling<PointType> uniform_sampling;
     uniform_sampling.setInputCloud (cloud);
     uniform_sampling.setRadiusSearch (ss_);
+
     uniform_sampling.compute (sampled_indices);
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
     std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
-
+/*
 
     pcl::PointCloud<DescriptorType>::Ptr descriptors (new pcl::PointCloud<DescriptorType> ());
     pcl::SHOTEstimation<PointType, NormalType, DescriptorType> shot;

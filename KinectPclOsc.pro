@@ -142,3 +142,9 @@ else:symbian: LIBS += -lpcl_surface
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_surface
 
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_keypoints
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_keypoints
+else:symbian: LIBS += -lpcl_keypoints
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_keypoints
+
+
