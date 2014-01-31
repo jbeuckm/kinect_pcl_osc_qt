@@ -133,31 +133,25 @@ void KinectPclOsc::timeoutSlot ()
     return;
   }
 
-  CloudPtr temp_cloud;
-  pcl::PointCloud<NormalType>::Ptr temp_normals_cloud;
   {
-    QMutexLocker locker (&mtx_);
+      QMutexLocker locker (&mtx_);
 
-    temp_cloud.swap (cloud_pass_);
+      // Add to the 3D viewer
+      if (!vis_->updatePointCloud (cloud_pass_, "cloud_pass"))
+      {
+          vis_->addPointCloud (cloud_pass_, "cloud_pass");
+          vis_->resetCameraViewpoint ("cloud_pass");
 
-    temp_normals_cloud.swap (normals_);
+          vis_->setCameraPosition(0, 0, -1, //position
+                                  0, 0, 1, //view
+                                  0, -1, 0); // up
+      }
+
+      vis_->removePointCloud("normals", 0);
+      if (show_normals_) {
+          vis_->addPointCloudNormals<NormalType> (normals_, 10, .05, "normals");
+      }
   }
-  // Add to the 3D viewer
-  if (!vis_->updatePointCloud (temp_cloud, "cloud_pass"))
-  {
-    vis_->addPointCloud (temp_cloud, "cloud_pass");
-    vis_->resetCameraViewpoint ("cloud_pass");
-
-    vis_->setCameraPosition(0, 0, -1, //position
-                            0, 0, 1, //view
-                            0, -1, 0); // up
-  }
-
-  vis_->removePointCloud("normals", 0);
-  if (show_normals_) {
-//      vis_->addPointCloudNormals<NormalType> (temp_normals_cloud, 10, .05, "normals");
-  }
-
   FPS_CALC ("visualization");
   ui_->qvtk_widget->update ();
 }
