@@ -118,8 +118,12 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   depth_filter_.filter (*cloud_pass_);
 
   if (show_normals_) {
-    pcl_functions_.estimateNormals(cloud_pass_, normals_);
-//    pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
+
+      pcl_functions_.estimateNormals(cloud_pass_, normals_);
+
+      if (compute_descriptors_) {
+        pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
+    }
   }
 
 }
@@ -136,21 +140,36 @@ void KinectPclOsc::timeoutSlot ()
   {
       QMutexLocker locker (&mtx_);
 
-      // Add to the 3D viewer
-      if (!vis_->updatePointCloud (cloud_pass_, "cloud_pass"))
-      {
-          vis_->addPointCloud (cloud_pass_, "cloud_pass");
-          vis_->resetCameraViewpoint ("cloud_pass");
+/*
+      if (show_normals_ && normals_) {
 
-          vis_->setCameraPosition(0, 0, -1, //position
-                                  0, 0, 1, //view
-                                  0, -1, 0); // up
-      }
+          if (!vis_->removePointCloud("cloud_pass", 0)) {
 
-//      vis_->removePointCloud("normals", 0);
-      if (show_normals_) {
-//          vis_->addPointCloudNormals<NormalType> (normals_, 10, .05, "normals");
+              vis_->addPointCloudNormals (cloud_pass_, normals_, 100, .02, "cloud_pass");
+
+              vis_->resetCameraViewpoint ("cloud_pass");
+
+              vis_->setCameraPosition(0, 0, -1, //position
+                                      0, 0, 1, //view
+                                      0, -1, 0); // up
+          }
+          {
+              vis_->addPointCloudNormals (cloud_pass_, normals_, 100, .02, "cloud_pass");
+          }
+
       }
+      else {
+*/
+          if (!vis_->updatePointCloud (cloud_pass_, "cloud_pass"))
+          {
+              vis_->addPointCloud (cloud_pass_, "cloud_pass");
+              vis_->resetCameraViewpoint ("cloud_pass");
+
+              vis_->setCameraPosition(0, 0, -1, //position
+                                      0, 0, 1, //view
+                                      0, -1, 0); // up
+          }
+//      }
   }
   FPS_CALC ("visualization");
   ui_->qvtk_widget->update ();
@@ -213,4 +232,9 @@ void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
 void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
 {
     paused_ = checked;
+}
+
+void KinectPclOsc::on_findSHOTdescriptors_toggled(bool checked)
+{
+    compute_descriptors_ = checked;
 }

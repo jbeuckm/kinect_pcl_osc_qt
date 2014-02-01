@@ -25,7 +25,6 @@ void kpoPclFunctions::estimateNormals(const pcl::PointCloud<PointType>::ConstPtr
     norm_est.setKSearch (10);
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
-
 }
 
 
@@ -43,7 +42,7 @@ void kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::C
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
     std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
 
-/*
+
     pcl::PointCloud<DescriptorType>::Ptr descriptors (new pcl::PointCloud<DescriptorType> ());
     pcl::SHOTEstimation<PointType, NormalType, DescriptorType> shot;
 
@@ -52,7 +51,7 @@ void kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::C
     shot.setInputCloud (keypoints);
     shot.setInputNormals (normals);
     shot.setSearchSurface (cloud);
-//    shot.compute (*descriptors);
+    shot.compute (*descriptors);
 
     /*
     shot.setSearchMethod (tree); //kdtree

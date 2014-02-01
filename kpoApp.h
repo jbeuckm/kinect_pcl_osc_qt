@@ -111,6 +111,7 @@ class KinectPclOsc : public QMainWindow
     kpoPclFunctions pcl_functions_;
     bool paused_;
     bool show_normals_;
+    bool compute_descriptors_;
 
   public slots:
 
@@ -128,15 +129,13 @@ class KinectPclOsc : public QMainWindow
     void
     timeoutSlot ();
     
-    void on_ShowNormalsButton_clicked();
-
-    void on_PauseButton_clicked();
-
     void on_computeDescriptorsButton_clicked();
 
     void on_computeNormalsCheckbox_toggled(bool checked);
 
     void on_pauseCheckBox_toggled(bool checked);
+
+    void on_findSHOTdescriptors_toggled(bool checked);
 
 signals:
     void 
