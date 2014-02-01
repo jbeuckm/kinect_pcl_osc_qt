@@ -136,6 +136,13 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/deb
 else:symbian: LIBS += -lpcl_search
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_search
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_features
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_features
+else:symbian: LIBS += -lpcl_features
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_features
+
+
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_surface
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_surface
 else:symbian: LIBS += -lpcl_surface
