@@ -136,7 +136,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void KinectPclOsc::timeoutSlot ()
 {
-  if (!cloud_pass_)
+  if (!cloud_pass_ || paused_)
   {
     boost::this_thread::sleep (boost::posix_time::milliseconds (1));
     return;
