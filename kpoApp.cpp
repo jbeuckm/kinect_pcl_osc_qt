@@ -101,7 +101,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   FPS_CALC ("computation");
 
   // Computation goes here
-  pcl::PointCloud<pcl::PointXYZ>::Ptr compressedCloud(new pcl::PointCloud<pcl::PointXYZ>);
+  CloudPtr compressedCloud(new Cloud);
 
   pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::LOW_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
   std::stringstream compressedData;
@@ -119,10 +119,13 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
   if (show_normals_) {
 
+      normals_.reset (new pcl::PointCloud<NormalType>);
       pcl_functions_.estimateNormals(cloud_pass_, normals_);
 
       if (compute_descriptors_) {
-        pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
+
+            descriptors_.reset(new pcl::PointCloud<DescriptorType>);
+          pcl_functions_.computeShotDescriptors(cloud_pass_, normals_, descriptors_);
     }
   }
 
@@ -221,7 +224,7 @@ void KinectPclOsc::on_computeDescriptorsButton_clicked()
       temp_normals_cloud.swap (normals_);
     }
 
-    pcl_functions_.computeShotDescriptors(temp_cloud, temp_normals_cloud);
+//    pcl_functions_.computeShotDescriptors(temp_cloud, temp_normals_cloud);
 }
 
 void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
