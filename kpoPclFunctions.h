@@ -10,13 +10,13 @@ class kpoPclFunctions
 {
 public:
     typedef pcl::PointXYZ PointType;
-    typedef pcl::PointNormal NormalType;
+    typedef pcl::Normal NormalType;
     typedef pcl::ReferenceFrame RFType;
     typedef pcl::SHOT352 DescriptorType;
 
     kpoPclFunctions();
 
-    void computeNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals);
+    void estimateNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals);
 
     void computeShotDescriptors(const pcl::PointCloud<PointType>::ConstPtr &cloud, const pcl::PointCloud<NormalType>::ConstPtr &normals);
 

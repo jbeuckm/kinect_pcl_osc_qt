@@ -81,7 +81,7 @@ class KinectPclOsc : public QMainWindow
     typedef Cloud::Ptr CloudPtr;
     typedef Cloud::ConstPtr CloudConstPtr;
 
-    typedef pcl::PointNormal NormalType;
+    typedef pcl::Normal NormalType;
 
     KinectPclOsc (pcl::OpenNIGrabber& grabber);
 

@@ -6,6 +6,7 @@
 #include <pcl/surface/mls.h>
 
 #include <pcl/search/kdtree.h>
+#include <pcl/features/normal_3d_omp.h>
 #include <pcl/keypoints/uniform_sampling.h>
 
 
@@ -15,23 +16,17 @@ kpoPclFunctions::kpoPclFunctions()
 }
 
 
-void kpoPclFunctions::computeNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals)
+
+void kpoPclFunctions::estimateNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals)
 {
-    pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType>);
-
-    pcl::MovingLeastSquares<PointType, NormalType> mls;
-
-    mls.setComputeNormals (true);
-
-    mls.setInputCloud (cloud);
-    mls.setPolynomialFit (true);
-    mls.setSearchMethod (tree);
-    mls.setSearchRadius (0.03);
-
     normals.reset (new pcl::PointCloud<NormalType>);
-    mls.process (*normals);
-}
+    pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
 
+    norm_est.setKSearch (10);
+    norm_est.setInputCloud (cloud);
+    norm_est.compute (*normals);
+
+}
 
 
 void kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::ConstPtr &cloud, const pcl::PointCloud<NormalType>::ConstPtr &normals)

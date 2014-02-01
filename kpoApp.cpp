@@ -118,8 +118,8 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   depth_filter_.filter (*cloud_pass_);
 
   if (show_normals_) {
-    pcl_functions_.computeNormals(cloud_pass_, normals_);
-    pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
+    pcl_functions_.estimateNormals(cloud_pass_, normals_);
+//    pcl_functions_.computeShotDescriptors(cloud_pass_, normals_);
   }
 
 }
@@ -147,9 +147,9 @@ void KinectPclOsc::timeoutSlot ()
                                   0, -1, 0); // up
       }
 
-      vis_->removePointCloud("normals", 0);
+//      vis_->removePointCloud("normals", 0);
       if (show_normals_) {
-          vis_->addPointCloudNormals<NormalType> (normals_, 10, .05, "normals");
+//          vis_->addPointCloudNormals<NormalType> (normals_, 10, .05, "normals");
       }
   }
   FPS_CALC ("visualization");
