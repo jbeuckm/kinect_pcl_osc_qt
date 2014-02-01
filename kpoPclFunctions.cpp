@@ -20,7 +20,7 @@ void kpoPclFunctions::estimateNormals(const pcl::PointCloud<PointType>::ConstPtr
 {
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
 
-    norm_est.setKSearch (5);
+    norm_est.setKSearch (10);
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
 }

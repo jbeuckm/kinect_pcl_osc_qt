@@ -139,6 +139,10 @@ class KinectPclOsc : public QMainWindow
 
     void on_findSHOTdescriptors_toggled(bool checked);
 
+    void on_pushButton_clicked();
+
+    void on_saveDescriptorButton_clicked();
+
 signals:
     void 
     valueChanged (int new_value);

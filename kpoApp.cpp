@@ -41,8 +41,10 @@
 #include <QMutexLocker>
 #include <QEvent>
 #include <QObject>
+#include <QFileDialog>
 // PCL
 #include <pcl/console/parse.h>
+#include <pcl/io/pcd_io.h>
 
 #include <vtkRenderWindow.h>
 
@@ -240,4 +242,23 @@ void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
 void KinectPclOsc::on_findSHOTdescriptors_toggled(bool checked)
 {
     compute_descriptors_ = checked;
+}
+
+
+void KinectPclOsc::on_saveDescriptorButton_clicked()
+{
+    paused_ = true;
+
+    QString objectName =  ui_->objectNameTextInput->text();
+
+    std::cout << "will save object " << objectName.toStdString() << std::endl;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Descriptor"),
+                                "descriptor.dsc",
+                                tr("Descriptors (*.dsc)"));
+
+    if (!fileName.isEmpty()) {
+        pcl::PCDWriter writer;
+        writer.write<DescriptorType> (fileName.toStdString(), *descriptors_, false);
+    }
 }
