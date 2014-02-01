@@ -37,11 +37,7 @@
 
 #include "kpoApp.h"
 // QT4
-#include <QApplication>
-#include <QMutexLocker>
-#include <QEvent>
-#include <QObject>
-#include <QFileDialog>
+
 // PCL
 #include <pcl/console/parse.h>
 #include <pcl/io/pcd_io.h>
@@ -90,7 +86,12 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   ui_->fieldValueSlider->setValue (50);
 
   connect (ui_->fieldValueSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustPassThroughValues (int)));
-  connect (ui_->zOffsetSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustZoffset (int)));
+
+  modelListModel = new QStringListModel(this);
+  QStringList list;
+  list << "hello" << "world";
+  modelListModel->setStringList(list);
+  ui_->modelListView->setModel(modelListModel);
 }
 
 
@@ -105,7 +106,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   // Computation goes here
   CloudPtr compressedCloud(new Cloud);
 
-  pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::LOW_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
+  pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::HIGH_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
   std::stringstream compressedData;
 
   // Compress the cloud (you would save the stream to disk).
@@ -128,6 +129,12 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
             descriptors_.reset(new pcl::PointCloud<DescriptorType>);
           pcl_functions_.computeShotDescriptors(cloud_pass_, normals_, descriptors_);
+
+          if (match_models_) {
+
+
+
+          }
     }
   }
 
@@ -203,32 +210,6 @@ int main (int argc, char ** argv)
 
 
 
-void KinectPclOsc::on_computeDescriptorsButton_clicked()
-{
-    if (!cloud_pass_)
-    {
-        std::cout << "cloud_pass_ looks empty." << std::endl;
-      return;
-    }
-    if (!normals_)
-    {
-       std::cout << "normals_ looks empty." << std::endl;
-      return;
-    }
-
-    CloudPtr temp_cloud;
-    pcl::PointCloud<NormalType>::Ptr temp_normals_cloud;
-    {
-      QMutexLocker locker (&mtx_);
-
-      temp_cloud.swap (cloud_pass_);
-
-      temp_normals_cloud.swap (normals_);
-    }
-
-//    pcl_functions_.computeShotDescriptors(temp_cloud, temp_normals_cloud);
-}
-
 void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
 {
     show_normals_ = checked;
@@ -261,4 +242,10 @@ void KinectPclOsc::on_saveDescriptorButton_clicked()
         pcl::PCDWriter writer;
         writer.write<DescriptorType> (fileName.toStdString(), *descriptors_, false);
     }
+}
+
+
+void KinectPclOsc::on_matchModelsCheckbox_toggled(bool checked)
+{
+    match_models_ = checked;
 }

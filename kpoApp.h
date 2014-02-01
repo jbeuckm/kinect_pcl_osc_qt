@@ -38,6 +38,13 @@
 #ifndef PCL_APPS_OPENNI_PASSTHROUGH_3D_
 #define PCL_APPS_OPENNI_PASSTHROUGH_3D_
 
+#include <QApplication>
+#include <QMutexLocker>
+#include <QEvent>
+#include <QObject>
+#include <QFileDialog>
+#include <QStringListModel>
+
 // PCL
 #include "openni_passthrough_qt.h"
 #include <pcl/point_cloud.h>
@@ -99,27 +106,28 @@ class KinectPclOsc : public QMainWindow
     pcl::OpenNIGrabber& grabber_;
     std::string device_id_;
 
+    CloudPtr cloud_pass_;
     pcl::PointCloud<NormalType>::Ptr normals_;
     pcl::PointCloud<DescriptorType>::Ptr descriptors_;
-    CloudPtr cloud_pass_;
+
+    std::vector<pcl::PointCloud<DescriptorType>::Ptr> models_;
 
     pcl::PassThrough<pcl::PointXYZ> depth_filter_;
 
   private:
-    QMutex mtx_;
     Ui::KinectPclOsc *ui_;
+    QStringListModel *modelListModel;
+
+    QMutex mtx_;
     QTimer *vis_timer_;
 
     kpoPclFunctions pcl_functions_;
     bool paused_;
     bool show_normals_;
     bool compute_descriptors_;
+    bool match_models_;
 
   public slots:
-
-    void adjustZoffset (int new_value)
-    {
-    }
 
     void adjustPassThroughValues (int new_value)
     {
@@ -131,7 +139,6 @@ class KinectPclOsc : public QMainWindow
     void
     timeoutSlot ();
     
-    void on_computeDescriptorsButton_clicked();
 
     void on_computeNormalsCheckbox_toggled(bool checked);
 
@@ -139,13 +146,12 @@ class KinectPclOsc : public QMainWindow
 
     void on_findSHOTdescriptors_toggled(bool checked);
 
-    void on_pushButton_clicked();
-
     void on_saveDescriptorButton_clicked();
 
+    void on_matchModelsCheckbox_toggled(bool checked);
+
 signals:
-    void 
-    valueChanged (int new_value);
+    void valueChanged (int new_value);
 };
 
 #endif    // PCL_APPS_OPENNI_PASSTHROUGH_3D_
