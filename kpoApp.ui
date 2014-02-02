@@ -148,7 +148,7 @@
      <rect>
       <x>10</x>
       <y>150</y>
-      <width>141</width>
+      <width>121</width>
       <height>27</height>
      </rect>
     </property>
@@ -200,6 +200,19 @@
       <width>256</width>
       <height>281</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="loadDescriptorButton">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>150</y>
+      <width>131</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Descriptor</string>
     </property>
    </widget>
   </widget>

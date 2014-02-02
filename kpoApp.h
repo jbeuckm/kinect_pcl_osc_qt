@@ -106,9 +106,9 @@ class KinectPclOsc : public QMainWindow
     pcl::OpenNIGrabber& grabber_;
     std::string device_id_;
 
-    CloudPtr cloud_pass_;
+    CloudPtr scene_cloud_;
     pcl::PointCloud<NormalType>::Ptr normals_;
-    pcl::PointCloud<DescriptorType>::Ptr descriptors_;
+    pcl::PointCloud<DescriptorType>::Ptr scene_descriptors_;
 
     std::vector<pcl::PointCloud<DescriptorType>::Ptr> models_;
 
@@ -127,6 +127,9 @@ class KinectPclOsc : public QMainWindow
     bool compute_descriptors_;
     bool match_models_;
 
+    void saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors);
+    void loadDescriptors(string filename);
+
   public slots:
 
     void adjustPassThroughValues (int new_value)
@@ -136,8 +139,7 @@ class KinectPclOsc : public QMainWindow
     }
 
   private slots:
-    void
-    timeoutSlot ();
+    void timeoutSlot ();
     
 
     void on_computeNormalsCheckbox_toggled(bool checked);
@@ -149,6 +151,8 @@ class KinectPclOsc : public QMainWindow
     void on_saveDescriptorButton_clicked();
 
     void on_matchModelsCheckbox_toggled(bool checked);
+
+    void on_loadDescriptorButton_clicked();
 
 signals:
     void valueChanged (int new_value);

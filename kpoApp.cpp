@@ -49,7 +49,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
   : vis_ ()
   , grabber_(grabber)
   , device_id_ ()
-  , cloud_pass_()
+  , scene_cloud_()
   , depth_filter_ ()
   , mtx_ ()
   , ui_ (new Ui::KinectPclOsc)
@@ -116,23 +116,26 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   octreeCompression.decodePointCloud(compressedData, compressedCloud);
 
 
-  cloud_pass_.reset (new Cloud);
+  scene_cloud_.reset (new Cloud);
   depth_filter_.setInputCloud (compressedCloud);
-  depth_filter_.filter (*cloud_pass_);
+  depth_filter_.filter (*scene_cloud_);
 
   if (show_normals_) {
 
       normals_.reset (new pcl::PointCloud<NormalType>);
-      pcl_functions_.estimateNormals(cloud_pass_, normals_);
+      pcl_functions_.estimateNormals(scene_cloud_, normals_);
 
       if (compute_descriptors_) {
 
-            descriptors_.reset(new pcl::PointCloud<DescriptorType>);
-          pcl_functions_.computeShotDescriptors(cloud_pass_, normals_, descriptors_);
+            scene_descriptors_.reset(new pcl::PointCloud<DescriptorType>);
+          pcl_functions_.computeShotDescriptors(scene_cloud_, normals_, scene_descriptors_);
 
           if (match_models_) {
 
-
+              for(std::vector<pcl::PointCloud<DescriptorType>::Ptr>::iterator it = models_.begin(); it != models_.end(); ++it) {
+                  /* std::cout << *it; ... */
+                  pcl_functions_.matchModelInScene(scene_descriptors_, *it);
+              }
 
           }
     }
@@ -143,7 +146,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void KinectPclOsc::timeoutSlot ()
 {
-  if (!cloud_pass_ || paused_)
+  if (!scene_cloud_ || paused_)
   {
     boost::this_thread::sleep (boost::posix_time::milliseconds (1));
     return;
@@ -172,9 +175,9 @@ void KinectPclOsc::timeoutSlot ()
       }
       else {
 */
-          if (!vis_->updatePointCloud (cloud_pass_, "cloud_pass"))
+          if (!vis_->updatePointCloud (scene_cloud_, "cloud_pass"))
           {
-              vis_->addPointCloud (cloud_pass_, "cloud_pass");
+              vis_->addPointCloud (scene_cloud_, "cloud_pass");
               vis_->resetCameraViewpoint ("cloud_pass");
 
               vis_->setCameraPosition(0, 0, -1, //position
@@ -230,18 +233,49 @@ void KinectPclOsc::on_saveDescriptorButton_clicked()
 {
     paused_ = true;
 
-    QString objectName =  ui_->objectNameTextInput->text();
+    std::string objectname =  ui_->objectNameTextInput->text().toStdString();
 
-    std::cout << "will save object " << objectName.toStdString() << std::endl;
+    std::cout << "will save object " << objectname << std::endl;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Descriptor"),
-                                "descriptor.dsc",
+    std::replace( objectname.begin(), objectname.end(), ' ', '_');
+
+    QString defaultFilename = QString::fromUtf8(objectname.c_str()) + QString(".descriptor.pcd");
+
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save Descriptor"),
+                                defaultFilename,
                                 tr("Descriptors (*.dsc)"));
 
-    if (!fileName.isEmpty()) {
-        pcl::PCDWriter writer;
-        writer.write<DescriptorType> (fileName.toStdString(), *descriptors_, false);
+    if (!filename.isEmpty()) {
     }
+}
+
+void KinectPclOsc::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
+{
+    pcl::PCDWriter writer;
+    writer.write<DescriptorType> (filename, *scene_descriptors_, false);
+
+    models_.push_back(scene_descriptors_);
+}
+
+void KinectPclOsc::on_loadDescriptorButton_clicked()
+{
+    QString filename = QFileDialog::getOpenFileName(this, tr("Load Descriptor"),
+                                                     "",
+                                                     tr("Files (*.descriptor.pcd)"));
+
+    if (!filename.isEmpty()) {
+        loadDescriptors(filename.toStdString());
+    }
+}
+
+void KinectPclOsc::loadDescriptors(string filename)
+{
+    pcl::PointCloud<DescriptorType>::Ptr model_descriptors_;
+
+    pcl::PCDReader reader;
+    reader.read<DescriptorType> (filename, *model_descriptors_);
+
+    models_.push_back(model_descriptors_);
 }
 
 
@@ -249,3 +283,4 @@ void KinectPclOsc::on_matchModelsCheckbox_toggled(bool checked)
 {
     match_models_ = checked;
 }
+
