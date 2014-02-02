@@ -54,6 +54,7 @@
 #include <pcl/common/time.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/filters/passthrough.h>
+#include <pcl/keypoints/uniform_sampling.h>
 
 #include "kpoPclFunctions.h"
 
@@ -84,12 +85,17 @@ class KinectPclOsc : public QMainWindow
   Q_OBJECT
 
   public:
-    typedef pcl::PointCloud<pcl::PointXYZ> Cloud;
+    typedef pcl::PointXYZ PointType;
+
+    typedef pcl::PointCloud<PointType> Cloud;
     typedef Cloud::Ptr CloudPtr;
     typedef Cloud::ConstPtr CloudConstPtr;
 
-    typedef pcl::SHOT352 DescriptorType;
     typedef pcl::Normal NormalType;
+    typedef pcl::PointCloud<NormalType> NormalCloud;
+
+    typedef pcl::SHOT352 DescriptorType;
+    typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 
     KinectPclOsc (pcl::OpenNIGrabber& grabber);
 
@@ -100,6 +106,7 @@ class KinectPclOsc : public QMainWindow
     }
     
     void cloud_callback (const CloudConstPtr& cloud);
+    void pause();
 
   protected:
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;
@@ -107,16 +114,20 @@ class KinectPclOsc : public QMainWindow
     std::string device_id_;
 
     CloudPtr scene_cloud_;
-    pcl::PointCloud<NormalType>::Ptr normals_;
-    pcl::PointCloud<DescriptorType>::Ptr scene_descriptors_;
+    NormalCloud::Ptr scene_normals_;
+    DescriptorCloud::Ptr scene_descriptors_;
 
-    std::vector<pcl::PointCloud<DescriptorType>::Ptr> models_;
+    std::vector<DescriptorCloud::Ptr> models_;
 
-    pcl::PassThrough<pcl::PointXYZ> depth_filter_;
+    pcl::PassThrough<PointType> depth_filter_;
+
+    pcl::UniformSampling<PointType> uniform_sampling;
+    float grabber_downsampling_radius_;
 
   private:
     Ui::KinectPclOsc *ui_;
     QStringListModel *modelListModel;
+    void addStringToModelsList(string str);
 
     QMutex mtx_;
     QTimer *vis_timer_;
@@ -127,16 +138,12 @@ class KinectPclOsc : public QMainWindow
     bool compute_descriptors_;
     bool match_models_;
 
-    void saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors);
+    void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
     void loadDescriptors(string filename);
 
   public slots:
 
-    void adjustPassThroughValues (int new_value)
-    {
-      depth_filter_.setFilterLimits (0.0f, float (new_value) / 10.0f);
-      PCL_INFO ("Changed passthrough maximum value to: %f\n", float (new_value) / 10.0f);
-    }
+    void adjustPassThroughValues (int new_value);
 
   private slots:
     void timeoutSlot ();
@@ -153,6 +160,8 @@ class KinectPclOsc : public QMainWindow
     void on_matchModelsCheckbox_toggled(bool checked);
 
     void on_loadDescriptorButton_clicked();
+
+    void on_presampleRadiusSlider_valueChanged(int value);
 
 signals:
     void valueChanged (int new_value);

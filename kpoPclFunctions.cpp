@@ -1,24 +1,14 @@
 #include "kpoPclFunctions.h"
-#include <pcl/common/io.h>
-
-#include <pcl/surface/mls.h>
-
-#include <pcl/search/kdtree.h>
-#include <pcl/features/normal_3d_omp.h>
-#include <pcl/keypoints/uniform_sampling.h>
-
-#include <pcl/features/shot_omp.h>
 
 kpoPclFunctions::kpoPclFunctions()
 {
-    ss_ = .01f;
+    downsampling_radius_ = .01f;
 }
 
 
 
 void kpoPclFunctions::estimateNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals)
 {
-    pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
 
     norm_est.setKSearch (10);
     norm_est.setInputCloud (cloud);
@@ -32,16 +22,14 @@ void kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::C
     pcl::PointCloud<int> sampled_indices;
     pcl::PointCloud<PointType>::Ptr keypoints (new pcl::PointCloud<PointType> ());
 
-    pcl::UniformSampling<PointType> uniform_sampling;
     uniform_sampling.setInputCloud (cloud);
-    uniform_sampling.setRadiusSearch (ss_);
+    uniform_sampling.setRadiusSearch (downsampling_radius_);
 
     uniform_sampling.compute (sampled_indices);
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
     std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
 
 
-    pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> shot;
 
     shot.setRadiusSearch (0.02f);
 
@@ -65,7 +53,6 @@ void kpoPclFunctions::matchModelInScene(const pcl::PointCloud<DescriptorType>::C
 {
     pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
-    pcl::KdTreeFLANN<DescriptorType> match_search;
     match_search.setInputCloud (model_descriptors);
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.

@@ -4,6 +4,12 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include <pcl/common/io.h>
+#include <pcl/surface/mls.h>
+#include <pcl/keypoints/uniform_sampling.h>
+#include <pcl/features/shot_omp.h>
+#include <pcl/features/normal_3d_omp.h>
+#include <pcl/search/kdtree.h>
 
 
 class kpoPclFunctions
@@ -24,8 +30,12 @@ public:
 
 private:
 
-    float ss_;
+    float downsampling_radius_;
 
+    pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
+    pcl::UniformSampling<PointType> uniform_sampling;
+    pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> shot;
+    pcl::KdTreeFLANN<DescriptorType> match_search;
 };
 
 #endif // PCL_FUNCTIONS_H

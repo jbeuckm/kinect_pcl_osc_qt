@@ -89,9 +89,11 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
 
   modelListModel = new QStringListModel(this);
   QStringList list;
-  list << "hello" << "world";
+
   modelListModel->setStringList(list);
   ui_->modelListView->setModel(modelListModel);
+
+  grabber_downsampling_radius_ = .005f;
 }
 
 
@@ -106,6 +108,8 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
   // Computation goes here
   CloudPtr compressedCloud(new Cloud);
 
+  if (false) {
+
   pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::HIGH_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
   std::stringstream compressedData;
 
@@ -114,7 +118,17 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
   // Decompress the cloud.
   octreeCompression.decodePointCloud(compressedData, compressedCloud);
+    }
+  else {
+      pcl::PointCloud<int> sampled_indices;
 
+      uniform_sampling.setInputCloud (cloud);
+      uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
+
+      uniform_sampling.compute (sampled_indices);
+      pcl::copyPointCloud (*cloud, sampled_indices.points, *compressedCloud);
+
+  }
 
   scene_cloud_.reset (new Cloud);
   depth_filter_.setInputCloud (compressedCloud);
@@ -122,13 +136,13 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
   if (show_normals_) {
 
-      normals_.reset (new pcl::PointCloud<NormalType>);
-      pcl_functions_.estimateNormals(scene_cloud_, normals_);
+      scene_normals_.reset (new pcl::PointCloud<NormalType>);
+      pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
 
       if (compute_descriptors_) {
 
-            scene_descriptors_.reset(new pcl::PointCloud<DescriptorType>);
-          pcl_functions_.computeShotDescriptors(scene_cloud_, normals_, scene_descriptors_);
+          scene_descriptors_.reset(new pcl::PointCloud<DescriptorType>);
+          pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
 
           if (match_models_) {
 
@@ -138,7 +152,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
               }
 
           }
-    }
+      }
   }
 
 }
@@ -212,10 +226,10 @@ int main (int argc, char ** argv)
 }
 
 
-
-void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
+void KinectPclOsc::adjustPassThroughValues (int new_value)
 {
-    show_normals_ = checked;
+  depth_filter_.setFilterLimits (0.0f, float (new_value) / 10.0f);
+  PCL_INFO ("Changed passthrough maximum value to: %f\n", float (new_value) / 10.0f);
 }
 
 void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
@@ -223,15 +237,35 @@ void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
     paused_ = checked;
 }
 
+
+void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
+{
+    show_normals_ = checked;
+    ui_->findSHOTdescriptors->setEnabled(checked);
+    if (show_normals_) {
+
+    }
+    else {
+
+    }
+}
+
+
 void KinectPclOsc::on_findSHOTdescriptors_toggled(bool checked)
 {
     compute_descriptors_ = checked;
 }
 
+void KinectPclOsc::pause()
+{
+    paused_ = true;
+    ui_->pauseCheckBox->setChecked(true);
+}
+
 
 void KinectPclOsc::on_saveDescriptorButton_clicked()
 {
-    paused_ = true;
+    pause();
 
     std::string objectname =  ui_->objectNameTextInput->text().toStdString();
 
@@ -246,6 +280,7 @@ void KinectPclOsc::on_saveDescriptorButton_clicked()
                                 tr("Descriptors (*.dsc)"));
 
     if (!filename.isEmpty()) {
+        saveDescriptors(filename.toStdString(), scene_descriptors_);
     }
 }
 
@@ -255,10 +290,21 @@ void KinectPclOsc::saveDescriptors(string filename, const pcl::PointCloud<Descri
     writer.write<DescriptorType> (filename, *scene_descriptors_, false);
 
     models_.push_back(scene_descriptors_);
+
+    addStringToModelsList(filename);
+}
+
+void KinectPclOsc::addStringToModelsList(string str)
+{
+    modelListModel->insertRow(modelListModel->rowCount());
+    QModelIndex index = modelListModel->index(modelListModel->rowCount()-1);
+    modelListModel->setData(index, QString(str.c_str()));
 }
 
 void KinectPclOsc::on_loadDescriptorButton_clicked()
 {
+    pause();
+
     QString filename = QFileDialog::getOpenFileName(this, tr("Load Descriptor"),
                                                      "",
                                                      tr("Files (*.descriptor.pcd)"));
@@ -270,12 +316,13 @@ void KinectPclOsc::on_loadDescriptorButton_clicked()
 
 void KinectPclOsc::loadDescriptors(string filename)
 {
-    pcl::PointCloud<DescriptorType>::Ptr model_descriptors_;
+    pcl::PointCloud<DescriptorType>::Ptr model_descriptors_(new pcl::PointCloud<DescriptorType>());
 
     pcl::PCDReader reader;
     reader.read<DescriptorType> (filename, *model_descriptors_);
 
     models_.push_back(model_descriptors_);
+    addStringToModelsList(filename);
 }
 
 
@@ -284,3 +331,8 @@ void KinectPclOsc::on_matchModelsCheckbox_toggled(bool checked)
     match_models_ = checked;
 }
 
+
+void KinectPclOsc::on_presampleRadiusSlider_valueChanged(int value)
+{
+    grabber_downsampling_radius_ = .5f / float(value);
+}

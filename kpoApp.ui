@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>932</width>
-    <height>521</height>
+    <height>624</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,9 +38,9 @@
    <widget class="QVTKWidget" name="qvtk_widget">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>350</x>
       <y>10</y>
-      <width>621</width>
+      <width>571</width>
       <height>441</height>
      </rect>
     </property>
@@ -131,6 +131,9 @@
     </property>
    </widget>
    <widget class="QCheckBox" name="findSHOTdescriptors">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -197,7 +200,7 @@
      <rect>
       <x>10</x>
       <y>220</y>
-      <width>256</width>
+      <width>321</width>
       <height>281</height>
      </rect>
     </property>
@@ -213,6 +216,35 @@
     </property>
     <property name="text">
      <string>Load Descriptor</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="presampleRadiusSlider">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>550</y>
+      <width>571</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>520</y>
+      <width>121</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Presample Radius</string>
     </property>
    </widget>
   </widget>
