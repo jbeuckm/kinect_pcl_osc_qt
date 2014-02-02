@@ -27,9 +27,7 @@ void kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::C
 
     uniform_sampling.compute (sampled_indices);
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
-    std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
-
-
+//    std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
 
     shot.setRadiusSearch (0.02f);
 
@@ -56,7 +54,8 @@ void kpoPclFunctions::matchModelInScene(const pcl::PointCloud<DescriptorType>::C
     match_search.setInputCloud (model_descriptors);
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
-    for (size_t i = 0; i < scene_descriptors->size (); ++i)
+    size_t size = scene_descriptors->size ();
+    for (size_t i = 0; i < size; ++i)
     {
       std::vector<int> neigh_indices (1);
       std::vector<float> neigh_sqr_dists (1);
@@ -71,5 +70,5 @@ void kpoPclFunctions::matchModelInScene(const pcl::PointCloud<DescriptorType>::C
         model_scene_corrs->push_back (corr);
       }
     }
-    std::cout << "Correspondences found: " << model_scene_corrs->size () << std::endl;
+    std::cout << "Correspondences found: " << std::setprecision(2) << float(model_scene_corrs->size()) / float(size) << std::endl;
 }
