@@ -102,8 +102,8 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
-  QMutexLocker locker (&mtx_);  
-  FPS_CALC ("computation");
+  QMutexLocker locker (&mtx_);
+//  FPS_CALC ("computation");
 
   // Computation goes here
   CloudPtr compressedCloud(new Cloud);
@@ -200,7 +200,7 @@ void KinectPclOsc::timeoutSlot ()
           }
 //      }
   }
-  FPS_CALC ("visualization");
+//  FPS_CALC ("visualization");
   ui_->qvtk_widget->update ();
 }
 
@@ -298,7 +298,7 @@ void KinectPclOsc::addStringToModelsList(string str)
 {
     modelListModel->insertRow(modelListModel->rowCount());
     QModelIndex index = modelListModel->index(modelListModel->rowCount()-1);
-    modelListModel->setData(index, QString(str.c_str()));
+    modelListModel->setData(index, QString(str.c_str()).section("/",-1,-1) );
 }
 
 void KinectPclOsc::on_loadDescriptorButton_clicked()
