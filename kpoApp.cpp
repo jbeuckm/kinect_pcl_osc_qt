@@ -142,13 +142,20 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
       if (compute_descriptors_) {
 
           scene_descriptors_.reset(new pcl::PointCloud<DescriptorType>);
-          pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
+          scene_keypoints_ = pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
 
           if (match_models_) {
 
-              for(std::vector<pcl::PointCloud<DescriptorType>::Ptr>::iterator it = models_.begin(); it != models_.end(); ++it) {
-                  /* std::cout << *it; ... */
-                  pcl_functions_.matchModelInScene(scene_descriptors_, *it);
+              for(std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
+
+                  pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
+
+                  pcl_functions_.matchModelInScene(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
+
+                  std::vector<pcl::Correspondences> clustered;
+                  clustered = pcl_functions_.clusterCorrespondences(scene_keypoints_, (*it)->keypoints, model_scene_corrs);
+
+                  std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
               }
 
           }
@@ -289,7 +296,8 @@ void KinectPclOsc::saveDescriptors(string filename, const pcl::PointCloud<Descri
     pcl::PCDWriter writer;
     writer.write<DescriptorType> (filename, *scene_descriptors_, false);
 
-    models_.push_back(scene_descriptors_);
+    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_keypoints_, scene_descriptors_));
+    models_.push_back(object_desc);
 
     addStringToModelsList(filename);
 }
@@ -321,7 +329,7 @@ void KinectPclOsc::loadDescriptors(string filename)
     pcl::PCDReader reader;
     reader.read<DescriptorType> (filename, *model_descriptors_);
 
-    models_.push_back(model_descriptors_);
+//    models_.push_back(model_descriptors_);
     addStringToModelsList(filename);
 }
 

@@ -13,13 +13,15 @@ TEMPLATE = app
 SOURCES += \
     kpoPclFunctions.cpp \
     kpoApp.cpp \
-    kpoOscSender.cpp
+    kpoOscSender.cpp \
+    kpoObjectDescription.cpp
 
 HEADERS += \
     openni_passthrough_qt.h \
     kpoPclFunctions.h \
     kpoApp.h \
-    kpoOscSender.h
+    kpoOscSender.h \
+    kpoObjectDescription.h
 
 FORMS += \
     kpoApp.ui
@@ -153,5 +155,11 @@ win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/releas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_keypoints
 else:symbian: LIBS += -lpcl_keypoints
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_keypoints
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_recognition
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_recognition
+else:symbian: LIBS += -lpcl_recognition
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_recognition
 
 

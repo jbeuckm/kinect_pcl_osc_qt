@@ -57,6 +57,7 @@
 #include <pcl/keypoints/uniform_sampling.h>
 
 #include "kpoPclFunctions.h"
+#include "kpoObjectDescription.h"
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \
@@ -101,8 +102,9 @@ class KinectPclOsc : public QMainWindow
 
     ~KinectPclOsc ()
     {
-      if (grabber_.isRunning ())
+      if (grabber_.isRunning ()) {
         grabber_.stop ();
+      }
     }
     
     void cloud_callback (const CloudConstPtr& cloud);
@@ -114,10 +116,11 @@ class KinectPclOsc : public QMainWindow
     std::string device_id_;
 
     CloudPtr scene_cloud_;
+    CloudPtr scene_keypoints_;
     NormalCloud::Ptr scene_normals_;
     DescriptorCloud::Ptr scene_descriptors_;
 
-    std::vector<DescriptorCloud::Ptr> models_;
+    std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
 
     pcl::PassThrough<PointType> depth_filter_;
 
