@@ -42,13 +42,28 @@ public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr computeShotDescriptors(const pcl::PointCloud<PointType>::ConstPtr &cloud, const pcl::PointCloud<NormalType>::ConstPtr &normals, pcl::PointCloud<DescriptorType>::Ptr &descriptors);
 
     void matchModelInScene(const pcl::PointCloud<DescriptorType>::ConstPtr &scene_descriptors, const pcl::PointCloud<DescriptorType>::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
+
     std::vector<pcl::Correspondences> clusterCorrespondences(const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints, const pcl::PointCloud<PointType>::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
+
+    std::vector<pcl::Correspondences> houghCorrespondences(
+            const pcl::PointCloud<PointType>::ConstPtr &scene_cloud,
+            const pcl::PointCloud<NormalType>::ConstPtr &scene_normals,
+            const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints,
+            const pcl::PointCloud<PointType>::ConstPtr &model_cloud,
+            const pcl::PointCloud<NormalType>::ConstPtr &model_normals,
+            const pcl::PointCloud<PointType>::ConstPtr &model_keypoints,
+            const pcl::CorrespondencesPtr &model_scene_corrs);
 
 
 private:
 
     float downsampling_radius_;
     float shot_radius_;
+    float rf_rad_;
+
+    float cg_size_;
+    float cg_thresh_;
+
 
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
     pcl::UniformSampling<PointType> uniform_sampling;

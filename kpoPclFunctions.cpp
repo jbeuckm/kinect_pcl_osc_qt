@@ -4,6 +4,11 @@ kpoPclFunctions::kpoPclFunctions()
 {
     downsampling_radius_ = .01f;
     shot_radius_ = 0.02f;
+
+    cg_size_ = 0.01f;
+    cg_thresh_ = 5.0f;
+
+    rf_rad_ = 0.015f;
 }
 
 
@@ -77,9 +82,7 @@ void kpoPclFunctions::matchModelInScene(const pcl::PointCloud<DescriptorType>::C
 std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints, const pcl::PointCloud<PointType>::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs)
 {
     std::vector<pcl::Correspondences> clustered_corrs;
-
-    float cg_size_ (0.01f);
-    float cg_thresh_ (5.0f);
+    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
     gc_clusterer.setGCSize (cg_size_);
     gc_clusterer.setGCThreshold (cg_thresh_);
@@ -88,9 +91,62 @@ std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const 
     gc_clusterer.setSceneCloud (scene_keypoints);
     gc_clusterer.setModelSceneCorrespondences (model_scene_corrs);
 
-    gc_clusterer.cluster (clustered_corrs);
-    //gc_clusterer.recognize (rototranslations, clustered_corrs);
+//    gc_clusterer.cluster (clustered_corrs);
+    gc_clusterer.recognize (rototranslations, clustered_corrs);
+    std::cout << "model instances: " << rototranslations.size() << std::endl;
 
     return clustered_corrs;
 }
 
+
+std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
+        const pcl::PointCloud<PointType>::ConstPtr &scene_cloud,
+        const pcl::PointCloud<NormalType>::ConstPtr &scene_normals,
+        const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints,
+        const pcl::PointCloud<PointType>::ConstPtr &model_cloud,
+        const pcl::PointCloud<NormalType>::ConstPtr &model_normals,
+        const pcl::PointCloud<PointType>::ConstPtr &model_keypoints,
+        const pcl::CorrespondencesPtr &model_scene_corrs)
+{
+    std::vector<pcl::Correspondences> clustered_corrs;
+    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
+
+    //
+    //  Compute (Keypoints) Reference Frames only for Hough
+    //
+    pcl::PointCloud<RFType>::Ptr model_rf (new pcl::PointCloud<RFType> ());
+    pcl::PointCloud<RFType>::Ptr scene_rf (new pcl::PointCloud<RFType> ());
+
+    pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
+    rf_est.setFindHoles (true);
+
+    rf_est.setRadiusSearch (rf_rad_);
+
+    rf_est.setInputCloud (model_keypoints);
+    rf_est.setInputNormals (model_normals);
+    rf_est.setSearchSurface (model_cloud);
+    rf_est.compute (*model_rf);
+
+    rf_est.setInputCloud (scene_keypoints);
+    rf_est.setInputNormals (scene_normals);
+    rf_est.setSearchSurface (scene_cloud);
+    rf_est.compute (*scene_rf);
+
+    //  Clustering
+    pcl::Hough3DGrouping<PointType, PointType, RFType, RFType> clusterer;
+    clusterer.setHoughBinSize (cg_size_);
+    clusterer.setHoughThreshold (cg_thresh_);
+    clusterer.setUseInterpolation (true);
+    clusterer.setUseDistanceWeight (false);
+
+    clusterer.setInputCloud (model_keypoints);
+    clusterer.setInputRf (model_rf);
+    clusterer.setSceneCloud (scene_keypoints);
+    clusterer.setSceneRf (scene_rf);
+    clusterer.setModelSceneCorrespondences (model_scene_corrs);
+
+    //clusterer.cluster (clustered_corrs);
+    clusterer.recognize (rototranslations, clustered_corrs);
+
+    return clustered_corrs;
+}
