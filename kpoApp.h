@@ -98,6 +98,9 @@ class KinectPclOsc : public QMainWindow
     typedef pcl::SHOT352 DescriptorType;
     typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 
+    typedef pcl::ReferenceFrame RFType;
+    typedef pcl::PointCloud<RFType> RFCloud;
+
     KinectPclOsc (pcl::OpenNIGrabber& grabber);
 
     ~KinectPclOsc ()

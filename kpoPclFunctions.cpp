@@ -13,7 +13,7 @@ kpoPclFunctions::kpoPclFunctions()
 
 
 
-void kpoPclFunctions::estimateNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals)
+void kpoPclFunctions::estimateNormals(const PointCloud::ConstPtr &cloud, NormalCloud::Ptr &normals)
 {
     norm_est.setKSearch (10);
     norm_est.setInputCloud (cloud);
@@ -21,7 +21,7 @@ void kpoPclFunctions::estimateNormals(const pcl::PointCloud<PointType>::ConstPtr
 }
 
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr kpoPclFunctions::computeShotDescriptors(const pcl::PointCloud<PointType>::ConstPtr &cloud, const pcl::PointCloud<NormalType>::ConstPtr &normals, pcl::PointCloud<DescriptorType>::Ptr &descriptors)
+pcl::PointCloud<pcl::PointXYZ>::Ptr kpoPclFunctions::computeShotDescriptors(const PointCloud::ConstPtr &cloud, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
 {
 
     pcl::PointCloud<int> sampled_indices;
@@ -53,7 +53,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr kpoPclFunctions::computeShotDescriptors(cons
 }
 
 
-void kpoPclFunctions::matchModelInScene(const pcl::PointCloud<DescriptorType>::ConstPtr &scene_descriptors, const pcl::PointCloud<DescriptorType>::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
+void kpoPclFunctions::matchModelInScene(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
 {
 
     match_search.setInputCloud (model_descriptors);
@@ -100,40 +100,16 @@ std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const 
 
 
 std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
-        const pcl::PointCloud<PointType>::ConstPtr &scene_cloud,
-        const pcl::PointCloud<NormalType>::ConstPtr &scene_normals,
-        const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints,
-        const pcl::PointCloud<PointType>::ConstPtr &model_cloud,
-        const pcl::PointCloud<NormalType>::ConstPtr &model_normals,
-        const pcl::PointCloud<PointType>::ConstPtr &model_keypoints,
+        const PointCloud::ConstPtr &scene_keypoints,
+        const RFCloud::ConstPtr &scene_rf,
+        const PointCloud::ConstPtr &model_keypoints,
+        const RFCloud::ConstPtr &model_rf,
         const pcl::CorrespondencesPtr &model_scene_corrs)
 {
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
-    //
-    //  Compute (Keypoints) Reference Frames only for Hough
-    //
-    pcl::PointCloud<RFType>::Ptr model_rf (new pcl::PointCloud<RFType> ());
-    pcl::PointCloud<RFType>::Ptr scene_rf (new pcl::PointCloud<RFType> ());
 
-    pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
-    rf_est.setFindHoles (true);
-
-    rf_est.setRadiusSearch (rf_rad_);
-
-    rf_est.setInputCloud (model_keypoints);
-    rf_est.setInputNormals (model_normals);
-    rf_est.setSearchSurface (model_cloud);
-    rf_est.compute (*model_rf);
-
-    rf_est.setInputCloud (scene_keypoints);
-    rf_est.setInputNormals (scene_normals);
-    rf_est.setSearchSurface (scene_cloud);
-    rf_est.compute (*scene_rf);
-
-    //  Clustering
-    pcl::Hough3DGrouping<PointType, PointType, RFType, RFType> clusterer;
     clusterer.setHoughBinSize (cg_size_);
     clusterer.setHoughThreshold (cg_thresh_);
     clusterer.setUseInterpolation (true);
@@ -149,4 +125,24 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
     clusterer.recognize (rototranslations, clustered_corrs);
 
     return clustered_corrs;
+}
+
+
+void kpoPclFunctions::estimateReferenceFrames(const PointCloud::ConstPtr &cloud,
+                             const NormalCloud::ConstPtr &normals,
+                             const PointCloud::ConstPtr &keypoints,
+                             RFCloud::Ptr &rf)
+{
+    if (!rf) {
+        rf.reset(new pcl::PointCloud<RFType> ());
+    }
+
+    rf_est.setFindHoles (true);
+
+    rf_est.setRadiusSearch (rf_rad_);
+
+    rf_est.setInputCloud (keypoints);
+    rf_est.setInputNormals (normals);
+    rf_est.setSearchSurface (cloud);
+    rf_est.compute (*rf);
 }

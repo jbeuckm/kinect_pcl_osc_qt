@@ -31,9 +31,16 @@ class kpoPclFunctions
 {
 public:
     typedef pcl::PointXYZ PointType;
+    typedef pcl::PointCloud<PointType> PointCloud;
+
     typedef pcl::Normal NormalType;
+    typedef pcl::PointCloud<NormalType> NormalCloud;
+
     typedef pcl::ReferenceFrame RFType;
+    typedef pcl::PointCloud<RFType> RFCloud;
+
     typedef pcl::SHOT352 DescriptorType;
+    typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 
     kpoPclFunctions();
 
@@ -46,13 +53,16 @@ public:
     std::vector<pcl::Correspondences> clusterCorrespondences(const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints, const pcl::PointCloud<PointType>::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
 
     std::vector<pcl::Correspondences> houghCorrespondences(
-            const pcl::PointCloud<PointType>::ConstPtr &scene_cloud,
-            const pcl::PointCloud<NormalType>::ConstPtr &scene_normals,
-            const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints,
-            const pcl::PointCloud<PointType>::ConstPtr &model_cloud,
-            const pcl::PointCloud<NormalType>::ConstPtr &model_normals,
-            const pcl::PointCloud<PointType>::ConstPtr &model_keypoints,
+            const PointCloud::ConstPtr &scene_keypoints,
+            const RFCloud::ConstPtr &scene_rf,
+            const PointCloud::ConstPtr &model_keypoints,
+            const RFCloud::ConstPtr &model_rf,
             const pcl::CorrespondencesPtr &model_scene_corrs);
+
+    void estimateReferenceFrames(const pcl::PointCloud<PointType>::ConstPtr &cloud,
+                                 const pcl::PointCloud<NormalType>::ConstPtr &normals,
+                                 const pcl::PointCloud<PointType>::ConstPtr &keypoints,
+                                 pcl::PointCloud<RFType>::Ptr &rf);
 
 
 private:
@@ -71,6 +81,9 @@ private:
     pcl::KdTreeFLANN<DescriptorType> match_search;
 
     pcl::GeometricConsistencyGrouping<PointType, PointType> gc_clusterer;
+
+    pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
+    pcl::Hough3DGrouping<PointType, PointType, RFType, RFType> clusterer;
 };
 
 #endif // PCL_FUNCTIONS_H

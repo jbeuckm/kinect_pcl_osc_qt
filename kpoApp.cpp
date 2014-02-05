@@ -156,6 +156,9 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
                   clustered = pcl_functions_.clusterCorrespondences(scene_keypoints_, (*it)->keypoints, model_scene_corrs);
 
                   std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
+
+                  RFCloud::Ptr model_rf (new RFCloud ());
+                  RFCloud::Ptr scene_rf (new RFCloud ());
               }
 
           }
