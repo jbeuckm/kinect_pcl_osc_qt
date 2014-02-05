@@ -32,7 +32,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- *	
+ *
  */
 
 #include "kpoApp.h"
@@ -46,54 +46,54 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
-  : vis_ ()
-  , grabber_(grabber)
-  , device_id_ ()
-  , scene_cloud_()
-  , depth_filter_ ()
-  , mtx_ ()
-  , ui_ (new Ui::KinectPclOsc)
-  , vis_timer_ (new QTimer (this))
+    : vis_ ()
+    , grabber_(grabber)
+    , device_id_ ()
+    , scene_cloud_()
+    , depth_filter_ ()
+    , mtx_ ()
+    , ui_ (new Ui::KinectPclOsc)
+    , vis_timer_ (new QTimer (this))
 {
-  paused_ = false;
-  show_normals_ = false;
+    paused_ = false;
+    show_normals_ = false;
 
-  // Create a timer and fire it up every 5ms
-  vis_timer_->start (5);
+    // Create a timer and fire it up every 5ms
+    vis_timer_->start (5);
 
-  connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot ()));
+    connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot ()));
 
-  ui_->setupUi (this);
+    ui_->setupUi (this);
 
-  this->setWindowTitle ("Kinect > PCL > OSC");
-  vis_.reset (new pcl::visualization::PCLVisualizer ("", false));
-  ui_->qvtk_widget->SetRenderWindow (vis_->getRenderWindow ());
-  vis_->setupInteractor (ui_->qvtk_widget->GetInteractor (), ui_->qvtk_widget->GetRenderWindow ());
-  vis_->getInteractorStyle ()->setKeyboardModifier (pcl::visualization::INTERACTOR_KB_MOD_SHIFT);
-  ui_->qvtk_widget->update (); 
+    this->setWindowTitle ("Kinect > PCL > OSC");
+    vis_.reset (new pcl::visualization::PCLVisualizer ("", false));
+    ui_->qvtk_widget->SetRenderWindow (vis_->getRenderWindow ());
+    vis_->setupInteractor (ui_->qvtk_widget->GetInteractor (), ui_->qvtk_widget->GetRenderWindow ());
+    vis_->getInteractorStyle ()->setKeyboardModifier (pcl::visualization::INTERACTOR_KB_MOD_SHIFT);
+    ui_->qvtk_widget->update ();
 
-  // Start the OpenNI data acquision
-  boost::function<void (const CloudConstPtr&)> f = boost::bind (&KinectPclOsc::cloud_callback, this, _1);
-  boost::signals2::connection c = grabber_.registerCallback (f);
+    // Start the OpenNI data acquision
+    boost::function<void (const CloudConstPtr&)> f = boost::bind (&KinectPclOsc::cloud_callback, this, _1);
+    boost::signals2::connection c = grabber_.registerCallback (f);
 
-  grabber_.start ();
+    grabber_.start ();
 
-  // Set defaults
-  depth_filter_.setFilterFieldName ("z");
-  depth_filter_.setFilterLimits (0.5, 5.0);
-  
-  ui_->fieldValueSlider->setRange (5, 50);
-  ui_->fieldValueSlider->setValue (50);
+    // Set defaults
+    depth_filter_.setFilterFieldName ("z");
+    depth_filter_.setFilterLimits (0.5, 5.0);
 
-  connect (ui_->fieldValueSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustPassThroughValues (int)));
+    ui_->fieldValueSlider->setRange (5, 50);
+    ui_->fieldValueSlider->setValue (50);
 
-  modelListModel = new QStringListModel(this);
-  QStringList list;
+    connect (ui_->fieldValueSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustPassThroughValues (int)));
 
-  modelListModel->setStringList(list);
-  ui_->modelListView->setModel(modelListModel);
+    modelListModel = new QStringListModel(this);
+    QStringList list;
 
-  grabber_downsampling_radius_ = .005f;
+    modelListModel->setStringList(list);
+    ui_->modelListView->setModel(modelListModel);
+
+    grabber_downsampling_radius_ = .005f;
 }
 
 
@@ -102,84 +102,87 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
-  QMutexLocker locker (&mtx_);
-//  FPS_CALC ("computation");
+    QMutexLocker locker (&mtx_);
+    //  FPS_CALC ("computation");
 
-  // Computation goes here
-  CloudPtr compressedCloud(new Cloud);
+    // Computation goes here
+    CloudPtr compressedCloud(new Cloud);
 
-  if (false) {
+    if (false) {
 
-  pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::HIGH_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
-  std::stringstream compressedData;
+        pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::HIGH_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
+        std::stringstream compressedData;
 
-  // Compress the cloud (you would save the stream to disk).
-  octreeCompression.encodePointCloud(cloud, compressedData);
+        // Compress the cloud (you would save the stream to disk).
+        octreeCompression.encodePointCloud(cloud, compressedData);
 
-  // Decompress the cloud.
-  octreeCompression.decodePointCloud(compressedData, compressedCloud);
+        // Decompress the cloud.
+        octreeCompression.decodePointCloud(compressedData, compressedCloud);
     }
-  else {
-      pcl::PointCloud<int> sampled_indices;
+    else {
+        pcl::PointCloud<int> sampled_indices;
 
-      uniform_sampling.setInputCloud (cloud);
-      uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
+        uniform_sampling.setInputCloud (cloud);
+        uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
 
-      uniform_sampling.compute (sampled_indices);
-      pcl::copyPointCloud (*cloud, sampled_indices.points, *compressedCloud);
+        uniform_sampling.compute (sampled_indices);
+        pcl::copyPointCloud (*cloud, sampled_indices.points, *compressedCloud);
 
-  }
+    }
 
-  scene_cloud_.reset (new Cloud);
-  depth_filter_.setInputCloud (compressedCloud);
-  depth_filter_.filter (*scene_cloud_);
+    scene_cloud_.reset (new Cloud);
+    depth_filter_.setInputCloud (compressedCloud);
+    depth_filter_.filter (*scene_cloud_);
 
-  if (show_normals_) {
+    if (show_normals_) {
 
-      scene_normals_.reset (new pcl::PointCloud<NormalType>);
-      pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
+        scene_normals_.reset (new pcl::PointCloud<NormalType>);
+        pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
 
-      if (compute_descriptors_) {
+        if (compute_descriptors_) {
 
-          scene_descriptors_.reset(new pcl::PointCloud<DescriptorType>);
-          scene_keypoints_ = pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
+            scene_descriptors_.reset(new pcl::PointCloud<DescriptorType>);
+            scene_keypoints_ = pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
 
-          if (match_models_) {
 
-              for(std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
+            RFCloud::Ptr scene_rf (new RFCloud ());
+            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf);
 
-                  pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
-                  pcl_functions_.matchModelInScene(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
+            if (match_models_) {
 
-                  std::vector<pcl::Correspondences> clustered;
-                  clustered = pcl_functions_.clusterCorrespondences(scene_keypoints_, (*it)->keypoints, model_scene_corrs);
+                for(std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
-                  std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
+                    pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
-                  RFCloud::Ptr model_rf (new RFCloud ());
-                  RFCloud::Ptr scene_rf (new RFCloud ());
-              }
+                    pcl_functions_.matchModelInScene(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
 
-          }
-      }
-  }
+                    std::vector<pcl::Correspondences> clustered;
+                    clustered = pcl_functions_.clusterCorrespondences(scene_keypoints_, (*it)->keypoints, model_scene_corrs);
+
+                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
+
+                }
+
+            }
+        }
+    }
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void KinectPclOsc::timeoutSlot ()
 {
-  if (!scene_cloud_ || paused_)
-  {
-    boost::this_thread::sleep (boost::posix_time::milliseconds (1));
-    return;
-  }
+    if (!scene_cloud_ || paused_)
+    {
+        boost::this_thread::sleep (boost::posix_time::milliseconds (1));
+        return;
+    }
 
-  {
-      QMutexLocker locker (&mtx_);
+    {
+        QMutexLocker locker (&mtx_);
 
-/*
+        /*
       if (show_normals_ && normals_) {
 
           if (!vis_->removePointCloud("cloud_pass", 0)) {
@@ -199,47 +202,47 @@ void KinectPclOsc::timeoutSlot ()
       }
       else {
 */
-          if (!vis_->updatePointCloud (scene_cloud_, "cloud_pass"))
-          {
-              vis_->addPointCloud (scene_cloud_, "cloud_pass");
-              vis_->resetCameraViewpoint ("cloud_pass");
+        if (!vis_->updatePointCloud (scene_cloud_, "cloud_pass"))
+        {
+            vis_->addPointCloud (scene_cloud_, "cloud_pass");
+            vis_->resetCameraViewpoint ("cloud_pass");
 
-              vis_->setCameraPosition(0, 0, -1, //position
-                                      0, 0, 1, //view
-                                      0, -1, 0); // up
-          }
-//      }
-  }
-//  FPS_CALC ("visualization");
-  ui_->qvtk_widget->update ();
+            vis_->setCameraPosition(0, 0, -1, //position
+                                    0, 0, 1, //view
+                                    0, -1, 0); // up
+        }
+        //      }
+    }
+    //  FPS_CALC ("visualization");
+    ui_->qvtk_widget->update ();
 }
 
 
 
 int main (int argc, char ** argv)
 {
-  // Initialize QT
-  QApplication app (argc, argv); 
+    // Initialize QT
+    QApplication app (argc, argv);
 
-  // Open the first available camera
-  pcl::OpenNIGrabber grabber ("#1");
-  // Check if an RGB stream is provided
-  if (!grabber.providesCallback<pcl::OpenNIGrabber::sig_cb_openni_point_cloud> ())
-  {
-    PCL_ERROR ("Device #1 does not provide an RGB stream!\n");
-    return (-1);
-  }
+    // Open the first available camera
+    pcl::OpenNIGrabber grabber ("#1");
+    // Check if an RGB stream is provided
+    if (!grabber.providesCallback<pcl::OpenNIGrabber::sig_cb_openni_point_cloud> ())
+    {
+        PCL_ERROR ("Device #1 does not provide an RGB stream!\n");
+        return (-1);
+    }
 
-  KinectPclOsc v (grabber);
-  v.show ();
-  return (app.exec ());
+    KinectPclOsc v (grabber);
+    v.show ();
+    return (app.exec ());
 }
 
 
 void KinectPclOsc::adjustPassThroughValues (int new_value)
 {
-  depth_filter_.setFilterLimits (0.0f, float (new_value) / 10.0f);
-  PCL_INFO ("Changed passthrough maximum value to: %f\n", float (new_value) / 10.0f);
+    depth_filter_.setFilterLimits (0.0f, float (new_value) / 10.0f);
+    PCL_INFO ("Changed passthrough maximum value to: %f\n", float (new_value) / 10.0f);
 }
 
 void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
@@ -286,8 +289,8 @@ void KinectPclOsc::on_saveDescriptorButton_clicked()
     QString defaultFilename = QString::fromUtf8(objectname.c_str()) + QString(".descriptor.pcd");
 
     QString filename = QFileDialog::getSaveFileName(this, tr("Save Descriptor"),
-                                defaultFilename,
-                                tr("Descriptors (*.dsc)"));
+                                                    defaultFilename,
+                                                    tr("Descriptors (*.dsc)"));
 
     if (!filename.isEmpty()) {
         saveDescriptors(filename.toStdString(), scene_descriptors_);
@@ -317,8 +320,8 @@ void KinectPclOsc::on_loadDescriptorButton_clicked()
     pause();
 
     QString filename = QFileDialog::getOpenFileName(this, tr("Load Descriptor"),
-                                                     "",
-                                                     tr("Files (*.descriptor.pcd)"));
+                                                    "",
+                                                    tr("Files (*.descriptor.pcd)"));
 
     if (!filename.isEmpty()) {
         loadDescriptors(filename.toStdString());
@@ -332,7 +335,7 @@ void KinectPclOsc::loadDescriptors(string filename)
     pcl::PCDReader reader;
     reader.read<DescriptorType> (filename, *model_descriptors_);
 
-//    models_.push_back(model_descriptors_);
+    //    models_.push_back(model_descriptors_);
     addStringToModelsList(filename);
 }
 
