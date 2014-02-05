@@ -11,13 +11,13 @@ class kpoObjectDescription
 {
 public:
     kpoObjectDescription();
-    kpoObjectDescription(pcl::PointCloud<pcl::PointXYZ>::Ptr _keypoints, pcl::PointCloud<pcl::SHOT352>::Ptr _descriptors);
+    kpoObjectDescription(Cloud::Ptr _cloud, Cloud::Ptr _keypoints, NormalCloud::Ptr _normals, DescriptorCloud::Ptr _descriptors, RFCloud::Ptr _reference_frames);
 
     Cloud::Ptr cloud;
     NormalCloud::Ptr normals;
     Cloud::Ptr keypoints;
-    pcl::PointCloud<pcl::SHOT352>::Ptr descriptors;
-    pcl::PointCloud<pcl::ReferenceFrame>::Ptr reference_frames;
+    DescriptorCloud::Ptr descriptors;
+    RFCloud::Ptr reference_frames;
 
 };
 

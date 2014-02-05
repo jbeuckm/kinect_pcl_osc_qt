@@ -145,6 +145,9 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
             scene_keypoints_ = pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
 
 
+            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
+            std::cout << "resolution = " << res << std::endl;
+
             scene_rf_.reset(new RFCloud ());
             pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
 
@@ -157,10 +160,14 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
                     pcl_functions_.matchModelInScene(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
 
+                    std::cout << "Correspondences found: " << model_scene_corrs->size () << std::endl;
+
                     std::vector<pcl::Correspondences> clustered;
-                    clustered = pcl_functions_.clusterCorrespondences(scene_keypoints_, (*it)->keypoints, model_scene_corrs);
+//                    clustered = pcl_functions_.clusterCorrespondences(scene_keypoints_, (*it)->keypoints, model_scene_corrs);
+                    clustered = pcl_functions_.houghCorrespondences(scene_keypoints_, scene_rf_, (*it)->keypoints, (*it)->reference_frames, model_scene_corrs);
 
                     std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
+
 
                 }
 
@@ -302,7 +309,7 @@ void KinectPclOsc::saveDescriptors(string filename, const pcl::PointCloud<Descri
     pcl::PCDWriter writer;
     writer.write<DescriptorType> (filename, *scene_descriptors_, false);
 
-    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_keypoints_, scene_descriptors_));
+    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_rf_));
     models_.push_back(object_desc);
 
     addStringToModelsList(filename);

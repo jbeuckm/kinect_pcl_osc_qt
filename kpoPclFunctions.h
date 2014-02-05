@@ -54,6 +54,8 @@ public:
             const RFCloud::ConstPtr &model_rf,
             const pcl::CorrespondencesPtr &model_scene_corrs);
 
+    double computeCloudResolution (const Cloud::ConstPtr &cloud);
+
 
 private:
 
