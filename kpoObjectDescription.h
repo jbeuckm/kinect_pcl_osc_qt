@@ -4,15 +4,18 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include "kpo_types.h"
+
+
 class kpoObjectDescription
 {
 public:
     kpoObjectDescription();
     kpoObjectDescription(pcl::PointCloud<pcl::PointXYZ>::Ptr _keypoints, pcl::PointCloud<pcl::SHOT352>::Ptr _descriptors);
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
-    pcl::PointCloud<pcl::Normal>::Ptr normals;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr keypoints;
+    Cloud::Ptr cloud;
+    NormalCloud::Ptr normals;
+    Cloud::Ptr keypoints;
     pcl::PointCloud<pcl::SHOT352>::Ptr descriptors;
     pcl::PointCloud<pcl::ReferenceFrame>::Ptr reference_frames;
 

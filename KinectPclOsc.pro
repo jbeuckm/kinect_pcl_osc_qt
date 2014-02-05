@@ -21,7 +21,8 @@ HEADERS += \
     kpoPclFunctions.h \
     kpoApp.h \
     kpoOscSender.h \
-    kpoObjectDescription.h
+    kpoObjectDescription.h \
+    kpo_types.h
 
 FORMS += \
     kpoApp.ui

@@ -145,8 +145,8 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
             scene_keypoints_ = pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
 
 
-            RFCloud::Ptr scene_rf (new RFCloud ());
-            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf);
+            scene_rf_.reset(new RFCloud ());
+            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
 
 
             if (match_models_) {

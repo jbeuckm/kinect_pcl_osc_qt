@@ -13,7 +13,7 @@ kpoPclFunctions::kpoPclFunctions()
 
 
 
-void kpoPclFunctions::estimateNormals(const PointCloud::ConstPtr &cloud, NormalCloud::Ptr &normals)
+void kpoPclFunctions::estimateNormals(const Cloud::ConstPtr &cloud, NormalCloud::Ptr &normals)
 {
     norm_est.setKSearch (10);
     norm_est.setInputCloud (cloud);
@@ -21,7 +21,7 @@ void kpoPclFunctions::estimateNormals(const PointCloud::ConstPtr &cloud, NormalC
 }
 
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr kpoPclFunctions::computeShotDescriptors(const PointCloud::ConstPtr &cloud, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
+Cloud::Ptr kpoPclFunctions::computeShotDescriptors(const Cloud::ConstPtr &cloud, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
 {
 
     pcl::PointCloud<int> sampled_indices;
@@ -79,7 +79,7 @@ void kpoPclFunctions::matchModelInScene(const DescriptorCloud::ConstPtr &scene_d
 }
 
 
-std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints, const pcl::PointCloud<PointType>::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs)
+std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const Cloud::ConstPtr &scene_keypoints, const Cloud::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs)
 {
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
@@ -100,9 +100,9 @@ std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const 
 
 
 std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
-        const PointCloud::ConstPtr &scene_keypoints,
+        const Cloud::ConstPtr &scene_keypoints,
         const RFCloud::ConstPtr &scene_rf,
-        const PointCloud::ConstPtr &model_keypoints,
+        const Cloud::ConstPtr &model_keypoints,
         const RFCloud::ConstPtr &model_rf,
         const pcl::CorrespondencesPtr &model_scene_corrs)
 {
@@ -128,13 +128,13 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
 }
 
 
-void kpoPclFunctions::estimateReferenceFrames(const PointCloud::ConstPtr &cloud,
+void kpoPclFunctions::estimateReferenceFrames(const Cloud::ConstPtr &cloud,
                              const NormalCloud::ConstPtr &normals,
-                             const PointCloud::ConstPtr &keypoints,
+                             const Cloud::ConstPtr &keypoints,
                              RFCloud::Ptr &rf)
 {
     if (!rf) {
-        rf.reset(new pcl::PointCloud<RFType> ());
+        rf.reset(new RFCloud ());
     }
 
     rf_est.setFindHoles (true);

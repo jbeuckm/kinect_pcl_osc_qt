@@ -58,6 +58,7 @@
 
 #include "kpoPclFunctions.h"
 #include "kpoObjectDescription.h"
+#include "kpo_types.h"
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \
@@ -86,20 +87,6 @@ class KinectPclOsc : public QMainWindow
   Q_OBJECT
 
   public:
-    typedef pcl::PointXYZ PointType;
-
-    typedef pcl::PointCloud<PointType> Cloud;
-    typedef Cloud::Ptr CloudPtr;
-    typedef Cloud::ConstPtr CloudConstPtr;
-
-    typedef pcl::Normal NormalType;
-    typedef pcl::PointCloud<NormalType> NormalCloud;
-
-    typedef pcl::SHOT352 DescriptorType;
-    typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
-
-    typedef pcl::ReferenceFrame RFType;
-    typedef pcl::PointCloud<RFType> RFCloud;
 
     KinectPclOsc (pcl::OpenNIGrabber& grabber);
 
@@ -122,6 +109,7 @@ class KinectPclOsc : public QMainWindow
     CloudPtr scene_keypoints_;
     NormalCloud::Ptr scene_normals_;
     DescriptorCloud::Ptr scene_descriptors_;
+    RFCloud::Ptr scene_rf_;
 
     std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
 

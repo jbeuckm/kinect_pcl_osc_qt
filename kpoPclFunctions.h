@@ -26,43 +26,33 @@
 #include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
 
+#include "kpo_types.h"
 
 class kpoPclFunctions
 {
 public:
-    typedef pcl::PointXYZ PointType;
-    typedef pcl::PointCloud<PointType> PointCloud;
-
-    typedef pcl::Normal NormalType;
-    typedef pcl::PointCloud<NormalType> NormalCloud;
-
-    typedef pcl::ReferenceFrame RFType;
-    typedef pcl::PointCloud<RFType> RFCloud;
-
-    typedef pcl::SHOT352 DescriptorType;
-    typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 
     kpoPclFunctions();
 
-    void estimateNormals(const pcl::PointCloud<PointType>::ConstPtr &cloud, pcl::PointCloud<NormalType>::Ptr &normals);
+    void estimateNormals(const Cloud::ConstPtr &cloud, NormalCloud::Ptr &normals);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr computeShotDescriptors(const pcl::PointCloud<PointType>::ConstPtr &cloud, const pcl::PointCloud<NormalType>::ConstPtr &normals, pcl::PointCloud<DescriptorType>::Ptr &descriptors);
 
-    void matchModelInScene(const pcl::PointCloud<DescriptorType>::ConstPtr &scene_descriptors, const pcl::PointCloud<DescriptorType>::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
+    void matchModelInScene(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
 
-    std::vector<pcl::Correspondences> clusterCorrespondences(const pcl::PointCloud<PointType>::ConstPtr &scene_keypoints, const pcl::PointCloud<PointType>::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
+    std::vector<pcl::Correspondences> clusterCorrespondences(const Cloud::ConstPtr &scene_keypoints, const Cloud::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
+
+    void estimateReferenceFrames(const Cloud::ConstPtr &cloud,
+                                 const NormalCloud::ConstPtr &normals,
+                                 const Cloud::ConstPtr &keypoints,
+                                 RFCloud::Ptr &rf);
 
     std::vector<pcl::Correspondences> houghCorrespondences(
-            const PointCloud::ConstPtr &scene_keypoints,
+            const Cloud::ConstPtr &scene_keypoints,
             const RFCloud::ConstPtr &scene_rf,
-            const PointCloud::ConstPtr &model_keypoints,
+            const Cloud::ConstPtr &model_keypoints,
             const RFCloud::ConstPtr &model_rf,
             const pcl::CorrespondencesPtr &model_scene_corrs);
-
-    void estimateReferenceFrames(const pcl::PointCloud<PointType>::ConstPtr &cloud,
-                                 const pcl::PointCloud<NormalType>::ConstPtr &normals,
-                                 const pcl::PointCloud<PointType>::ConstPtr &keypoints,
-                                 pcl::PointCloud<RFType>::Ptr &rf);
 
 
 private:
