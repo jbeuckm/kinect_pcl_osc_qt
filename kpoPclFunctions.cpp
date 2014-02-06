@@ -9,13 +9,29 @@ kpoPclFunctions::kpoPclFunctions()
     cg_thresh_ = 5.0f;
 
     rf_rad_ = 0.015f;
+
+    norm_est.setKSearch (10);
+
+    uniform_sampling.setRadiusSearch (downsampling_radius_);
+
+    shot.setRadiusSearch (shot_radius_);
+
+    rf_est.setFindHoles (true);
+    rf_est.setRadiusSearch (rf_rad_);
+
+    clusterer.setUseInterpolation (true);
+    clusterer.setUseDistanceWeight (false);
+    clusterer.setHoughBinSize (cg_size_);
+    clusterer.setHoughThreshold (cg_thresh_);
+
+    gc_clusterer.setGCSize (cg_size_);
+    gc_clusterer.setGCThreshold (cg_thresh_);
 }
 
 
 
 void kpoPclFunctions::estimateNormals(const Cloud::ConstPtr &cloud, NormalCloud::Ptr &normals)
 {
-    norm_est.setKSearch (10);
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
 }
@@ -26,7 +42,6 @@ void kpoPclFunctions::downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypo
     pcl::PointCloud<int> sampled_indices;
 
     uniform_sampling.setInputCloud (cloud);
-    uniform_sampling.setRadiusSearch (downsampling_radius_);
 
     uniform_sampling.compute (sampled_indices);
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
@@ -36,7 +51,6 @@ void kpoPclFunctions::downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypo
 
 void kpoPclFunctions::computeShotDescriptors(const Cloud::ConstPtr &cloud, const Cloud::ConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
 {
-    shot.setRadiusSearch (shot_radius_);
 
     shot.setInputCloud (keypoints);
     shot.setInputNormals (normals);
@@ -76,9 +90,6 @@ std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const 
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
-    gc_clusterer.setGCSize (cg_size_);
-    gc_clusterer.setGCThreshold (cg_thresh_);
-
     gc_clusterer.setInputCloud (model_keypoints);
     gc_clusterer.setSceneCloud (scene_keypoints);
     gc_clusterer.setModelSceneCorrespondences (model_scene_corrs);
@@ -100,24 +111,20 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
-    clusterer.setHoughBinSize (cg_size_);
-    clusterer.setHoughThreshold (cg_thresh_);
-    clusterer.setUseInterpolation (true);
-    clusterer.setUseDistanceWeight (false);
-
+/*
     std::cout << "model " << model_keypoints->size() << "/" << model_rf->size() << std::endl;
     std::cout << "scene " << scene_keypoints->size() << "/" << scene_rf->size() << std::endl;
     std::cout << "correspondences " << model_scene_corrs->size() << std::endl;
-
+*/
     clusterer.setInputCloud (model_keypoints);
     clusterer.setInputRf (model_rf);
     clusterer.setSceneCloud (scene_keypoints);
     clusterer.setSceneRf (scene_rf);
     clusterer.setModelSceneCorrespondences (model_scene_corrs);
 
-    //clusterer.cluster (clustered_corrs);
-    clusterer.recognize (rototranslations, clustered_corrs);
-    std::cout << "model instances: " << rototranslations.size() << std::endl;
+    clusterer.cluster (clustered_corrs);
+    //clusterer.recognize (rototranslations, clustered_corrs);
+//    std::cout << "model instances: " << rototranslations.size() << std::endl;
 
     return clustered_corrs;
 }
@@ -131,9 +138,6 @@ void kpoPclFunctions::estimateReferenceFrames(const Cloud::ConstPtr &cloud,
     if (!rf) {
         rf.reset(new RFCloud ());
     }
-
-    rf_est.setFindHoles (true);
-    rf_est.setRadiusSearch (rf_rad_);
 
     rf_est.setInputCloud (keypoints);
     rf_est.setInputNormals (normals);

@@ -107,7 +107,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
     // Computation goes here
     CloudPtr compressedCloud(new Cloud);
-
+/*
     if (false) {
 
         pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::HIGH_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
@@ -129,6 +129,8 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
         pcl::copyPointCloud (*cloud, sampled_indices.points, *compressedCloud);
 
     }
+*/
+    pcl::copyPointCloud (*cloud, *compressedCloud);
 
     scene_cloud_.reset (new Cloud);
     depth_filter_.setInputCloud (compressedCloud);
@@ -148,7 +150,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
             pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
 
 
-            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
+//            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
 //            std::cout << "resolution = " << res << std::endl;
 
             scene_rf_.reset(new RFCloud ());
@@ -163,13 +165,13 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
                     pcl_functions_.correlateDescriptors(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
 
-                    std::cout << "Correspondences found: " << model_scene_corrs->size () << std::endl;
+//                    std::cout << "Correspondences found: " << model_scene_corrs->size () << std::endl;
 
                     std::vector<pcl::Correspondences> clustered;
 
                     clustered = pcl_functions_.houghCorrespondences(scene_keypoints_, scene_rf_, (*it)->keypoints, (*it)->reference_frames, model_scene_corrs);
 
-                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
+//                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
 
 
                 }
