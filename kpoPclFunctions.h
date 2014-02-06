@@ -47,12 +47,8 @@ public:
                                  const Cloud::ConstPtr &keypoints,
                                  RFCloud::Ptr &rf);
 
-    std::vector<pcl::Correspondences> houghCorrespondences(
-            const Cloud::ConstPtr &scene_keypoints,
-            const RFCloud::ConstPtr &scene_rf,
-            const Cloud::ConstPtr &model_keypoints,
-            const RFCloud::ConstPtr &model_rf,
-            const pcl::CorrespondencesPtr &model_scene_corrs);
+    void setHoughSceneCloud(const Cloud::ConstPtr &scene_keypoints, const RFCloud::ConstPtr &scene_rf);
+    std::vector<pcl::Correspondences> houghCorrespondences(const Cloud::ConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs);
 
     double computeCloudResolution (const Cloud::ConstPtr &cloud);
     void downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypoints);

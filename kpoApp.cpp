@@ -67,6 +67,12 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
 
     this->setWindowTitle ("Kinect > PCL > OSC");
     vis_.reset (new pcl::visualization::PCLVisualizer ("", false));
+    vis_->resetCameraViewpoint ("scene_cloud_");
+
+    vis_->setCameraPosition(0, 0, -1, //position
+                            0, 0, 1, //view
+                            0, -1, 0); // up
+
     ui_->qvtk_widget->SetRenderWindow (vis_->getRenderWindow ());
     vis_->setupInteractor (ui_->qvtk_widget->GetInteractor (), ui_->qvtk_widget->GetRenderWindow ());
     vis_->getInteractorStyle ()->setKeyboardModifier (pcl::visualization::INTERACTOR_KB_MOD_SHIFT);
@@ -107,30 +113,16 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
     // Computation goes here
     CloudPtr compressedCloud(new Cloud);
-/*
-    if (false) {
 
-        pcl::io::OctreePointCloudCompression<pcl::PointXYZ> octreeCompression(pcl::io::HIGH_RES_ONLINE_COMPRESSION_WITHOUT_COLOR, true);
-        std::stringstream compressedData;
+    pcl::PointCloud<int> sampled_indices;
 
-        // Compress the cloud (you would save the stream to disk).
-        octreeCompression.encodePointCloud(cloud, compressedData);
 
-        // Decompress the cloud.
-        octreeCompression.decodePointCloud(compressedData, compressedCloud);
-    }
-    else {
-        pcl::PointCloud<int> sampled_indices;
+    uniform_sampling.setInputCloud (cloud);
+    uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
 
-        uniform_sampling.setInputCloud (cloud);
-        uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
+    uniform_sampling.compute (sampled_indices);
+    pcl::copyPointCloud (*cloud, sampled_indices.points, *compressedCloud);
 
-        uniform_sampling.compute (sampled_indices);
-        pcl::copyPointCloud (*cloud, sampled_indices.points, *compressedCloud);
-
-    }
-*/
-    pcl::copyPointCloud (*cloud, *compressedCloud);
 
     scene_cloud_.reset (new Cloud);
     depth_filter_.setInputCloud (compressedCloud);
@@ -159,6 +151,8 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
             if (match_models_) {
 
+                pcl_functions_.setHoughSceneCloud(scene_keypoints_, scene_rf_);
+
                 for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
                     pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
@@ -169,12 +163,14 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
                     std::vector<pcl::Correspondences> clustered;
 
-                    clustered = pcl_functions_.houghCorrespondences(scene_keypoints_, scene_rf_, (*it)->keypoints, (*it)->reference_frames, model_scene_corrs);
+                    clustered = pcl_functions_.houghCorrespondences((*it)->keypoints, (*it)->reference_frames, model_scene_corrs);
 
 //                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
 
-
+                    std::cout << clustered.size() << " ";
                 }
+
+                std::cout << std::endl;
 
             }
         }
@@ -194,36 +190,14 @@ void KinectPclOsc::timeoutSlot ()
     {
         QMutexLocker locker (&mtx_);
 
-        /*
-      if (show_normals_ && normals_) {
+        vis_->removePointCloud("scene_cloud_", 0);
+        vis_->addPointCloud (scene_cloud_, "scene_cloud_");
 
-          if (!vis_->removePointCloud("cloud_pass", 0)) {
-
-              vis_->addPointCloudNormals (cloud_pass_, normals_, 100, .02, "cloud_pass");
-
-              vis_->resetCameraViewpoint ("cloud_pass");
-
-              vis_->setCameraPosition(0, 0, -1, //position
-                                      0, 0, 1, //view
-                                      0, -1, 0); // up
-          }
-          {
-              vis_->addPointCloudNormals (cloud_pass_, normals_, 100, .02, "cloud_pass");
-          }
-
-      }
-      else {
-*/
-        if (!vis_->updatePointCloud (scene_cloud_, "cloud_pass"))
-        {
-            vis_->addPointCloud (scene_cloud_, "cloud_pass");
-            vis_->resetCameraViewpoint ("cloud_pass");
-
-            vis_->setCameraPosition(0, 0, -1, //position
-                                    0, 0, 1, //view
-                                    0, -1, 0); // up
+        if (show_normals_ && scene_normals_) {
+            vis_->removePointCloud("normals", 0);
+            vis_->addPointCloudNormals<PointType, NormalType> (scene_cloud_, scene_normals_, 100, .05, "normals");
+            vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 0.0, 1.0, 1.0, "normals");
         }
-        //      }
     }
     //  FPS_CALC ("visualization");
     ui_->qvtk_widget->update ();

@@ -30,14 +30,14 @@ kpoPclFunctions::kpoPclFunctions()
 
 
 
-void kpoPclFunctions::estimateNormals(const Cloud::ConstPtr &cloud, NormalCloud::Ptr &normals)
+void kpoPclFunctions::estimateNormals(const CloudConstPtr &cloud, NormalCloud::Ptr &normals)
 {
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
 }
 
 
-void kpoPclFunctions::downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypoints)
+void kpoPclFunctions::downSample(const CloudConstPtr &cloud, CloudPtr &keypoints)
 {
     pcl::PointCloud<int> sampled_indices;
 
@@ -45,13 +45,12 @@ void kpoPclFunctions::downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypo
 
     uniform_sampling.compute (sampled_indices);
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
-    std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
+//    std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
 }
 
 
-void kpoPclFunctions::computeShotDescriptors(const Cloud::ConstPtr &cloud, const Cloud::ConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
+void kpoPclFunctions::computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
 {
-
     shot.setInputCloud (keypoints);
     shot.setInputNormals (normals);
     shot.setSearchSurface (cloud);
@@ -61,7 +60,6 @@ void kpoPclFunctions::computeShotDescriptors(const Cloud::ConstPtr &cloud, const
 
 void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
 {
-
     match_search.setInputCloud (model_descriptors);
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
@@ -81,11 +79,10 @@ void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scen
             model_scene_corrs->push_back (corr);
         }
     }
-
 }
 
 
-std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const Cloud::ConstPtr &scene_keypoints, const Cloud::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs)
+std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const CloudConstPtr &scene_keypoints, const CloudConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs)
 {
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
@@ -100,16 +97,17 @@ std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const 
     return clustered_corrs;
 }
 
+void kpoPclFunctions::setHoughSceneCloud(const CloudConstPtr &scene_keypoints, const RFCloud::ConstPtr &scene_rf)
+{
+    clusterer.setSceneCloud (scene_keypoints);
+    clusterer.setSceneRf (scene_rf);
+}
 
-std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
-        const Cloud::ConstPtr &scene_keypoints,
-        const RFCloud::ConstPtr &scene_rf,
-        const Cloud::ConstPtr &model_keypoints,
-        const RFCloud::ConstPtr &model_rf,
-        const pcl::CorrespondencesPtr &model_scene_corrs)
+
+std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(const CloudConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs)
 {
     std::vector<pcl::Correspondences> clustered_corrs;
-    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
+//    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
 /*
     std::cout << "model " << model_keypoints->size() << "/" << model_rf->size() << std::endl;
@@ -118,8 +116,6 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
 */
     clusterer.setInputCloud (model_keypoints);
     clusterer.setInputRf (model_rf);
-    clusterer.setSceneCloud (scene_keypoints);
-    clusterer.setSceneRf (scene_rf);
     clusterer.setModelSceneCorrespondences (model_scene_corrs);
 
     clusterer.cluster (clustered_corrs);
@@ -130,9 +126,9 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
 }
 
 
-void kpoPclFunctions::estimateReferenceFrames(const Cloud::ConstPtr &cloud,
+void kpoPclFunctions::estimateReferenceFrames(const CloudConstPtr &cloud,
                              const NormalCloud::ConstPtr &normals,
-                             const Cloud::ConstPtr &keypoints,
+                             const CloudConstPtr &keypoints,
                              RFCloud::Ptr &rf)
 {
     if (!rf) {
@@ -146,7 +142,7 @@ void kpoPclFunctions::estimateReferenceFrames(const Cloud::ConstPtr &cloud,
 }
 
 
-double kpoPclFunctions::computeCloudResolution (const Cloud::ConstPtr &cloud)
+double kpoPclFunctions::computeCloudResolution (const CloudConstPtr &cloud)
 {
   double res = 0.0;
   int n_points = 0;
