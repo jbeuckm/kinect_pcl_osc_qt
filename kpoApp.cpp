@@ -136,17 +136,20 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
     if (show_normals_) {
 
-        scene_normals_.reset (new pcl::PointCloud<NormalType>);
+        scene_normals_.reset (new NormalCloud ());
         pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
 
         if (compute_descriptors_) {
 
-            scene_descriptors_.reset(new pcl::PointCloud<DescriptorType>);
-            scene_keypoints_ = pcl_functions_.computeShotDescriptors(scene_cloud_, scene_normals_, scene_descriptors_);
+            scene_keypoints_.reset(new Cloud ());
+            pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
+
+            scene_descriptors_.reset(new DescriptorCloud ());
+            pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
 
 
             double res = pcl_functions_.computeCloudResolution(scene_cloud_);
-            std::cout << "resolution = " << res << std::endl;
+//            std::cout << "resolution = " << res << std::endl;
 
             scene_rf_.reset(new RFCloud ());
             pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
@@ -154,16 +157,16 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 
             if (match_models_) {
 
-                for(std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
+                for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
                     pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
-                    pcl_functions_.matchModelInScene(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
+                    pcl_functions_.correlateDescriptors(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
 
                     std::cout << "Correspondences found: " << model_scene_corrs->size () << std::endl;
 
                     std::vector<pcl::Correspondences> clustered;
-//                    clustered = pcl_functions_.clusterCorrespondences(scene_keypoints_, (*it)->keypoints, model_scene_corrs);
+
                     clustered = pcl_functions_.houghCorrespondences(scene_keypoints_, scene_rf_, (*it)->keypoints, (*it)->reference_frames, model_scene_corrs);
 
                     std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;

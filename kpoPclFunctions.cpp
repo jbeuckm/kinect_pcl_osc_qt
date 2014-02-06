@@ -21,39 +21,31 @@ void kpoPclFunctions::estimateNormals(const Cloud::ConstPtr &cloud, NormalCloud:
 }
 
 
-Cloud::Ptr kpoPclFunctions::computeShotDescriptors(const Cloud::ConstPtr &cloud, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
+void kpoPclFunctions::downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypoints)
 {
-
     pcl::PointCloud<int> sampled_indices;
-    pcl::PointCloud<PointType>::Ptr keypoints (new pcl::PointCloud<PointType> ());
 
     uniform_sampling.setInputCloud (cloud);
     uniform_sampling.setRadiusSearch (downsampling_radius_);
 
     uniform_sampling.compute (sampled_indices);
     pcl::copyPointCloud (*cloud, sampled_indices.points, *keypoints);
-//    std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
+    std::cout << "Cloud total points: " << cloud->size () << "; Selected Keypoints: " << keypoints->size () << std::endl;
+}
 
+
+void kpoPclFunctions::computeShotDescriptors(const Cloud::ConstPtr &cloud, const Cloud::ConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
+{
     shot.setRadiusSearch (shot_radius_);
 
     shot.setInputCloud (keypoints);
     shot.setInputNormals (normals);
     shot.setSearchSurface (cloud);
     shot.compute (*descriptors);
-
-    /*
-    shot.setSearchMethod (tree); //kdtree
-    shot.setIndices (indices); //keypoints
-    shot.setInputCloud (cloud); //input
-    shot.setInputNormals(normals);//normals
-    shot.setRadiusSearch (0.06); //support
-    shot.compute (*descriptors); //descriptors
-*/
-    return keypoints;
 }
 
 
-void kpoPclFunctions::matchModelInScene(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
+void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
 {
 
     match_search.setInputCloud (model_descriptors);
@@ -107,7 +99,6 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
 {
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
-
 
     clusterer.setHoughBinSize (cg_size_);
     clusterer.setHoughThreshold (cg_thresh_);

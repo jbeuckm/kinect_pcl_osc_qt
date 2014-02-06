@@ -36,9 +36,9 @@ public:
 
     void estimateNormals(const Cloud::ConstPtr &cloud, NormalCloud::Ptr &normals);
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr computeShotDescriptors(const pcl::PointCloud<PointType>::ConstPtr &cloud, const pcl::PointCloud<NormalType>::ConstPtr &normals, pcl::PointCloud<DescriptorType>::Ptr &descriptors);
+    void computeShotDescriptors(const Cloud::ConstPtr &cloud, const Cloud::ConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
 
-    void matchModelInScene(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
+    void correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
 
     std::vector<pcl::Correspondences> clusterCorrespondences(const Cloud::ConstPtr &scene_keypoints, const Cloud::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
 
@@ -55,6 +55,7 @@ public:
             const pcl::CorrespondencesPtr &model_scene_corrs);
 
     double computeCloudResolution (const Cloud::ConstPtr &cloud);
+    void downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypoints);
 
 
 private:
