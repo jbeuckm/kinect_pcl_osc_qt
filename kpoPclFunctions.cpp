@@ -105,6 +105,10 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(
     clusterer.setUseInterpolation (true);
     clusterer.setUseDistanceWeight (false);
 
+    std::cout << "model " << model_keypoints->size() << "/" << model_rf->size() << std::endl;
+    std::cout << "scene " << scene_keypoints->size() << "/" << scene_rf->size() << std::endl;
+    std::cout << "correspondences " << model_scene_corrs->size() << std::endl;
+
     clusterer.setInputCloud (model_keypoints);
     clusterer.setInputRf (model_rf);
     clusterer.setSceneCloud (scene_keypoints);
@@ -129,7 +133,6 @@ void kpoPclFunctions::estimateReferenceFrames(const Cloud::ConstPtr &cloud,
     }
 
     rf_est.setFindHoles (true);
-
     rf_est.setRadiusSearch (rf_rad_);
 
     rf_est.setInputCloud (keypoints);

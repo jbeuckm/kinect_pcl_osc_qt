@@ -309,8 +309,16 @@ void KinectPclOsc::on_saveDescriptorButton_clicked()
 
 void KinectPclOsc::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
 {
+    /*
     pcl::PCDWriter writer;
     writer.write<DescriptorType> (filename, *scene_descriptors_, false);
+    */
+
+    std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
+    std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
+    std::cout << "saving normals with " << scene_normals_->size() << " points" << std::endl;
+    std::cout << "saving descriptors with " << scene_descriptors_->size() << " points" << std::endl;
+    std::cout << "saving ref frames with " << scene_rf_->size() << " points" << std::endl;
 
     boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_rf_));
     models_.push_back(object_desc);
@@ -358,5 +366,5 @@ void KinectPclOsc::on_matchModelsCheckbox_toggled(bool checked)
 
 void KinectPclOsc::on_presampleRadiusSlider_valueChanged(int value)
 {
-    grabber_downsampling_radius_ = .5f / float(value);
+    grabber_downsampling_radius_ = 0.1f / float(value);
 }
