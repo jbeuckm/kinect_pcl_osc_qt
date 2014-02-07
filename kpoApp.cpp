@@ -56,7 +56,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
     , vis_timer_ (new QTimer (this))
 {
     paused_ = false;
-    show_normals_ = false;
+    estimate_normals_ = false;
 
     // Create a timer and fire it up every 5ms
     vis_timer_->start (5);
@@ -108,6 +108,13 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
+    if (cloud->size() < 100) return;
+
+    process_cloud(cloud);
+}
+
+void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
+{
     QMutexLocker locker (&mtx_);
     //  FPS_CALC ("computation");
 
@@ -128,7 +135,7 @@ void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
     depth_filter_.setInputCloud (compressedCloud);
     depth_filter_.filter (*scene_cloud_);
 
-    if (show_normals_) {
+    if (estimate_normals_) {
 
         scene_normals_.reset (new NormalCloud ());
         pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
@@ -187,13 +194,17 @@ void KinectPclOsc::timeoutSlot ()
         return;
     }
 
+    updateView();
+}
+void KinectPclOsc::updateView()
+{
     {
         QMutexLocker locker (&mtx_);
 
         vis_->removePointCloud("scene_cloud_", 0);
         vis_->addPointCloud (scene_cloud_, "scene_cloud_");
 
-        if (show_normals_ && scene_normals_) {
+        if (estimate_normals_ && scene_normals_) {
             vis_->removePointCloud("normals", 0);
             vis_->addPointCloudNormals<PointType, NormalType> (scene_cloud_, scene_normals_, 100, .05, "normals");
             vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 1.0, 1.0, 0.0, "normals");
@@ -246,9 +257,9 @@ void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
 
 void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
 {
-    show_normals_ = checked;
+    estimate_normals_ = checked;
     ui_->findSHOTdescriptors->setEnabled(checked);
-    if (show_normals_) {
+    if (estimate_normals_) {
 
     }
     else {
@@ -350,4 +361,24 @@ void KinectPclOsc::on_matchModelsCheckbox_toggled(bool checked)
 void KinectPclOsc::on_presampleRadiusSlider_valueChanged(int value)
 {
     grabber_downsampling_radius_ = 0.1f / float(value);
+}
+
+void KinectPclOsc::on_loadRawCloudButton_clicked()
+{
+    pause();
+
+    QString filename = QFileDialog::getOpenFileName(this, tr("Load Raw Cloud"),
+                                                    "",
+                                                    tr("Files (*.pcd)"));
+
+    if (!filename.isEmpty()) {
+
+        CloudPtr cloud(new Cloud());
+
+        pcl::PCDReader reader;
+        reader.read<PointType> (filename.toStdString(), *cloud);
+
+        process_cloud(cloud);
+        updateView();
+    }
 }

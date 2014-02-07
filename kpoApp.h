@@ -98,6 +98,8 @@ class KinectPclOsc : public QMainWindow
     }
     
     void cloud_callback (const CloudConstPtr& cloud);
+    void process_cloud (const CloudConstPtr& cloud);
+
     void pause();
 
   protected:
@@ -128,7 +130,7 @@ class KinectPclOsc : public QMainWindow
 
     kpoPclFunctions pcl_functions_;
     bool paused_;
-    bool show_normals_;
+    bool estimate_normals_;
     bool compute_descriptors_;
     bool match_models_;
 
@@ -141,6 +143,7 @@ class KinectPclOsc : public QMainWindow
 
   private slots:
     void timeoutSlot ();
+    void updateView();
     
 
     void on_computeNormalsCheckbox_toggled(bool checked);
@@ -156,6 +159,8 @@ class KinectPclOsc : public QMainWindow
     void on_loadDescriptorButton_clicked();
 
     void on_presampleRadiusSlider_valueChanged(int value);
+
+    void on_loadRawCloudButton_clicked();
 
 signals:
     void valueChanged (int new_value);

@@ -3,14 +3,14 @@
 kpoPclFunctions::kpoPclFunctions()
 {
     downsampling_radius_ = .01f;
-    shot_radius_ = 0.02f;
+    shot_radius_ = 0.04f;
 
     cg_size_ = 0.01f;
     cg_thresh_ = 5.0f;
 
     rf_rad_ = 0.015f;
 
-    norm_est.setKSearch (10);
+    norm_est.setKSearch (8);
 
     uniform_sampling.setRadiusSearch (downsampling_radius_);
 
