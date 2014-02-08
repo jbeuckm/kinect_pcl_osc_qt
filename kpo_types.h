@@ -9,6 +9,7 @@ typedef Cloud::ConstPtr CloudConstPtr;
 
 typedef pcl::Normal NormalType;
 typedef pcl::PointCloud<NormalType> NormalCloud;
+typedef NormalCloud::Ptr NormalCloudPtr;
 
 typedef pcl::SHOT352 DescriptorType;
 typedef pcl::PointCloud<DescriptorType> DescriptorCloud;

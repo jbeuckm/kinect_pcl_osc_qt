@@ -14,7 +14,6 @@ oscSender::~oscSender()
 
 void oscSender::send()
 {
-
     char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 

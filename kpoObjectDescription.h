@@ -11,7 +11,7 @@ class kpoObjectDescription
 {
 public:
     kpoObjectDescription();
-    kpoObjectDescription(Cloud::Ptr _cloud, Cloud::Ptr _keypoints, NormalCloud::Ptr _normals, DescriptorCloud::Ptr _descriptors, RFCloud::Ptr _reference_frames);
+    kpoObjectDescription(CloudPtr _cloud, CloudPtr _keypoints, NormalCloudPtr _normals, DescriptorCloud::Ptr _descriptors, RFCloud::Ptr _reference_frames);
 
     Cloud::Ptr cloud;
     NormalCloud::Ptr normals;

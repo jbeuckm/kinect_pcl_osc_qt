@@ -34,24 +34,24 @@ public:
 
     kpoPclFunctions();
 
-    void estimateNormals(const Cloud::ConstPtr &cloud, NormalCloud::Ptr &normals);
+    void estimateNormals(const Cloud::ConstPtr &cloud, NormalCloudPtr &normals);
 
-    void computeShotDescriptors(const Cloud::ConstPtr &cloud, const Cloud::ConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
+    void computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
 
     void correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
 
-    std::vector<pcl::Correspondences> clusterCorrespondences(const Cloud::ConstPtr &scene_keypoints, const Cloud::ConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
+    std::vector<pcl::Correspondences> clusterCorrespondences(const CloudConstPtr &scene_keypoints, const CloudConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
 
     void estimateReferenceFrames(const Cloud::ConstPtr &cloud,
                                  const NormalCloud::ConstPtr &normals,
                                  const Cloud::ConstPtr &keypoints,
                                  RFCloud::Ptr &rf);
 
-    void setHoughSceneCloud(const Cloud::ConstPtr &scene_keypoints, const RFCloud::ConstPtr &scene_rf);
-    std::vector<pcl::Correspondences> houghCorrespondences(const Cloud::ConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs);
+    void setHoughSceneCloud(const CloudConstPtr &scene_keypoints, const RFCloud::ConstPtr &scene_rf);
+    std::vector<pcl::Correspondences> houghCorrespondences(const CloudConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs);
 
-    double computeCloudResolution (const Cloud::ConstPtr &cloud);
-    void downSample(const Cloud::ConstPtr &cloud, Cloud::Ptr &keypoints);
+    double computeCloudResolution (const CloudConstPtr &cloud);
+    void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
 
 
 private:

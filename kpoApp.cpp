@@ -303,7 +303,7 @@ void KinectPclOsc::on_saveDescriptorButton_clicked()
 
 void KinectPclOsc::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
 {
-    /*
+    /* @Todo: write all these clouds in a way that can be reloaded
     pcl::PCDWriter writer;
     writer.write<DescriptorType> (filename, *scene_descriptors_, false);
     */

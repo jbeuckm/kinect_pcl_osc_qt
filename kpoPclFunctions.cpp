@@ -30,7 +30,7 @@ kpoPclFunctions::kpoPclFunctions()
 
 
 
-void kpoPclFunctions::estimateNormals(const CloudConstPtr &cloud, NormalCloud::Ptr &normals)
+void kpoPclFunctions::estimateNormals(const CloudConstPtr &cloud, NormalCloudPtr &normals)
 {
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
