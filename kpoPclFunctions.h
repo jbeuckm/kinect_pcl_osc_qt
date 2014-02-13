@@ -17,6 +17,7 @@
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/features/shot_omp.h>
 #include <pcl/features/board.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/keypoints/uniform_sampling.h>
 #include <pcl/recognition/cg/hough_3d.h>
 #include <pcl/recognition/cg/geometric_consistency.h>
@@ -53,6 +54,8 @@ public:
     double computeCloudResolution (const CloudConstPtr &cloud);
     void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
 
+    void removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered_cloud);
+
 
 private:
 
@@ -63,6 +66,7 @@ private:
     float cg_size_;
     float cg_thresh_;
 
+    pcl::StatisticalOutlierRemoval<PointType> sor;
 
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
     pcl::UniformSampling<PointType> uniform_sampling;

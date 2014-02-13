@@ -94,6 +94,7 @@ class KinectPclOsc : public QMainWindow
 
     kpoPclFunctions pcl_functions_;
     bool paused_;
+    bool remove_noise_;
     bool estimate_normals_;
     bool compute_descriptors_;
     bool match_models_;
@@ -125,6 +126,8 @@ class KinectPclOsc : public QMainWindow
     void on_presampleRadiusSlider_valueChanged(int value);
 
     void on_loadRawCloudButton_clicked();
+
+    void on_removeNoiseCheckBox_toggled(bool checked);
 
 signals:
     void valueChanged (int new_value);

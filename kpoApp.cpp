@@ -55,6 +55,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
     , ui_ (new Ui::KinectPclOsc)
     , vis_timer_ (new QTimer (this))
 {
+    remove_noise_ = true;
     paused_ = false;
     estimate_normals_ = false;
 
@@ -117,6 +118,12 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
 {
     QMutexLocker locker (&mtx_);
     //  FPS_CALC ("computation");
+
+    if (remove_noise_) {
+
+        CloudPtr cleanCloud(new Cloud);
+        pcl_functions_.removeNoise(cloud, cleanCloud);
+    }
 
     // Computation goes here
     CloudPtr compressedCloud(new Cloud);
@@ -381,4 +388,9 @@ void KinectPclOsc::on_loadRawCloudButton_clicked()
         process_cloud(cloud);
         updateView();
     }
+}
+
+void KinectPclOsc::on_removeNoiseCheckBox_toggled(bool checked)
+{
+    remove_noise_ = checked;
 }
