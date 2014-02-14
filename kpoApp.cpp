@@ -119,19 +119,22 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
     QMutexLocker locker (&mtx_);
     //  FPS_CALC ("computation");
 
-    if (remove_noise_) {
-
-        CloudPtr cleanCloud(new Cloud);
-        pcl_functions_.removeNoise(cloud, cleanCloud);
-    }
-
     // Computation goes here
     CloudPtr compressedCloud(new Cloud);
 
     pcl::PointCloud<int> sampled_indices;
 
+    CloudPtr cleanCloud(new Cloud);
+    if (remove_noise_) {
 
-    uniform_sampling.setInputCloud (cloud);
+        pcl_functions_.removeNoise(cloud, cleanCloud);
+
+        uniform_sampling.setInputCloud (cleanCloud);
+    }
+    else {
+        uniform_sampling.setInputCloud (cloud);
+    }
+
     uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
 
     uniform_sampling.compute (sampled_indices);
