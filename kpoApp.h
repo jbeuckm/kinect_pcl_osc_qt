@@ -23,6 +23,7 @@
 #include "kpoPclFunctions.h"
 #include "kpoObjectDescription.h"
 #include "kpo_types.h"
+#include "kpoOscSender.h"
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \
@@ -65,6 +66,8 @@ class KinectPclOsc : public QMainWindow
     void process_cloud (const CloudConstPtr& cloud);
 
     void pause();
+
+    kpoOscSender oscSender;
 
   protected:
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;
@@ -128,6 +131,8 @@ class KinectPclOsc : public QMainWindow
     void on_loadRawCloudButton_clicked();
 
     void on_removeNoiseCheckBox_toggled(bool checked);
+
+    void on_setOscTargetButton_clicked();
 
 signals:
     void valueChanged (int new_value);

@@ -11,14 +11,16 @@
 #define OUTPUT_BUFFER_SIZE 1024
 
 
-class oscSender
+class kpoOscSender
 {
 private:
     UdpTransmitSocket *transmitSocket;
 
 public:
-    oscSender();
-    ~oscSender();
+    kpoOscSender();
+    ~kpoOscSender();
+
+    void setNetworkTarget(const char *ip, int port);
 
     void send();
 };

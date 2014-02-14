@@ -1,18 +1,21 @@
 #include "kpoOscSender.h"
 
 
-oscSender::oscSender()
+kpoOscSender::kpoOscSender()
 {
-    transmitSocket = new UdpTransmitSocket( IpEndpointName( ADDRESS, PORT ) );
 }
 
-oscSender::~oscSender()
+kpoOscSender::~kpoOscSender()
 {
     delete transmitSocket;
 }
 
+void kpoOscSender::setNetworkTarget(const char *ip, int port)
+{
+    transmitSocket = new UdpTransmitSocket( IpEndpointName( ADDRESS, PORT ) );
+}
 
-void oscSender::send()
+void kpoOscSender::send()
 {
     char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
