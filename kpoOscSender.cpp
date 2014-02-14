@@ -17,6 +17,8 @@ void kpoOscSender::setNetworkTarget(const char *ip, int port)
 
 void kpoOscSender::send()
 {
+    if (!transmitSocket) return;
+
     char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 

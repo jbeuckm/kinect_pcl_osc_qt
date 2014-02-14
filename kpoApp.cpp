@@ -22,6 +22,7 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
     remove_noise_ = false;
     paused_ = false;
     estimate_normals_ = false;
+    match_models_ = false;
 
     // Create a timer and fire it up every 5ms
     vis_timer_->start (5);
@@ -151,6 +152,10 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
 
 //                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
 
+                    if (clustered.size() != 0) {
+                        match_queue_.push_back(*it);
+                    }
+
                     std::cout << clustered.size() << " ";
                 }
 
@@ -171,8 +176,16 @@ void KinectPclOsc::timeoutSlot ()
         return;
     }
 
+    communicateMatches();
+
     updateView();
 }
+void KinectPclOsc::communicateMatches()
+{
+//    oscSender.send();
+
+}
+
 void KinectPclOsc::updateView()
 {
     {

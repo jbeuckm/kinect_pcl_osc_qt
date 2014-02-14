@@ -81,6 +81,7 @@ class KinectPclOsc : public QMainWindow
     RFCloud::Ptr scene_rf_;
 
     std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
+    std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
 
     pcl::PassThrough<PointType> depth_filter_;
 
@@ -104,6 +105,8 @@ class KinectPclOsc : public QMainWindow
 
     void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
     void loadDescriptors(string filename);
+
+    void communicateMatches();
 
   public slots:
 
