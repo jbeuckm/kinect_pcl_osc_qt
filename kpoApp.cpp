@@ -182,8 +182,7 @@ void KinectPclOsc::timeoutSlot ()
 }
 void KinectPclOsc::communicateMatches()
 {
-//    oscSender.send();
-
+    oscSender.send();
 }
 
 void KinectPclOsc::updateView()
@@ -249,12 +248,6 @@ void KinectPclOsc::on_computeNormalsCheckbox_toggled(bool checked)
 {
     estimate_normals_ = checked;
     ui_->findSHOTdescriptors->setEnabled(checked);
-    if (estimate_normals_) {
-
-    }
-    else {
-
-    }
 }
 
 

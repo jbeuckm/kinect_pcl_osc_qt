@@ -14,6 +14,8 @@
 class kpoOscSender
 {
 private:
+    bool setup_;
+
     UdpTransmitSocket *transmitSocket;
 
 public:
