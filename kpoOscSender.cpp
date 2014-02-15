@@ -27,7 +27,7 @@ void kpoOscSender::send()
 
     p << osc::BeginBundleImmediate
       << osc::BeginMessage( "/test1" )
-          << (float)3.14159 << osc::EndMessage;
+          << (float)3.1 << osc::EndMessage;
 //          << osc::EndBundle;
 
 /*

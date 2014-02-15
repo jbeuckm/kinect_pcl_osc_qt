@@ -152,6 +152,7 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
 
 //                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
 
+                    oscSender.send();
                     if (clustered.size() != 0) {
                         match_queue_.push_back(*it);
                     }
@@ -182,7 +183,7 @@ void KinectPclOsc::timeoutSlot ()
 }
 void KinectPclOsc::communicateMatches()
 {
-    oscSender.send();
+//    oscSender.send();
 }
 
 void KinectPclOsc::updateView()
