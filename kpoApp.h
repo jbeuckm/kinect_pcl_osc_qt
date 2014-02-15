@@ -106,7 +106,6 @@ class KinectPclOsc : public QMainWindow
     void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
     void loadDescriptors(string filename);
 
-    void communicateMatches();
 
   public slots:
 

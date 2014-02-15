@@ -146,17 +146,13 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
 
                     pcl_functions_.correlateDescriptors(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
 
-//                    std::cout << "Correspondences found: " << model_scene_corrs->size () << std::endl;
-
                     std::vector<pcl::Correspondences> clustered;
 
                     clustered = pcl_functions_.houghCorrespondences((*it)->keypoints, (*it)->reference_frames, model_scene_corrs);
 
-//                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
-
                     if (clustered.size() != 0) {
-                        oscSender.send("/object",1);
-//                        match_queue_.push_back(*it);
+                        int position = it - models_.begin() ;
+                        oscSender.send("/object", position);
                     }
 
                     std::cout << clustered.size() << " ";
@@ -179,14 +175,9 @@ void KinectPclOsc::timeoutSlot ()
         return;
     }
 
-    communicateMatches();
-
     updateView();
 }
-void KinectPclOsc::communicateMatches()
-{
-//    oscSender.send();
-}
+
 
 void KinectPclOsc::updateView()
 {
