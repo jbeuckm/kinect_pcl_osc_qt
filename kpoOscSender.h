@@ -24,7 +24,7 @@ public:
 
     void setNetworkTarget(const char *ip, int port);
 
-    void send();
+    void send(const char *path, int value);
 };
 
 #endif // OSCSENDER_H

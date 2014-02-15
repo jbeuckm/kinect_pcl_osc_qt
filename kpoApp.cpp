@@ -103,6 +103,8 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
 
     depth_filter_.filter (*filteredCloud);
 
+    oscSender.send("/pointcloud/size", filteredCloud->size());
+
     uniform_sampling.setInputCloud (filteredCloud);
     uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
 
@@ -152,9 +154,9 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
 
 //                    std::cout << "number of clustered keypoints = " << clustered.size() << std::endl;
 
-                    oscSender.send();
                     if (clustered.size() != 0) {
-                        match_queue_.push_back(*it);
+                        oscSender.send("/object",1);
+//                        match_queue_.push_back(*it);
                     }
 
                     std::cout << clustered.size() << " ";

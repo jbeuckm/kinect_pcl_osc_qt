@@ -17,7 +17,7 @@ void kpoOscSender::setNetworkTarget(const char *ip, int port)
     setup_ = true;
 }
 
-void kpoOscSender::send()
+void kpoOscSender::send(const char *path, int value)
 {
     if (!setup_) return;
 
@@ -26,16 +26,8 @@ void kpoOscSender::send()
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
     p << osc::BeginBundleImmediate
-      << osc::BeginMessage( "/test1" )
-          << (float)3.1 << osc::EndMessage;
-//          << osc::EndBundle;
-
-/*
-          << osc::BeginMessage( "/test1" )
-              << true << 23 << (float)3.1415 << "hello" << osc::EndMessage
-        << osc::BeginMessage( "/test2" )
-            << true << 24 << (float)10.8 << "world" << osc::EndMessage
-*/
+      << osc::BeginMessage( path )
+          << value << osc::EndMessage;
 
     transmitSocket->Send( p.Data(), p.Size() );
 }
