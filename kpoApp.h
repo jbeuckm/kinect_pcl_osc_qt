@@ -60,6 +60,7 @@ class KinectPclOsc : public QMainWindow
       if (grabber_.isRunning ()) {
         grabber_.stop ();
       }
+      saveSettings();
     }
     
     void cloud_callback (const CloudConstPtr& cloud);
@@ -105,6 +106,10 @@ class KinectPclOsc : public QMainWindow
 
     void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
     void loadDescriptors(string filename);
+
+    QString m_sSettingsFile;
+    void loadSettings();
+    void saveSettings();
 
 
   public slots:

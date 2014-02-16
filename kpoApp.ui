@@ -199,7 +199,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>290</y>
+      <y>320</y>
       <width>321</width>
       <height>281</height>
      </rect>
@@ -229,6 +229,9 @@
     </property>
     <property name="minimum">
      <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>1000</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -339,6 +342,19 @@
     </property>
     <property name="text">
      <string>Set OSC Target</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>290</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Models Folder</string>
     </property>
    </widget>
   </widget>

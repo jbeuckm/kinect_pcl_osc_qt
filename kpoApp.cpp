@@ -1,6 +1,7 @@
 
 #include "kpoApp.h"
 // QT4
+#include <QSettings>
 
 // PCL
 #include <pcl/console/parse.h>
@@ -23,11 +24,6 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
     paused_ = false;
     estimate_normals_ = false;
     match_models_ = false;
-
-    // Create a timer and fire it up every 5ms
-    vis_timer_->start (5);
-
-    connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot ()));
 
     ui_->setupUi (this);
 
@@ -66,8 +62,44 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
     ui_->modelListView->setModel(modelListModel);
 
     grabber_downsampling_radius_ = .005f;
+
+    m_sSettingsFile = QApplication::applicationDirPath() + "/settings.ini";
+
+    std::cout <<  m_sSettingsFile.toStdString() << endl;
+    loadSettings();
+
+    connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot ()));
+    vis_timer_->start (5);
 }
 
+void KinectPclOsc::loadSettings()
+{
+    std::cout << "loadSettings()" << std::endl;
+
+    QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
+
+    int depthThreshold = settings.value("depthThreshold", 5).toInt();
+    if (ui_->fieldValueSlider)
+    {
+        std::cout << "depthThreshold = " << depthThreshold << std::endl;
+        ui_->fieldValueSlider->setValue(depthThreshold);
+        depth_filter_.setFilterLimits (0.0f, float (depthThreshold) / 10.0f);
+    }
+}
+void KinectPclOsc::saveSettings()
+{
+    std::cout << "saveSettings()" << std::endl;
+
+    QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
+
+    int depthThreshold = ui_->fieldValueSlider->value();
+    std::cout << "depthThreshold = " << depthThreshold << std::endl;
+    settings.setValue("depthThreshold", depthThreshold);
+
+    settings.sync();
+
+//    qDebug() << QApplication::applicationDirPath();
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void KinectPclOsc::cloud_callback (const CloudConstPtr& cloud)
@@ -100,7 +132,7 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
     else {
         depth_filter_.setInputCloud (cloud);
     }
-
+/*
     depth_filter_.filter (*filteredCloud);
 
     oscSender.send("/pointcloud/size", filteredCloud->size());
@@ -111,6 +143,8 @@ void KinectPclOsc::process_cloud (const CloudConstPtr& cloud)
     uniform_sampling.compute (sampled_indices);
 
     pcl::copyPointCloud (*filteredCloud, sampled_indices.points, *scene_cloud_);
+*/
+    depth_filter_.filter (*scene_cloud_);
 
     if (scene_cloud_->size() < 25) return;
 
@@ -280,10 +314,6 @@ void KinectPclOsc::on_saveDescriptorButton_clicked()
 
 void KinectPclOsc::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
 {
-    /* @Todo: write all these clouds in a way that can be reloaded
-    pcl::PCDWriter writer;
-    writer.write<DescriptorType> (filename, *scene_descriptors_, false);
-    */
 
     std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
     std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
