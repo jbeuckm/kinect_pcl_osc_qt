@@ -43,7 +43,7 @@
 #endif
 
 #include <ui_kpoApp.h>
-#include "kpoApp.h"
+#include "kpoAppGui.h"
 
 // QT4
 #include <QMainWindow>

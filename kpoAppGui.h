@@ -47,15 +47,15 @@ namespace Ui
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class KinectPclOsc : public QMainWindow
+class KinectPclOscGui : public QMainWindow
 {
   Q_OBJECT
 
   public:
 
-    KinectPclOsc (pcl::OpenNIGrabber& grabber);
+    KinectPclOscGui (pcl::OpenNIGrabber& grabber);
 
-    ~KinectPclOsc ()
+    ~KinectPclOscGui ()
     {
       if (grabber_.isRunning ()) {
         grabber_.stop ();

@@ -12,20 +12,20 @@ TEMPLATE = app
 
 SOURCES += \
     kpoPclFunctions.cpp \
-    kpoApp.cpp \
     kpoOscSender.cpp \
-    kpoObjectDescription.cpp
+    kpoObjectDescription.cpp \
+    kpoAppGui.cpp
 
 HEADERS += \
     openni_passthrough_qt.h \
     kpoPclFunctions.h \
-    kpoApp.h \
     kpoOscSender.h \
     kpoObjectDescription.h \
-    kpo_types.h
+    kpo_types.h \
+    kpoAppGui.h
 
 FORMS += \
-    kpoApp.ui
+    kpoAppGui.ui
 
 
 LIBS += -L/usr/lib/vtk-5.8
