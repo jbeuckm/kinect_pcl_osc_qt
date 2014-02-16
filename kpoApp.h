@@ -111,6 +111,8 @@ class KinectPclOsc : public QMainWindow
     void loadSettings();
     void saveSettings();
 
+    void setDepthFromSliderValue(int val);
+
 
   public slots:
 
@@ -140,6 +142,8 @@ class KinectPclOsc : public QMainWindow
     void on_removeNoiseCheckBox_toggled(bool checked);
 
     void on_setOscTargetButton_clicked();
+
+    void on_depthThresholdlSlider_valueChanged(int value);
 
 signals:
     void valueChanged (int new_value);

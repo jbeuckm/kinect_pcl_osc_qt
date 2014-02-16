@@ -50,10 +50,8 @@ KinectPclOsc::KinectPclOsc (pcl::OpenNIGrabber& grabber)
     depth_filter_.setFilterFieldName ("z");
     depth_filter_.setFilterLimits (0.5, 5.0);
 
-    ui_->fieldValueSlider->setRange (5, 50);
-    ui_->fieldValueSlider->setValue (50);
 
-    connect (ui_->fieldValueSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustPassThroughValues (int)));
+    connect (ui_->depthThresholdSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustPassThroughValues (int)));
 
     modelListModel = new QStringListModel(this);
     QStringList list;
@@ -79,20 +77,30 @@ void KinectPclOsc::loadSettings()
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
     int depthThreshold = settings.value("depthThreshold", 5).toInt();
-    if (ui_->fieldValueSlider)
+    if (ui_->depthThresholdSlider)
     {
         std::cout << "depthThreshold = " << depthThreshold << std::endl;
-        ui_->fieldValueSlider->setValue(depthThreshold);
-        depth_filter_.setFilterLimits (0.0f, float (depthThreshold) / 10.0f);
+        ui_->depthThresholdSlider->setValue(depthThreshold);
+        setDepthFromSliderValue(depthThreshold);
     }
 }
+
+void KinectPclOsc::setDepthFromSliderValue(int depthThreshold)
+{
+    float scaledValue = float (depthThreshold) / 200.0f;
+
+    depth_filter_.setFilterLimits (0.0f, scaledValue);
+    PCL_INFO ("Changed passthrough maximum value to: %f\n", scaledValue);
+}
+
+
 void KinectPclOsc::saveSettings()
 {
     std::cout << "saveSettings()" << std::endl;
 
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
-    int depthThreshold = ui_->fieldValueSlider->value();
+    int depthThreshold = ui_->depthThresholdSlider->value();
     std::cout << "depthThreshold = " << depthThreshold << std::endl;
     settings.setValue("depthThreshold", depthThreshold);
 
@@ -262,8 +270,7 @@ int main (int argc, char ** argv)
 
 void KinectPclOsc::adjustPassThroughValues (int new_value)
 {
-    depth_filter_.setFilterLimits (0.0f, float (new_value) / 10.0f);
-    PCL_INFO ("Changed passthrough maximum value to: %f\n", float (new_value) / 10.0f);
+    setDepthFromSliderValue(new_value);
 }
 
 void KinectPclOsc::on_pauseCheckBox_toggled(bool checked)
@@ -400,4 +407,12 @@ void KinectPclOsc::on_setOscTargetButton_clicked()
     int port = ui_->portTextInput->text().toInt();
 
     oscSender.setNetworkTarget(ui_->ipTextInput->text().toStdString().c_str(), port);
+}
+
+
+
+void KinectPclOsc::on_depthThresholdlSlider_valueChanged(int value)
+{
+    setDepthFromSliderValue(value);
+
 }
