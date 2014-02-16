@@ -87,7 +87,7 @@ void KinectPclOsc::loadSettings()
 
 void KinectPclOsc::setDepthFromSliderValue(int depthThreshold)
 {
-    float scaledValue = float (depthThreshold) / 200.0f;
+    float scaledValue = float (depthThreshold) / 1000.0f;
 
     depth_filter_.setFilterLimits (0.0f, scaledValue);
     PCL_INFO ("Changed passthrough maximum value to: %f\n", scaledValue);
