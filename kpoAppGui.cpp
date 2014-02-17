@@ -162,7 +162,7 @@ void kpoAppGui::on_pauseCheckBox_toggled(bool checked)
 void kpoAppGui::on_computeNormalsCheckbox_toggled(bool checked)
 {
     estimate_normals_ = checked;
-//    ui_->findSHOTdescriptors->setkpoAppGuiEnabled(checked);
+    ui_->findSHOTdescriptors->setEnabled(checked);
 }
 
 
@@ -282,7 +282,7 @@ void kpoAppGui::on_removeNoiseCheckBox_toggled(bool checked)
 void kpoAppGui::on_setOscTargetButton_clicked()
 {
     int port = ui_->portTextInput->text().toInt();
-
+    std::cout << "click" << std::endl;
     oscSender.setNetworkTarget(ui_->ipTextInput->text().toStdString().c_str(), port);
 }
 
@@ -291,5 +291,12 @@ void kpoAppGui::on_setOscTargetButton_clicked()
 void kpoAppGui::on_depthThresholdlSlider_valueChanged(int value)
 {
     setDepthFromSliderValue(value);
+}
 
+void kpoAppGui::on_downsamplingRadiusSlider_valueChanged(int value)
+{
+    float radius = float(value) / 10000.0f;
+
+    pcl_functions_.setDownsamplingRadius(radius);
+    ui_->downsamplingRadiusEdit->setText(QString::number(radius, 'g', 3));
 }

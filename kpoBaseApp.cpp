@@ -36,8 +36,6 @@ void kpoBaseApp::saveSettings()
     settings.setValue("depthThreshold", depthThreshold);
 
     settings.sync();
-
-//    qDebug() << QApplication::applicationDirPath();
 }
 
 

@@ -14,8 +14,7 @@ SOURCES += kpoAppGui.cpp
 
 HEADERS += kpoAppGui.h
 
-FORMS += \
-    kpoAppGui.ui
+FORMS += kpoAppGui.ui
 
 
 LIBS += -L/usr/lib/vtk-5.8

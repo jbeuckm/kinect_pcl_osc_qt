@@ -18,7 +18,7 @@
 #pragma GCC system_header
 #endif
 
-#include <ui_kpoApp.h>
+#include <ui_kpoAppGui.h>
 #include "kpoBaseApp.h"
 
 
@@ -79,29 +79,25 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
   private slots:
     void timeoutSlot ();
     void updateView();
-    
-
-    void on_computeNormalsCheckbox_toggled(bool checked);
 
     void on_pauseCheckBox_toggled(bool checked);
 
-    void on_findSHOTdescriptors_toggled(bool checked);
-
     void on_saveDescriptorButton_clicked();
-
-    void on_matchModelsCheckbox_toggled(bool checked);
-
     void on_loadDescriptorButton_clicked();
-
-    void on_presampleRadiusSlider_valueChanged(int value);
-
     void on_loadRawCloudButton_clicked();
 
     void on_removeNoiseCheckBox_toggled(bool checked);
+    void on_presampleRadiusSlider_valueChanged(int value);
+
+    void on_depthThresholdlSlider_valueChanged(int value);
+    void on_computeNormalsCheckbox_toggled(bool checked);
+    void on_findSHOTdescriptors_toggled(bool checked);
+
+    void on_matchModelsCheckbox_toggled(bool checked);
 
     void on_setOscTargetButton_clicked();
 
-    void on_depthThresholdlSlider_valueChanged(int value);
+    void on_downsamplingRadiusSlider_valueChanged(int value);
 
 signals:
     void valueChanged (int new_value);

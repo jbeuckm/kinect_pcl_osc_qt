@@ -35,6 +35,10 @@ public:
 
     kpoPclFunctions();
 
+    void removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered_cloud);
+
+    void setDownsamplingRadius(float _radius);
+
     void estimateNormals(const Cloud::ConstPtr &cloud, NormalCloudPtr &normals);
 
     void computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
@@ -53,8 +57,6 @@ public:
 
     double computeCloudResolution (const CloudConstPtr &cloud);
     void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
-
-    void removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered_cloud);
 
 
 private:
