@@ -29,6 +29,13 @@ class kpoBaseApp
 public:
 
     kpoBaseApp (pcl::OpenNIGrabber& grabber);
+    ~kpoBaseApp ()
+    {
+      if (grabber_.isRunning ()) {
+        grabber_.stop ();
+      }
+      saveSettings();
+    }
 
 protected:
     pcl::OpenNIGrabber& grabber_;
