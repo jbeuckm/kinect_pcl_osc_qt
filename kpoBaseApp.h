@@ -41,16 +41,19 @@ protected:
     pcl::OpenNIGrabber& grabber_;
     std::string device_id_;
 
+    pcl::PassThrough<PointType> depth_filter_;
+
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;
     NormalCloud::Ptr scene_normals_;
     DescriptorCloud::Ptr scene_descriptors_;
     RFCloud::Ptr scene_rf_;
 
+    pcl::UniformSampling<PointType> uniform_sampling;
+    float grabber_downsampling_radius_;
+
     std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
     std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
-
-    pcl::PassThrough<PointType> depth_filter_;
 
     QMutex mtx_;
 

@@ -55,8 +55,6 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
   protected:
     QTimer *vis_timer_;
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;
-    pcl::UniformSampling<PointType> uniform_sampling;
-    float grabber_downsampling_radius_;
 
     void loadSettings();
     void pause();
