@@ -78,39 +78,26 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
       saveSettings();
     }
     
-    void cloud_callback (const CloudConstPtr& cloud);
-    void process_cloud (const CloudConstPtr& cloud);
 
-    void pause();
-
-    kpoOscSender oscSender;
 
   protected:
+    QTimer *vis_timer_;
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;
     pcl::UniformSampling<PointType> uniform_sampling;
     float grabber_downsampling_radius_;
 
+    void loadSettings();
+    void pause();
+
   private:
     Ui::KinectPclOsc *ui_;
+
+    void loadDescriptors(string filename);
+    void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
+
     QStringListModel *modelListModel;
     void addStringToModelsList(string str);
 
-    QMutex mtx_;
-    QTimer *vis_timer_;
-
-    kpoPclFunctions pcl_functions_;
-    bool paused_;
-    bool remove_noise_;
-    bool estimate_normals_;
-    bool compute_descriptors_;
-    bool match_models_;
-
-    void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
-    void loadDescriptors(string filename);
-
-    QString m_sSettingsFile;
-    void loadSettings();
-    void saveSettings();
 
     void setDepthFromSliderValue(int val);
 

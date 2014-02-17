@@ -17,7 +17,6 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
 //    , device_id_ ()
 //    , scene_cloud_()
 //    , depth_filter_ ()
-    , mtx_ ()
     , ui_ (new Ui::KinectPclOsc)
 {
     remove_noise_ = false;
@@ -72,16 +71,10 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
 
 void kpoAppGui::loadSettings()
 {
-    std::cout << "loadSettings()" << std::endl;
+    kpoBaseApp::loadSettings();
 
-    QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
-
-    int depthThreshold = settings.value("depthThreshold", 5).toInt();
-    if (ui_->depthThresholdSlider)
-    {
-        std::cout << "depthThreshold = " << depthThreshold << std::endl;
-        ui_->depthThresholdSlider->setValue(depthThreshold);
-        setDepthFromSliderValue(depthThreshold);
+    if (ui_->depthThresholdSlider) {
+        ui_->depthThresholdSlider->setValue(depthThreshold * 1000);
     }
 }
 
@@ -94,119 +87,6 @@ void kpoAppGui::setDepthFromSliderValue(int depthThreshold)
 }
 
 
-void kpoAppGui::saveSettings()
-{
-    std::cout << "saveSettings()" << std::endl;
-
-    QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
-
-    int depthThreshold = ui_->depthThresholdSlider->value();
-    std::cout << "depthThreshold = " << depthThreshold << std::endl;
-    settings.setValue("depthThreshold", depthThreshold);
-
-    settings.sync();
-
-//    qDebug() << QApplication::applicationDirPath();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-void kpoAppGui::cloud_callback (const CloudConstPtr& cloud)
-{
-    if (paused_) return;
-
-    process_cloud(cloud);
-}
-
-void kpoAppGui::process_cloud (const CloudConstPtr& cloud)
-{
-    QMutexLocker locker (&mtx_);
-    //  FPS_CALC ("computation");
-
-    // Computation goes here
-    CloudPtr compressedCloud(new Cloud);
-
-    pcl::PointCloud<int> sampled_indices;
-
-    CloudPtr cleanCloud(new Cloud);
-    CloudPtr filteredCloud(new Cloud);
-    scene_cloud_.reset (new Cloud);
-
-    if (remove_noise_) {
-
-        pcl_functions_.removeNoise(cloud, cleanCloud);
-
-        depth_filter_.setInputCloud (cleanCloud);
-    }
-    else {
-        depth_filter_.setInputCloud (cloud);
-    }
-/*
-    depth_filter_.filter (*filteredCloud);
-
-    oscSender.send("/pointcloud/size", filteredCloud->size());
-
-    uniform_sampling.setInputCloud (filteredCloud);
-    uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
-
-    uniform_sampling.compute (sampled_indices);
-
-    pcl::copyPointCloud (*filteredCloud, sampled_indices.points, *scene_cloud_);
-*/
-    depth_filter_.filter (*scene_cloud_);
-
-    if (scene_cloud_->size() < 25) return;
-
-
-    if (estimate_normals_) {
-
-        scene_normals_.reset (new NormalCloud ());
-        pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
-
-        if (compute_descriptors_) {
-
-            scene_keypoints_.reset(new Cloud ());
-            pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
-
-            scene_descriptors_.reset(new DescriptorCloud ());
-            pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
-
-
-//            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
-//            std::cout << "resolution = " << res << std::endl;
-
-            scene_rf_.reset(new RFCloud ());
-            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
-
-
-            if (match_models_) {
-
-                pcl_functions_.setHoughSceneCloud(scene_keypoints_, scene_rf_);
-
-                for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
-
-                    pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
-
-                    pcl_functions_.correlateDescriptors(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
-
-                    std::vector<pcl::Correspondences> clustered;
-
-                    clustered = pcl_functions_.houghCorrespondences((*it)->keypoints, (*it)->reference_frames, model_scene_corrs);
-
-                    if (clustered.size() != 0) {
-                        int position = it - models_.begin() ;
-                        oscSender.send("/object", position);
-                    }
-
-                    std::cout << clustered.size() << " ";
-                }
-
-                std::cout << std::endl;
-
-            }
-        }
-    }
-
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void kpoAppGui::timeoutSlot ()
@@ -282,7 +162,7 @@ void kpoAppGui::on_pauseCheckBox_toggled(bool checked)
 void kpoAppGui::on_computeNormalsCheckbox_toggled(bool checked)
 {
     estimate_normals_ = checked;
-    ui_->findSHOTdescriptors->setEnabled(checked);
+//    ui_->findSHOTdescriptors->setkpoAppGuiEnabled(checked);
 }
 
 
@@ -321,7 +201,6 @@ void kpoAppGui::on_saveDescriptorButton_clicked()
 
 void kpoAppGui::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
 {
-
     std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
     std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
     std::cout << "saving normals with " << scene_normals_->size() << " points" << std::endl;
@@ -333,6 +212,14 @@ void kpoAppGui::saveDescriptors(string filename, const pcl::PointCloud<Descripto
 
     addStringToModelsList(filename);
 }
+
+void kpoAppGui::loadDescriptors(string filename)
+{
+    kpoBaseApp::loadDescriptors(filename);
+
+    addStringToModelsList(filename);
+}
+
 
 void kpoAppGui::addStringToModelsList(string str)
 {
@@ -354,16 +241,6 @@ void kpoAppGui::on_loadDescriptorButton_clicked()
     }
 }
 
-void kpoAppGui::loadDescriptors(string filename)
-{
-    pcl::PointCloud<DescriptorType>::Ptr model_descriptors_(new pcl::PointCloud<DescriptorType>());
-
-    pcl::PCDReader reader;
-    reader.read<DescriptorType> (filename, *model_descriptors_);
-
-    //    models_.push_back(model_descriptors_);
-    addStringToModelsList(filename);
-}
 
 
 void kpoAppGui::on_matchModelsCheckbox_toggled(bool checked)

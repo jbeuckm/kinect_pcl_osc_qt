@@ -45,6 +45,29 @@ protected:
 
     pcl::PassThrough<PointType> depth_filter_;
 
+    QMutex mtx_;
+
+    kpoPclFunctions pcl_functions_;
+    bool paused_;
+    bool remove_noise_;
+    bool estimate_normals_;
+    bool compute_descriptors_;
+    bool match_models_;
+
+    float depthThreshold;
+
+    void loadDescriptors(string filename);
+
+    QString m_sSettingsFile;
+    void loadSettings();
+    void saveSettings();
+
+    void cloud_callback (const CloudConstPtr& cloud);
+    void process_cloud (const CloudConstPtr& cloud);
+
+    void pause();
+
+    kpoOscSender oscSender;
 
 };
 
