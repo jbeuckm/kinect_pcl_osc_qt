@@ -2,6 +2,10 @@
 #ifndef PCL_APPS_OPENNI_PASSTHROUGH_3D_
 #define PCL_APPS_OPENNI_PASSTHROUGH_3D_
 
+// QT4
+#include <QMainWindow>
+#include <QMutex>
+#include <QTimer>
 #include <QApplication>
 #include <QMutexLocker>
 #include <QEvent>
@@ -10,7 +14,7 @@
 #include <QStringListModel>
 
 // PCL
-#include "openni_passthrough_qt.h"
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/io/openni_grabber.h>
@@ -20,10 +24,21 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/keypoints/uniform_sampling.h>
 
+#include "kpoBaseApp.h"
 #include "kpoPclFunctions.h"
 #include "kpoObjectDescription.h"
 #include "kpo_types.h"
 #include "kpoOscSender.h"
+
+// from openni_passthrough_qt
+#ifdef __GNUC__
+#pragma GCC system_header
+#endif
+
+#include <ui_kpoApp.h>
+#include "kpoAppGui.h"
+
+
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \
@@ -47,15 +62,15 @@ namespace Ui
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class KinectPclOscGui : public QMainWindow
+class kpoAppGui : public QMainWindow, public kpoBaseApp
 {
   Q_OBJECT
 
   public:
 
-    KinectPclOscGui (pcl::OpenNIGrabber& grabber);
+    kpoAppGui (pcl::OpenNIGrabber& grabber);
 
-    ~KinectPclOscGui ()
+    ~kpoAppGui ()
     {
       if (grabber_.isRunning ()) {
         grabber_.stop ();
@@ -72,20 +87,6 @@ class KinectPclOscGui : public QMainWindow
 
   protected:
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;
-    pcl::OpenNIGrabber& grabber_;
-    std::string device_id_;
-
-    CloudPtr scene_cloud_;
-    CloudPtr scene_keypoints_;
-    NormalCloud::Ptr scene_normals_;
-    DescriptorCloud::Ptr scene_descriptors_;
-    RFCloud::Ptr scene_rf_;
-
-    std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
-    std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
-
-    pcl::PassThrough<PointType> depth_filter_;
-
     pcl::UniformSampling<PointType> uniform_sampling;
     float grabber_downsampling_radius_;
 

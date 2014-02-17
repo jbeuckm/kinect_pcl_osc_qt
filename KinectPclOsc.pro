@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-TARGET = KinectPclOsc
+TARGET = kpoAppGui
 TEMPLATE = app
 
 
@@ -14,14 +14,15 @@ SOURCES += \
     kpoPclFunctions.cpp \
     kpoOscSender.cpp \
     kpoObjectDescription.cpp \
+    kpoBaseApp.cpp \
     kpoAppGui.cpp
 
 HEADERS += \
-    openni_passthrough_qt.h \
     kpoPclFunctions.h \
     kpoOscSender.h \
     kpoObjectDescription.h \
     kpo_types.h \
+    kpoBaseApp.h \
     kpoAppGui.h
 
 FORMS += \

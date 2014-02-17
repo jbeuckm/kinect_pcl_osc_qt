@@ -1,7 +1,7 @@
 
 #include "kpoAppGui.h"
+
 // QT4
-#include <QSettings>
 
 // PCL
 #include <pcl/console/parse.h>
@@ -10,15 +10,15 @@
 #include <vtkRenderWindow.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-KinectPclOscGui::KinectPclOscGui (pcl::OpenNIGrabber& grabber)
+kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     : vis_ ()
-    , grabber_(grabber)
-    , device_id_ ()
-    , scene_cloud_()
-    , depth_filter_ ()
+    , vis_timer_ (new QTimer (this))
+    , kpoBaseApp(grabber)
+//    , device_id_ ()
+//    , scene_cloud_()
+//    , depth_filter_ ()
     , mtx_ ()
     , ui_ (new Ui::KinectPclOsc)
-    , vis_timer_ (new QTimer (this))
 {
     remove_noise_ = false;
     paused_ = false;
@@ -41,7 +41,7 @@ KinectPclOscGui::KinectPclOscGui (pcl::OpenNIGrabber& grabber)
     ui_->qvtk_widget->update ();
 
     // Start the OpenNI data acquision
-    boost::function<void (const CloudConstPtr&)> f = boost::bind (&KinectPclOscGui::cloud_callback, this, _1);
+    boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoAppGui::cloud_callback, this, _1);
     boost::signals2::connection c = grabber_.registerCallback (f);
 
     grabber_.start ();
@@ -70,7 +70,7 @@ KinectPclOscGui::KinectPclOscGui (pcl::OpenNIGrabber& grabber)
     vis_timer_->start (5);
 }
 
-void KinectPclOscGui::loadSettings()
+void kpoAppGui::loadSettings()
 {
     std::cout << "loadSettings()" << std::endl;
 
@@ -85,7 +85,7 @@ void KinectPclOscGui::loadSettings()
     }
 }
 
-void KinectPclOscGui::setDepthFromSliderValue(int depthThreshold)
+void kpoAppGui::setDepthFromSliderValue(int depthThreshold)
 {
     float scaledValue = float (depthThreshold) / 1000.0f;
 
@@ -94,7 +94,7 @@ void KinectPclOscGui::setDepthFromSliderValue(int depthThreshold)
 }
 
 
-void KinectPclOscGui::saveSettings()
+void kpoAppGui::saveSettings()
 {
     std::cout << "saveSettings()" << std::endl;
 
@@ -110,14 +110,14 @@ void KinectPclOscGui::saveSettings()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void KinectPclOscGui::cloud_callback (const CloudConstPtr& cloud)
+void kpoAppGui::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
     process_cloud(cloud);
 }
 
-void KinectPclOscGui::process_cloud (const CloudConstPtr& cloud)
+void kpoAppGui::process_cloud (const CloudConstPtr& cloud)
 {
     QMutexLocker locker (&mtx_);
     //  FPS_CALC ("computation");
@@ -209,7 +209,7 @@ void KinectPclOscGui::process_cloud (const CloudConstPtr& cloud)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void KinectPclOscGui::timeoutSlot ()
+void kpoAppGui::timeoutSlot ()
 {
     if (!scene_cloud_ || paused_)
     {
@@ -221,7 +221,7 @@ void KinectPclOscGui::timeoutSlot ()
 }
 
 
-void KinectPclOscGui::updateView()
+void kpoAppGui::updateView()
 {
     {
         QMutexLocker locker (&mtx_);
@@ -262,43 +262,43 @@ int main (int argc, char ** argv)
         return (-1);
     }
 
-    KinectPclOscGui v (grabber);
+    kpoAppGui v (grabber);
     v.show ();
     return (app.exec ());
 }
 
 
-void KinectPclOscGui::adjustPassThroughValues (int new_value)
+void kpoAppGui::adjustPassThroughValues (int new_value)
 {
     setDepthFromSliderValue(new_value);
 }
 
-void KinectPclOscGui::on_pauseCheckBox_toggled(bool checked)
+void kpoAppGui::on_pauseCheckBox_toggled(bool checked)
 {
     paused_ = checked;
 }
 
 
-void KinectPclOscGui::on_computeNormalsCheckbox_toggled(bool checked)
+void kpoAppGui::on_computeNormalsCheckbox_toggled(bool checked)
 {
     estimate_normals_ = checked;
     ui_->findSHOTdescriptors->setEnabled(checked);
 }
 
 
-void KinectPclOscGui::on_findSHOTdescriptors_toggled(bool checked)
+void kpoAppGui::on_findSHOTdescriptors_toggled(bool checked)
 {
     compute_descriptors_ = checked;
 }
 
-void KinectPclOscGui::pause()
+void kpoAppGui::pause()
 {
     paused_ = true;
     ui_->pauseCheckBox->setChecked(true);
 }
 
 
-void KinectPclOscGui::on_saveDescriptorButton_clicked()
+void kpoAppGui::on_saveDescriptorButton_clicked()
 {
     pause();
 
@@ -319,7 +319,7 @@ void KinectPclOscGui::on_saveDescriptorButton_clicked()
     }
 }
 
-void KinectPclOscGui::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
+void kpoAppGui::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
 {
 
     std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
@@ -334,14 +334,14 @@ void KinectPclOscGui::saveDescriptors(string filename, const pcl::PointCloud<Des
     addStringToModelsList(filename);
 }
 
-void KinectPclOscGui::addStringToModelsList(string str)
+void kpoAppGui::addStringToModelsList(string str)
 {
     modelListModel->insertRow(modelListModel->rowCount());
     QModelIndex index = modelListModel->index(modelListModel->rowCount()-1);
     modelListModel->setData(index, QString(str.c_str()).section("/",-1,-1) );
 }
 
-void KinectPclOscGui::on_loadDescriptorButton_clicked()
+void kpoAppGui::on_loadDescriptorButton_clicked()
 {
     pause();
 
@@ -354,7 +354,7 @@ void KinectPclOscGui::on_loadDescriptorButton_clicked()
     }
 }
 
-void KinectPclOscGui::loadDescriptors(string filename)
+void kpoAppGui::loadDescriptors(string filename)
 {
     pcl::PointCloud<DescriptorType>::Ptr model_descriptors_(new pcl::PointCloud<DescriptorType>());
 
@@ -366,18 +366,18 @@ void KinectPclOscGui::loadDescriptors(string filename)
 }
 
 
-void KinectPclOscGui::on_matchModelsCheckbox_toggled(bool checked)
+void kpoAppGui::on_matchModelsCheckbox_toggled(bool checked)
 {
     match_models_ = checked;
 }
 
 
-void KinectPclOscGui::on_presampleRadiusSlider_valueChanged(int value)
+void kpoAppGui::on_presampleRadiusSlider_valueChanged(int value)
 {
     grabber_downsampling_radius_ = 0.1f / float(value);
 }
 
-void KinectPclOscGui::on_loadRawCloudButton_clicked()
+void kpoAppGui::on_loadRawCloudButton_clicked()
 {
     pause();
 
@@ -397,12 +397,12 @@ void KinectPclOscGui::on_loadRawCloudButton_clicked()
     }
 }
 
-void KinectPclOscGui::on_removeNoiseCheckBox_toggled(bool checked)
+void kpoAppGui::on_removeNoiseCheckBox_toggled(bool checked)
 {
     remove_noise_ = checked;
 }
 
-void KinectPclOscGui::on_setOscTargetButton_clicked()
+void kpoAppGui::on_setOscTargetButton_clicked()
 {
     int port = ui_->portTextInput->text().toInt();
 
@@ -411,7 +411,7 @@ void KinectPclOscGui::on_setOscTargetButton_clicked()
 
 
 
-void KinectPclOscGui::on_depthThresholdlSlider_valueChanged(int value)
+void kpoAppGui::on_depthThresholdlSlider_valueChanged(int value)
 {
     setDepthFromSliderValue(value);
 
