@@ -75,6 +75,7 @@ protected:
 
     void loadModelFiles();
     void loadExemplar(string filename);
+    void addObjectToMatchList();
 
     void loadSettings();
     void saveSettings();

@@ -64,7 +64,6 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
 
     void loadModelFiles();
     void loadExemplar(string filename);
-    void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
 
     QStringListModel *modelListModel;
     void addStringToModelsList(string str);

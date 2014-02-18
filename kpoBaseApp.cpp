@@ -79,15 +79,30 @@ void kpoBaseApp::saveSettings()
 // load a raw model cap and process it into a matchable set of keypoints, descriptors
 void kpoBaseApp::loadExemplar(string filename)
 {
-    pcl::PointCloud<DescriptorType>::Ptr model_descriptors_(new pcl::PointCloud<DescriptorType>());
+    pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
 
     pcl::PCDReader reader;
-    reader.read<DescriptorType> (filename, *model_descriptors_);
+    reader.read<PointType> (filename, *model_);
 
-//    models_.push_back(model_descriptors_);
+
+    process_cloud(model_);
+    addObjectToMatchList();
 }
 
+// Save the currently processed cloud/keypoints/descriptors tpo be matched
+void kpoBaseApp::addObjectToMatchList()
+{
+    std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
+    std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
+    std::cout << "saving normals with " << scene_normals_->size() << " points" << std::endl;
+    std::cout << "saving descriptors with " << scene_descriptors_->size() << " points" << std::endl;
+    std::cout << "saving ref frames with " << scene_rf_->size() << " points" << std::endl;
 
+    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_rf_));
+    models_.push_back(object_desc);
+
+//    addStringToModelsList(filename);
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

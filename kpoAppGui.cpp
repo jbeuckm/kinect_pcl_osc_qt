@@ -85,6 +85,44 @@ void kpoAppGui::loadSettings()
 
 
 
+void kpoAppGui::loadModelFiles()
+{
+    std::cout << "kpoAppGui::loadModelFiles()" << std::endl;
+
+    QStringList nameFilter("*.pcd");
+    QDir directory(models_folder_);
+    QStringList model_files = directory.entryList(nameFilter);
+
+    int count = model_files.length();
+
+    QProgressDialog progress("Loading Model files...", "Cancel", 0, count, this);
+    progress.setWindowModality(Qt::WindowModal);
+
+    for (int i=0; i<count; i++) {
+        std::cout << "reading " << model_files[i].toStdString() << std::endl;
+        progress.setValue(i);
+    }
+
+    progress.setValue(count);
+
+}
+
+
+
+void kpoAppGui::loadExemplar(string filename)
+{
+    kpoBaseApp::loadExemplar(filename);
+
+    addStringToModelsList(filename);
+}
+
+
+void kpoAppGui::addStringToModelsList(string str)
+{
+    modelListModel->insertRow(modelListModel->rowCount());
+    QModelIndex index = modelListModel->index(modelListModel->rowCount()-1);
+    modelListModel->setData(index, QString(str.c_str()).section("/",-1,-1) );
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,60 +228,12 @@ void kpoAppGui::on_saveDescriptorButton_clicked()
                                                     tr("Descriptors (*.dsc)"));
 
     if (!filename.isEmpty()) {
-        saveDescriptors(filename.toStdString(), scene_descriptors_);
+        addObjectToMatchList();
     }
 }
 
-void kpoAppGui::saveDescriptors(string filename, const pcl::PointCloud<DescriptorType>::Ptr &descriptors)
-{
-    std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
-    std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
-    std::cout << "saving normals with " << scene_normals_->size() << " points" << std::endl;
-    std::cout << "saving descriptors with " << scene_descriptors_->size() << " points" << std::endl;
-    std::cout << "saving ref frames with " << scene_rf_->size() << " points" << std::endl;
-
-    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_rf_));
-    models_.push_back(object_desc);
-
-    addStringToModelsList(filename);
-}
-
-void kpoAppGui::loadModelFiles()
-{
-    QStringList nameFilter("*.pcd");
-    QDir directory(models_folder_);
-    QStringList model_files = directory.entryList(nameFilter);
-
-    int count = model_files.length();
-
-    QProgressDialog progress("Loading Model files...", "Cancel", 0, count, this);
-    progress.setWindowModality(Qt::WindowModal);
-
-    for (int i=0; i<count; i++) {
-        std::cout << "reading " << model_files[i].toStdString() << std::endl;
-        progress.setValue(i);
-    }
-
-    progress.setValue(count);
-
-}
 
 
-
-void kpoAppGui::loadExemplar(string filename)
-{
-    kpoBaseApp::loadExemplar(filename);
-
-    addStringToModelsList(filename);
-}
-
-
-void kpoAppGui::addStringToModelsList(string str)
-{
-    modelListModel->insertRow(modelListModel->rowCount());
-    QModelIndex index = modelListModel->index(modelListModel->rowCount()-1);
-    modelListModel->setData(index, QString(str.c_str()).section("/",-1,-1) );
-}
 
 void kpoAppGui::on_loadDescriptorButton_clicked()
 {
