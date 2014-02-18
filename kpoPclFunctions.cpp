@@ -16,6 +16,7 @@ kpoPclFunctions::kpoPclFunctions()
     norm_est.setKSearch (8);
 
 
+    shot.setNumberOfThreads(8);
     shot.setRadiusSearch (shot_radius_);
 
     rf_est.setFindHoles (true);

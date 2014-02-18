@@ -99,6 +99,8 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
 
     void on_downsamplingRadiusSlider_valueChanged(int value);
 
+    void on_browseForModelsButton_clicked();
+
 signals:
     void valueChanged (int new_value);
 };

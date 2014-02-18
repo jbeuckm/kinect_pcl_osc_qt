@@ -76,6 +76,7 @@ void kpoAppGui::loadSettings()
     if (ui_->depthThresholdSlider) {
         ui_->depthThresholdSlider->setValue(depthThreshold * 1000);
     }
+
 }
 
 void kpoAppGui::setDepthFromSliderValue(int depthThreshold)
@@ -299,4 +300,19 @@ void kpoAppGui::on_downsamplingRadiusSlider_valueChanged(int value)
 
     pcl_functions_.setDownsamplingRadius(radius);
     ui_->downsamplingRadiusEdit->setText(QString::number(radius, 'g', 3));
+}
+
+void kpoAppGui::on_browseForModelsButton_clicked()
+{
+    pause();
+
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Models Folder"),
+                                                    "/home",
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+
+    if (!dir.isEmpty()) {
+        ui_->modelsFolderEdit->setText(dir);
+    }
+
 }

@@ -21,6 +21,9 @@ void kpoBaseApp::loadSettings()
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
     depthThreshold = settings.value("depthThreshold", 5).toFloat();
+
+    compute_descriptors_ = settings.value("compute_descriptors_", true).toBool();
+
 }
 
 
@@ -84,10 +87,10 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     else {
         depth_filter_.setInputCloud (cloud);
     }
-/*
+
+    /*
     depth_filter_.filter (*filteredCloud);
 
-    oscSender.send("/pointcloud/size", filteredCloud->size());
 
     uniform_sampling.setInputCloud (filteredCloud);
     uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
@@ -97,6 +100,8 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     pcl::copyPointCloud (*filteredCloud, sampled_indices.points, *scene_cloud_);
 */
     depth_filter_.filter (*scene_cloud_);
+
+    oscSender.send("/pointcloud/size", scene_cloud_->size());
 
     if (scene_cloud_->size() < 25) return;
 
