@@ -80,6 +80,8 @@ protected:
     void pause();
 
     kpoOscSender oscSender;
+    QString osc_sender_ip_;
+    int osc_sender_port_;
 
 };
 

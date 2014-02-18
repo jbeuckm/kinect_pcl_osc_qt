@@ -276,9 +276,10 @@ void kpoAppGui::on_removeNoiseCheckBox_toggled(bool checked)
 
 void kpoAppGui::on_setOscTargetButton_clicked()
 {
-    int port = ui_->portTextInput->text().toInt();
-    std::cout << "click" << std::endl;
-    oscSender.setNetworkTarget(ui_->ipTextInput->text().toStdString().c_str(), port);
+    osc_sender_port_ = ui_->portTextInput->text().toInt();
+    osc_sender_ip_ = ui_->ipTextInput->text();
+
+    oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 }
 
 

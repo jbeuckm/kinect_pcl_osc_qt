@@ -31,6 +31,10 @@ void kpoBaseApp::loadSettings()
     models_folder_ = settings.value("models_folder_", "/home").toString();
 
     match_models_ = settings.value("match_models_", true).toBool();
+
+    osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.4").toString();
+    osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
+    oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 }
 
 
@@ -52,6 +56,9 @@ void kpoBaseApp::saveSettings()
 
     settings.setValue("estimate_normals_", estimate_normals_);
     settings.setValue("compute_descriptors_", compute_descriptors_);
+
+    settings.setValue("osc_sender_ip_", osc_sender_ip_);
+    settings.setValue("osc_sender_port_", osc_sender_port_);
 
     settings.sync();
 }
