@@ -1,13 +1,11 @@
 #ifndef KPOBASEAPP_H
 #define KPOBASEAPP_H
 
-
 // QT4
 #include <QMutex>
 #include <QTimer>
 #include <QObject>
 #include <QSettings>
-
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -51,6 +49,7 @@ protected:
 
     pcl::UniformSampling<PointType> uniform_sampling;
     float grabber_downsampling_radius_;
+    float keypoint_downsampling_radius_;
 
     std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
     std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
@@ -64,11 +63,14 @@ protected:
     bool compute_descriptors_;
     bool match_models_;
 
-    float depthThreshold;
-
-    void loadDescriptors(string filename);
+    float depth_threshold_;
 
     QString m_sSettingsFile;
+
+    QString models_folder_;
+
+    void loadExemplar(string filename);
+
     void loadSettings();
     void saveSettings();
 

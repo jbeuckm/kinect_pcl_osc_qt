@@ -50,8 +50,6 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     depth_filter_.setFilterLimits (0.5, 5.0);
 
 
-    connect (ui_->depthThresholdSlider, SIGNAL (valueChanged (int)), this, SLOT (adjustPassThroughValues (int)));
-
     modelListModel = new QStringListModel(this);
     QStringList list;
 
@@ -74,18 +72,18 @@ void kpoAppGui::loadSettings()
     kpoBaseApp::loadSettings();
 
     if (ui_->depthThresholdSlider) {
-        ui_->depthThresholdSlider->setValue(depthThreshold * 1000);
+        ui_->depthThresholdSlider->setValue(depth_threshold_ * 1000);
     }
 
+    ui_->downsamplingRadiusSlider->setValue(keypoint_downsampling_radius_ * 10000);
+    ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
+
+    ui_->computeNormalsCheckbox->setChecked(estimate_normals_);
+    ui_->findSHOTdescriptors->setChecked(compute_descriptors_);
+    ui_->matchModelsCheckbox->setChecked(match_models_);
 }
 
-void kpoAppGui::setDepthFromSliderValue(int depthThreshold)
-{
-    float scaledValue = float (depthThreshold) / 1000.0f;
 
-    depth_filter_.setFilterLimits (0.0f, scaledValue);
-    PCL_INFO ("Changed passthrough maximum value to: %f\n", scaledValue);
-}
 
 
 
@@ -149,10 +147,6 @@ int main (int argc, char ** argv)
 }
 
 
-void kpoAppGui::adjustPassThroughValues (int new_value)
-{
-    setDepthFromSliderValue(new_value);
-}
 
 void kpoAppGui::on_pauseCheckBox_toggled(bool checked)
 {
@@ -214,9 +208,9 @@ void kpoAppGui::saveDescriptors(string filename, const pcl::PointCloud<Descripto
     addStringToModelsList(filename);
 }
 
-void kpoAppGui::loadDescriptors(string filename)
+void kpoAppGui::loadExemplar(string filename)
 {
-    kpoBaseApp::loadDescriptors(filename);
+    kpoBaseApp::loadExemplar(filename);
 
     addStringToModelsList(filename);
 }
@@ -238,7 +232,7 @@ void kpoAppGui::on_loadDescriptorButton_clicked()
                                                     tr("Files (*.descriptor.pcd)"));
 
     if (!filename.isEmpty()) {
-        loadDescriptors(filename.toStdString());
+        loadExemplar(filename.toStdString());
     }
 }
 
@@ -289,17 +283,13 @@ void kpoAppGui::on_setOscTargetButton_clicked()
 
 
 
-void kpoAppGui::on_depthThresholdlSlider_valueChanged(int value)
-{
-    setDepthFromSliderValue(value);
-}
 
 void kpoAppGui::on_downsamplingRadiusSlider_valueChanged(int value)
 {
-    float radius = float(value) / 10000.0f;
+    keypoint_downsampling_radius_ = float(value) / 10000.0f;
 
-    pcl_functions_.setDownsamplingRadius(radius);
-    ui_->downsamplingRadiusEdit->setText(QString::number(radius, 'g', 3));
+    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
+    ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
 }
 
 void kpoAppGui::on_browseForModelsButton_clicked()
@@ -315,4 +305,9 @@ void kpoAppGui::on_browseForModelsButton_clicked()
         ui_->modelsFolderEdit->setText(dir);
     }
 
+}
+
+void kpoAppGui::on_depthThresholdSlider_valueChanged(int value)
+{
+    depth_threshold_ = float(value) / 1000.0f;
 }

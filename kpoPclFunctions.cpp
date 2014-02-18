@@ -113,11 +113,9 @@ void kpoPclFunctions::setHoughSceneCloud(const CloudConstPtr &scene_keypoints, c
 }
 
 
-std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(const CloudConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs)
+void kpoPclFunctions::houghCorrespondences(const CloudConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs,
+                                           std::vector<pcl::Correspondences> &clustered_corrs, std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > &rototranslations)
 {
-    std::vector<pcl::Correspondences> clustered_corrs;
-    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
-
 /*
     std::cout << "model " << model_keypoints->size() << "/" << model_rf->size() << std::endl;
     std::cout << "scene " << scene_keypoints->size() << "/" << scene_rf->size() << std::endl;
@@ -131,7 +129,6 @@ std::vector<pcl::Correspondences> kpoPclFunctions::houghCorrespondences(const Cl
     clusterer.recognize (rototranslations, clustered_corrs);
 //    std::cout << "model instances: " << rototranslations.size() << std::endl;
 
-    return clustered_corrs;
 }
 
 

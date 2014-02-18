@@ -62,19 +62,15 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
   private:
     Ui::KinectPclOsc *ui_;
 
-    void loadDescriptors(string filename);
+    void loadExemplar(string filename);
     void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
 
     QStringListModel *modelListModel;
     void addStringToModelsList(string str);
 
 
-    void setDepthFromSliderValue(int val);
-
-
   public slots:
 
-    void adjustPassThroughValues (int new_value);
 
   private slots:
     void timeoutSlot ();
@@ -89,7 +85,7 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void on_removeNoiseCheckBox_toggled(bool checked);
     void on_presampleRadiusSlider_valueChanged(int value);
 
-    void on_depthThresholdlSlider_valueChanged(int value);
+
     void on_computeNormalsCheckbox_toggled(bool checked);
     void on_findSHOTdescriptors_toggled(bool checked);
 
@@ -100,6 +96,8 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void on_downsamplingRadiusSlider_valueChanged(int value);
 
     void on_browseForModelsButton_clicked();
+
+    void on_depthThresholdSlider_valueChanged(int value);
 
 signals:
     void valueChanged (int new_value);
