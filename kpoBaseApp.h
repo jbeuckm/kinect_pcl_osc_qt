@@ -6,7 +6,11 @@
 #include <QTimer>
 #include <QObject>
 #include <QSettings>
+#include <QtDebug>
+#include <QDirIterator>
+#include <QProgressDialog>
 
+// PCL
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/io/openni_grabber.h>
@@ -48,8 +52,8 @@ protected:
     RFCloud::Ptr scene_rf_;
 
     pcl::UniformSampling<PointType> uniform_sampling;
-    float grabber_downsampling_radius_;
-    float keypoint_downsampling_radius_;
+    double grabber_downsampling_radius_;
+    double keypoint_downsampling_radius_;
 
     std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
     std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
@@ -63,12 +67,13 @@ protected:
     bool compute_descriptors_;
     bool match_models_;
 
-    float depth_threshold_;
+    double depth_threshold_;
 
     QString m_sSettingsFile;
 
     QString models_folder_;
 
+    void loadModelFiles();
     void loadExemplar(string filename);
 
     void loadSettings();

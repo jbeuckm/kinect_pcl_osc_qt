@@ -208,6 +208,28 @@ void kpoAppGui::saveDescriptors(string filename, const pcl::PointCloud<Descripto
     addStringToModelsList(filename);
 }
 
+void kpoAppGui::loadModelFiles()
+{
+    QStringList nameFilter("*.pcd");
+    QDir directory(models_folder_);
+    QStringList model_files = directory.entryList(nameFilter);
+
+    int count = model_files.length();
+
+    QProgressDialog progress("Loading Model files...", "Cancel", 0, count, this);
+    progress.setWindowModality(Qt::WindowModal);
+
+    for (int i=0; i<count; i++) {
+        std::cout << "reading " << model_files[i].toStdString() << std::endl;
+        progress.setValue(i);
+    }
+
+    progress.setValue(count);
+
+}
+
+
+
 void kpoAppGui::loadExemplar(string filename)
 {
     kpoBaseApp::loadExemplar(filename);

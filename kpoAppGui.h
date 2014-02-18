@@ -62,6 +62,7 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
   private:
     Ui::KinectPclOsc *ui_;
 
+    void loadModelFiles();
     void loadExemplar(string filename);
     void saveDescriptors(string filename, const DescriptorCloud::Ptr &descriptors);
 

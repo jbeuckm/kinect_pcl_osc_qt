@@ -20,9 +20,9 @@ void kpoBaseApp::loadSettings()
 
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
-    depth_threshold_ = settings.value("depth_threshold_", 5).toFloat();
+    depth_threshold_ = settings.value("depth_threshold_", 5).toDouble();
 
-    keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toFloat();
+    keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
     pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
 
     estimate_normals_ = settings.value("estimate_normals_", true).toBool();
@@ -35,6 +35,20 @@ void kpoBaseApp::loadSettings()
     osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.4").toString();
     osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
     oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
+
+    loadModelFiles();
+}
+
+
+void kpoBaseApp::loadModelFiles()
+{
+    QDirIterator dirIt(models_folder_, QDirIterator::Subdirectories);
+    while (dirIt.hasNext()) {
+        dirIt.next();
+        if (QFileInfo(dirIt.filePath()).isFile())
+            if (QFileInfo(dirIt.filePath()).suffix() == "pcd")
+                qDebug()<<dirIt.filePath();
+    }
 }
 
 
@@ -44,8 +58,6 @@ void kpoBaseApp::saveSettings()
 
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
-    float min;
-    depth_filter_.getFilterLimits(min, depth_threshold_);
     std::cout << "depth_threshold_ = " << depth_threshold_ << std::endl;
     settings.setValue("depth_threshold_", depth_threshold_);
 
