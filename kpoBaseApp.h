@@ -2,6 +2,7 @@
 #define KPOBASEAPP_H
 
 // QT4
+#include <QApplication>
 #include <QMutex>
 #include <QTimer>
 #include <QObject>
@@ -75,7 +76,7 @@ protected:
 
     void loadModelFiles();
     void loadExemplar(string filename);
-    void addObjectToMatchList();
+    void addCurrentObjectToMatchList();
 
     void loadSettings();
     void saveSettings();

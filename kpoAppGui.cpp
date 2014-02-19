@@ -39,15 +39,6 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     vis_->getInteractorStyle ()->setKeyboardModifier (pcl::visualization::INTERACTOR_KB_MOD_SHIFT);
     ui_->qvtk_widget->update ();
 
-    // Start the OpenNI data acquision
-    boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoAppGui::cloud_callback, this, _1);
-    boost::signals2::connection c = grabber_.registerCallback (f);
-
-    grabber_.start ();
-
-    // Set defaults
-    depth_filter_.setFilterFieldName ("z");
-    depth_filter_.setFilterLimits (0.5, 5.0);
 
 
     modelListModel = new QStringListModel(this);
@@ -56,12 +47,6 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     modelListModel->setStringList(list);
     ui_->modelListView->setModel(modelListModel);
 
-    grabber_downsampling_radius_ = .005f;
-
-    m_sSettingsFile = QApplication::applicationDirPath() + "/settings.ini";
-
-    std::cout <<  m_sSettingsFile.toStdString() << endl;
-    loadSettings();
 
     connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot ()));
     vis_timer_->start (5);
@@ -81,30 +66,20 @@ void kpoAppGui::loadSettings()
     ui_->computeNormalsCheckbox->setChecked(estimate_normals_);
     ui_->findSHOTdescriptors->setChecked(compute_descriptors_);
     ui_->matchModelsCheckbox->setChecked(match_models_);
+
+    ui_->modelsFolderEdit->setText(models_folder_);
 }
 
 
 
 void kpoAppGui::loadModelFiles()
 {
-    std::cout << "kpoAppGui::loadModelFiles()" << std::endl;
-
-    QStringList nameFilter("*.pcd");
-    QDir directory(models_folder_);
-    QStringList model_files = directory.entryList(nameFilter);
-
-    int count = model_files.length();
-
+/*
     QProgressDialog progress("Loading Model files...", "Cancel", 0, count, this);
     progress.setWindowModality(Qt::WindowModal);
-
-    for (int i=0; i<count; i++) {
-        std::cout << "reading " << model_files[i].toStdString() << std::endl;
-        progress.setValue(i);
-    }
-
+    progress.setValue(i);
     progress.setValue(count);
-
+*/
 }
 
 
@@ -228,7 +203,7 @@ void kpoAppGui::on_saveDescriptorButton_clicked()
                                                     tr("Descriptors (*.dsc)"));
 
     if (!filename.isEmpty()) {
-        addObjectToMatchList();
+        addCurrentObjectToMatchList();
     }
 }
 
@@ -315,6 +290,7 @@ void kpoAppGui::on_browseForModelsButton_clicked()
                                                     | QFileDialog::DontResolveSymlinks);
 
     if (!dir.isEmpty()) {
+        models_folder_ = dir;
         ui_->modelsFolderEdit->setText(dir);
     }
 

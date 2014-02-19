@@ -4,7 +4,22 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , mtx_ ()
 {
+    // Start the OpenNI data acquision
+    boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
+    boost::signals2::connection c = grabber_.registerCallback (f);
 
+    // Set defaults
+    depth_filter_.setFilterFieldName ("z");
+    depth_filter_.setFilterLimits (0.5, 5.0);
+
+    grabber_downsampling_radius_ = .005f;
+
+    m_sSettingsFile = QApplication::applicationDirPath() + "/settings.ini";
+
+    std::cout <<  m_sSettingsFile.toStdString() << endl;
+    loadSettings();
+
+    grabber_.start ();
 }
 
 
@@ -42,15 +57,36 @@ void kpoBaseApp::loadSettings()
 
 void kpoBaseApp::loadModelFiles()
 {
-    QDirIterator dirIt(models_folder_, QDirIterator::Subdirectories);
-    while (dirIt.hasNext()) {
-        dirIt.next();
-        if (QFileInfo(dirIt.filePath()).isFile())
-            if (QFileInfo(dirIt.filePath()).suffix() == "pcd")
-                qDebug()<<dirIt.filePath();
+    std::cout << "kpoBaseApp::loadModelFiles() with " << models_folder_.toStdString() << std::endl;
+
+    QStringList nameFilter("*.pcd");
+    QDir directory(models_folder_);
+    QStringList model_files = directory.entryList(nameFilter);
+
+    int count = model_files.length();
+
+    for (int i=0; i<count; i++) {
+        std::cout << "reading " << model_files[i].toStdString() << std::endl;
+
+        loadExemplar(models_folder_.toStdString() + "/" + model_files[i].toStdString());
     }
+
 }
 
+
+
+// load a raw model cap and process it into a matchable set of keypoints, descriptors
+void kpoBaseApp::loadExemplar(string filename)
+{
+    pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
+
+    pcl::PCDReader reader;
+    reader.read<PointType> (filename, *model_);
+
+
+    process_cloud(model_);
+    addCurrentObjectToMatchList();
+}
 
 void kpoBaseApp::saveSettings()
 {
@@ -76,21 +112,8 @@ void kpoBaseApp::saveSettings()
 }
 
 
-// load a raw model cap and process it into a matchable set of keypoints, descriptors
-void kpoBaseApp::loadExemplar(string filename)
-{
-    pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
-
-    pcl::PCDReader reader;
-    reader.read<PointType> (filename, *model_);
-
-
-    process_cloud(model_);
-    addObjectToMatchList();
-}
-
 // Save the currently processed cloud/keypoints/descriptors tpo be matched
-void kpoBaseApp::addObjectToMatchList()
+void kpoBaseApp::addCurrentObjectToMatchList()
 {
     std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
     std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;

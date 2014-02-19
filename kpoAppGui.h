@@ -4,7 +4,6 @@
 
 // QT4
 #include <QMainWindow>
-#include <QApplication>
 #include <QMutexLocker>
 #include <QEvent>
 #include <QFileDialog>
