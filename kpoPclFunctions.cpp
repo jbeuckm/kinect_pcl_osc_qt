@@ -1,11 +1,13 @@
 #include "kpoPclFunctions.h"
 
-kpoPclFunctions::kpoPclFunctions()
+kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .01f) :
+    downsampling_radius_(downsampling_radius)
 {
+    uniform_sampling.setRadiusSearch (downsampling_radius_);
+
     statistical_outlier_remover.setMeanK (50);
     statistical_outlier_remover.setStddevMulThresh (1.0);
 
-    downsampling_radius_ = .01f;
     shot_radius_ = 0.04f;
 
     cg_size_ = 0.01f;

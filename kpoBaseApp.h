@@ -88,6 +88,8 @@ protected:
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
 
+    int matchModel(boost::shared_ptr<kpoObjectDescription> model_);
+
     void pause();
 
     kpoOscSender oscSender;

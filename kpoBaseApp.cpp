@@ -2,6 +2,7 @@
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
+    , pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
 {
     // Start the OpenNI data acquision
@@ -40,16 +41,20 @@ void kpoBaseApp::loadSettings()
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
     pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
 
-    estimate_normals_ = settings.value("estimate_normals_", true).toBool();
-    compute_descriptors_ = settings.value("compute_descriptors_", true).toBool();
-
     models_folder_ = settings.value("models_folder_", "/home").toString();
 
     osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.4").toString();
     osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
     oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 
+    match_models_ = true;
+    estimate_normals_ = true;
+    compute_descriptors_ = true;
     loadModelFiles();
+
+    estimate_normals_ = settings.value("estimate_normals_", true).toBool();
+    compute_descriptors_ = settings.value("compute_descriptors_", true).toBool();
+
 }
 
 
@@ -91,7 +96,12 @@ void kpoBaseApp::loadExemplar(string filepath, int object_id)
     reader.read<PointType> (filepath, *model_);
 
     process_cloud(model_);
-    addCurrentObjectToMatchList(object_id);
+
+    if (scene_cloud_->size() != 0) {
+
+        addCurrentObjectToMatchList(object_id);
+
+    }
 }
 
 void kpoBaseApp::saveSettings()
@@ -147,6 +157,7 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 
 void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 {
+    std::cout << "process_cloud() with " << cloud->size() << std::endl;
     QMutexLocker locker (&mtx_);
     //  FPS_CALC ("computation");
 
@@ -158,7 +169,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     CloudPtr cleanCloud(new Cloud);
     CloudPtr filteredCloud(new Cloud);
     scene_cloud_.reset (new Cloud);
-
+/*
     if (remove_noise_) {
 
         pcl_functions_.removeNoise(cloud, cleanCloud);
@@ -166,8 +177,9 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
         depth_filter_.setInputCloud (cleanCloud);
     }
     else {
+*/
         depth_filter_.setInputCloud (cloud);
-    }
+//    }
 
     /*
     depth_filter_.filter (*filteredCloud);
@@ -180,12 +192,17 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     pcl::copyPointCloud (*filteredCloud, sampled_indices.points, *scene_cloud_);
 */
+    std::cout << "depth_threshold_ " << depth_threshold_ << std::endl;
+
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);
 
     oscSender.send("/pointcloud/size", scene_cloud_->size());
 
-    if (scene_cloud_->size() < 25) return;
+    if (scene_cloud_->size() < 25) {
+        std::cout << "cloud too small" << std::endl;
+        return;
+    }
 
 
     if (estimate_normals_) {
@@ -215,27 +232,13 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
                 for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
-                    pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
+                    int count = matchModel(*it);
 
-                    pcl_functions_.correlateDescriptors(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
-                    std::cout << "msc" << model_scene_corrs->size() << "/" << (*it)->descriptors->size() << " ";
-
-                    if (model_scene_corrs->size() < 10) {
-                        std::cout << "- ";
-                        continue;
-                    }
-
-                    std::vector<pcl::Correspondences> clustered_corrs;
-                    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
-
-                    pcl_functions_.houghCorrespondences((*it)->keypoints, (*it)->reference_frames, model_scene_corrs, clustered_corrs, rototranslations);
-
-                    if (clustered_corrs.size() != 0) {
+                    if (count != 0) {
                         int position = it - models_.begin() ;
-                        oscSender.send("/object", position);
+                        oscSender.send("/object", (*it)->object_id);
                     }
-
-                    std::cout << clustered_corrs.size() << " ";
+                    std::cout << count << " ";
 
                 }
 
@@ -245,4 +248,25 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
         }
     }
 
+}
+
+
+int kpoBaseApp::matchModel(boost::shared_ptr<kpoObjectDescription> model_)
+{
+
+    pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
+
+    pcl_functions_.correlateDescriptors(scene_descriptors_, model_->descriptors, model_scene_corrs);
+    std::cout << "msc" << model_scene_corrs->size() << "/" << model_->descriptors->size() << " ";
+
+    if (model_scene_corrs->size() < 10) {
+        return 0;
+    }
+
+    std::vector<pcl::Correspondences> clustered_corrs;
+    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
+
+    pcl_functions_.houghCorrespondences(model_->keypoints, model_->reference_frames, model_scene_corrs, clustered_corrs, rototranslations);
+
+    return clustered_corrs.size();
 }
