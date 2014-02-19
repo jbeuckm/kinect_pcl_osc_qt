@@ -45,8 +45,6 @@ void kpoBaseApp::loadSettings()
 
     models_folder_ = settings.value("models_folder_", "/home").toString();
 
-    match_models_ = settings.value("match_models_", true).toBool();
-
     osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.4").toString();
     osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
     oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
@@ -100,7 +98,6 @@ void kpoBaseApp::saveSettings()
     settings.setValue("keypoint_downsampling_radius_", keypoint_downsampling_radius_);
 
     settings.setValue("models_folder_", models_folder_);
-    settings.setValue("match_models_", match_models_);
 
     settings.setValue("estimate_normals_", estimate_normals_);
     settings.setValue("compute_descriptors_", compute_descriptors_);
@@ -197,11 +194,11 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 //            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
 //            std::cout << "resolution = " << res << std::endl;
 
+            scene_rf_.reset(new RFCloud ());
+            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
+
 
             if (match_models_) {
-
-                scene_rf_.reset(new RFCloud ());
-                pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
 
                 pcl_functions_.setHoughSceneCloud(scene_keypoints_, scene_rf_);
 
@@ -210,6 +207,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                     pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
                     pcl_functions_.correlateDescriptors(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
+                    std::cout << "msc" << model_scene_corrs->size() << "/" << (*it)->descriptors->size() << " ";
 
                     std::vector<pcl::Correspondences> clustered_corrs;
                     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
