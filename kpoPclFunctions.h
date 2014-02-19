@@ -69,7 +69,7 @@ private:
     float cg_size_;
     float cg_thresh_;
 
-    pcl::StatisticalOutlierRemoval<PointType> sor;
+    pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
 
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
     pcl::UniformSampling<PointType> uniform_sampling;

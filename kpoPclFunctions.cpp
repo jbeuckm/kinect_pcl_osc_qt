@@ -2,8 +2,8 @@
 
 kpoPclFunctions::kpoPclFunctions()
 {
-    sor.setMeanK (50);
-    sor.setStddevMulThresh (1.0);
+    statistical_outlier_remover.setMeanK (50);
+    statistical_outlier_remover.setStddevMulThresh (1.0);
 
     downsampling_radius_ = .01f;
     shot_radius_ = 0.04f;
@@ -29,6 +29,7 @@ kpoPclFunctions::kpoPclFunctions()
 
     gc_clusterer.setGCSize (cg_size_);
     gc_clusterer.setGCThreshold (cg_thresh_);
+
 }
 
 
@@ -182,6 +183,6 @@ double kpoPclFunctions::computeCloudResolution (const CloudConstPtr &cloud)
 
 void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered_cloud)
 {
-    sor.setInputCloud (cloud);
-    sor.filter (*filtered_cloud);
+    statistical_outlier_remover.setInputCloud (cloud);
+    statistical_outlier_remover.filter (*filtered_cloud);
 }

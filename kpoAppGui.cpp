@@ -1,3 +1,4 @@
+#include <string>
 
 #include "kpoAppGui.h"
 
@@ -84,9 +85,9 @@ void kpoAppGui::loadModelFiles()
 
 
 
-void kpoAppGui::loadExemplar(string filename)
+void kpoAppGui::loadExemplar(string filename, int object_id)
 {
-    kpoBaseApp::loadExemplar(filename);
+    kpoBaseApp::loadExemplar(filename, object_id);
 
     addStringToModelsList(filename);
 }
@@ -203,7 +204,7 @@ void kpoAppGui::on_saveDescriptorButton_clicked()
                                                     tr("Descriptors (*.dsc)"));
 
     if (!filename.isEmpty()) {
-        addCurrentObjectToMatchList();
+//        addCurrentObjectToMatchList(std::stoi(objectname));
     }
 }
 
@@ -217,10 +218,11 @@ void kpoAppGui::on_loadDescriptorButton_clicked()
     QString filename = QFileDialog::getOpenFileName(this, tr("Load Descriptor"),
                                                     "",
                                                     tr("Files (*.descriptor.pcd)"));
-
+/*
     if (!filename.isEmpty()) {
         loadExemplar(filename.toStdString());
     }
+*/
 }
 
 

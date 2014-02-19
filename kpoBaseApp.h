@@ -1,6 +1,10 @@
 #ifndef KPOBASEAPP_H
 #define KPOBASEAPP_H
 
+
+#include <iostream>
+#include <string>
+
 // QT4
 #include <QApplication>
 #include <QMutex>
@@ -75,8 +79,8 @@ protected:
     QString models_folder_;
 
     void loadModelFiles();
-    void loadExemplar(string filename);
-    void addCurrentObjectToMatchList();
+    void loadExemplar(string filepath, int object_id);
+    void addCurrentObjectToMatchList(int object_id);
 
     void loadSettings();
     void saveSettings();

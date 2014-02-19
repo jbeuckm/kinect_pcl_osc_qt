@@ -62,11 +62,20 @@ void kpoBaseApp::loadModelFiles()
     QStringList model_files = directory.entryList(nameFilter);
 
     int count = model_files.length();
+    std::cout << "will load " << count << " model files." << std::endl;
 
     for (int i=0; i<count; i++) {
-        std::cout << "reading " << model_files[i].toStdString() << std::endl;
 
-        loadExemplar(models_folder_.toStdString() + "/" + model_files[i].toStdString());
+        QString qs_filename = model_files[i];
+        string filename = qs_filename.toStdString();
+
+        std::cout << "reading " << filename << std::endl;
+
+        int object_id = qs_filename.replace(QRegExp("[a-z]*.pcd"), "").toInt();
+
+        std::cout << "model has id " << object_id << std::endl;
+
+        loadExemplar(models_folder_.toStdString() + "/" + filename, object_id);
     }
 
 }
@@ -74,16 +83,15 @@ void kpoBaseApp::loadModelFiles()
 
 
 // load a raw model cap and process it into a matchable set of keypoints, descriptors
-void kpoBaseApp::loadExemplar(string filename)
+void kpoBaseApp::loadExemplar(string filepath, int object_id)
 {
     pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
 
     pcl::PCDReader reader;
-    reader.read<PointType> (filename, *model_);
-
+    reader.read<PointType> (filepath, *model_);
 
     process_cloud(model_);
-    addCurrentObjectToMatchList();
+    addCurrentObjectToMatchList(object_id);
 }
 
 void kpoBaseApp::saveSettings()
@@ -110,7 +118,7 @@ void kpoBaseApp::saveSettings()
 
 
 // Save the currently processed cloud/keypoints/descriptors tpo be matched
-void kpoBaseApp::addCurrentObjectToMatchList()
+void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
 {
     std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
     std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
@@ -119,6 +127,9 @@ void kpoBaseApp::addCurrentObjectToMatchList()
     std::cout << "saving ref frames with " << scene_rf_->size() << " points" << std::endl;
 
     boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_rf_));
+
+    object_desc->object_id = object_id;
+
     models_.push_back(object_desc);
 
 //    addStringToModelsList(filename);
@@ -209,6 +220,11 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                     pcl_functions_.correlateDescriptors(scene_descriptors_, (*it)->descriptors, model_scene_corrs);
                     std::cout << "msc" << model_scene_corrs->size() << "/" << (*it)->descriptors->size() << " ";
 
+                    if (model_scene_corrs->size() < 10) {
+                        std::cout << "- ";
+                        continue;
+                    }
+
                     std::vector<pcl::Correspondences> clustered_corrs;
                     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
@@ -220,6 +236,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                     }
 
                     std::cout << clustered_corrs.size() << " ";
+
                 }
 
                 std::cout << std::endl;

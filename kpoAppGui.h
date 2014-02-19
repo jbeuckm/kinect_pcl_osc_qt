@@ -62,7 +62,7 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     Ui::KinectPclOsc *ui_;
 
     void loadModelFiles();
-    void loadExemplar(string filename);
+    void loadExemplar(string filename, int object_id);
 
     QStringListModel *modelListModel;
     void addStringToModelsList(string str);
