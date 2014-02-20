@@ -173,7 +173,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 /*
     if (remove_noise_) {
 
-        pcl_functions_.removeNoise(cloud, cleanCloud);
+        scene_pcl_functions_.removeNoise(cloud, cleanCloud);
 
         depth_filter_.setInputCloud (cleanCloud);
     }
@@ -236,7 +236,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 //                pcl::copyPointCloud
 
 
-                scene_pcl_functions_.setHoughSceneCloud(scene_keypoints_, scene_rf_);
 
                 for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
@@ -266,9 +265,11 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
 int kpoBaseApp::matchModel(boost::shared_ptr<kpoObjectDescription> model_)
 {
+    kpoPclFunctions pcl_functions(keypoint_downsampling_radius_);
+
     pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
-    scene_pcl_functions_.correlateDescriptors(scene_descriptors_, model_->descriptors, model_scene_corrs);
+    pcl_functions.correlateDescriptors(scene_descriptors_, model_->descriptors, model_scene_corrs);
 
     std::cout << "msc" << model_scene_corrs->size() << "/" << model_->descriptors->size() << " ";
 
@@ -279,7 +280,8 @@ int kpoBaseApp::matchModel(boost::shared_ptr<kpoObjectDescription> model_)
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
-    scene_pcl_functions_.houghCorrespondences(model_->keypoints, model_->reference_frames, model_scene_corrs, clustered_corrs, rototranslations);
+    pcl_functions.setHoughSceneCloud(scene_keypoints_, scene_rf_);
+    pcl_functions.houghCorrespondences(model_->keypoints, model_->reference_frames, model_scene_corrs, clustered_corrs, rototranslations);
 
     return clustered_corrs.size();
 }

@@ -1,4 +1,6 @@
 
+QT += concurrent
+
 SOURCES += \
     kpoPclFunctions.cpp \
     kpoOscSender.cpp \
