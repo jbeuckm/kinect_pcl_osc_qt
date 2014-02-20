@@ -2,7 +2,7 @@
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
-    , pcl_functions_( kpoPclFunctions(.01f) )
+    , scene_pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
 {
     // Start the OpenNI data acquision
@@ -39,7 +39,7 @@ void kpoBaseApp::loadSettings()
     depth_threshold_ = settings.value("depth_threshold_", 5).toDouble();
 
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
-    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
+    scene_pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
 
     models_folder_ = settings.value("models_folder_", "/home").toString();
 
@@ -47,10 +47,11 @@ void kpoBaseApp::loadSettings()
     osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
     oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 
-    match_models_ = true;
+    match_models_ = false;
     estimate_normals_ = true;
     compute_descriptors_ = true;
     loadModelFiles();
+    match_models_ = true;
 
     estimate_normals_ = settings.value("estimate_normals_", true).toBool();
     compute_descriptors_ = settings.value("compute_descriptors_", true).toBool();
@@ -78,7 +79,7 @@ void kpoBaseApp::loadModelFiles()
 
         int object_id = qs_filename.replace(QRegExp("[a-z]*.pcd"), "").toInt();
 
-        std::cout << "model has id " << object_id << std::endl;
+        std::cout << "object_id " << object_id << std::endl;
 
         loadExemplar(models_folder_.toStdString() + "/" + filename, object_id);
     }
@@ -208,41 +209,53 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     if (estimate_normals_) {
 
         scene_normals_.reset (new NormalCloud ());
-        pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
+        scene_pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
 
         if (compute_descriptors_) {
 
             scene_keypoints_.reset(new Cloud ());
-            pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
+            scene_pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
 
             scene_descriptors_.reset(new DescriptorCloud ());
-            pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
+            scene_pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
 
 
 //            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
 //            std::cout << "resolution = " << res << std::endl;
 
             scene_rf_.reset(new RFCloud ());
-            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
+            scene_pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
 
 
             if (match_models_) {
 
-                pcl_functions_.setHoughSceneCloud(scene_keypoints_, scene_rf_);
+                QElapsedTimer timer;
+                qint64 totalTime;
+                timer.start();
+
+//                pcl::copyPointCloud
+
+
+                scene_pcl_functions_.setHoughSceneCloud(scene_keypoints_, scene_rf_);
 
                 for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
+                    timer.restart();
                     int count = matchModel(*it);
+                    std::cout << timer.elapsed() << "ms ";
 
                     if (count != 0) {
                         int position = it - models_.begin() ;
                         oscSender.send("/object", (*it)->object_id);
+
+                        std::cout << count << " ";
                     }
-                    std::cout << count << " ";
+                    else {
+                        std::cout << "- ";
+                    }
 
+                    std::cout << std::endl;
                 }
-
-                std::cout << std::endl;
 
             }
         }
@@ -253,10 +266,10 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
 int kpoBaseApp::matchModel(boost::shared_ptr<kpoObjectDescription> model_)
 {
-
     pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
-    pcl_functions_.correlateDescriptors(scene_descriptors_, model_->descriptors, model_scene_corrs);
+    scene_pcl_functions_.correlateDescriptors(scene_descriptors_, model_->descriptors, model_scene_corrs);
+
     std::cout << "msc" << model_scene_corrs->size() << "/" << model_->descriptors->size() << " ";
 
     if (model_scene_corrs->size() < 10) {
@@ -266,7 +279,7 @@ int kpoBaseApp::matchModel(boost::shared_ptr<kpoObjectDescription> model_)
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
-    pcl_functions_.houghCorrespondences(model_->keypoints, model_->reference_frames, model_scene_corrs, clustered_corrs, rototranslations);
+    scene_pcl_functions_.houghCorrespondences(model_->keypoints, model_->reference_frames, model_scene_corrs, clustered_corrs, rototranslations);
 
     return clustered_corrs.size();
 }

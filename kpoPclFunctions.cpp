@@ -1,3 +1,5 @@
+#include <QElapsedTimer>
+
 #include "kpoPclFunctions.h"
 
 kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .01f) :
@@ -72,6 +74,10 @@ void kpoPclFunctions::computeShotDescriptors(const CloudConstPtr &cloud, const C
 
 void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
 {
+//    QElapsedTimer timer;
+//    qint64 totalTime;
+//    timer.start();
+
     match_search.setInputCloud (model_descriptors);
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
@@ -84,13 +90,21 @@ void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scen
         {
             continue;
         }
+
+//        timer.restart();
+
         int found_neighs = match_search.nearestKSearch (scene_descriptors->at (i), 1, neigh_indices, neigh_sqr_dists);
+
         if(found_neighs == 1 && neigh_sqr_dists[0] < 0.25f) //  add match only if the squared descriptor distance is less than 0.25 (SHOT descriptor distances are between 0 and 1 by design)
         {
             pcl::Correspondence corr (neigh_indices[0], static_cast<int> (i), neigh_sqr_dists[0]);
             model_scene_corrs->push_back (corr);
         }
+
+//        totalTime += timer.nsecsElapsed();
     }
+
+//    cout << "correlated " << size << " descriptors in avg~" << ((float)totalTime / (float)size) << "ns" << std::endl;
 }
 
 

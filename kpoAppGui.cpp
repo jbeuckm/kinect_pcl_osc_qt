@@ -278,7 +278,7 @@ void kpoAppGui::on_downsamplingRadiusSlider_valueChanged(int value)
 {
     keypoint_downsampling_radius_ = float(value) / 10000.0f;
 
-    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
+    scene_pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
     ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
 }
 

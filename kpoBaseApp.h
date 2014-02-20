@@ -14,6 +14,7 @@
 #include <QtDebug>
 #include <QDirIterator>
 #include <QProgressDialog>
+#include <QElapsedTimer>
 
 // PCL
 #include <pcl/point_cloud.h>
@@ -65,7 +66,7 @@ protected:
 
     QMutex mtx_;
 
-    kpoPclFunctions pcl_functions_;
+    kpoPclFunctions scene_pcl_functions_;
     bool paused_;
     bool remove_noise_;
     bool estimate_normals_;
