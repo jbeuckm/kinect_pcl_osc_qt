@@ -76,7 +76,6 @@ protected:
     bool compute_descriptors_;
     bool match_models_;
 
-    boost::threadpool::pool thread_pool;
     std::vector<kpoMatcherThread> matcher_threads;
     int model_index;
 

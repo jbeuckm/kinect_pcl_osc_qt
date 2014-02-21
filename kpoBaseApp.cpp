@@ -6,7 +6,6 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , scene_pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
-    , thread_pool(8)
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -20,10 +19,10 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
 
     m_sSettingsFile = QApplication::applicationDirPath() + "/settings.ini";
 
+    model_index = 0;
+
     std::cout <<  m_sSettingsFile.toStdString() << endl;
     loadSettings();
-
-    model_index = 0;
 
     grabber_.start ();
 }
@@ -247,6 +246,9 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                 timer.start();
 
                 unsigned sim = boost::thread::hardware_concurrency();
+
+                boost::threadpool::pool thread_pool(sim);
+
                 for (unsigned i=0; i<sim; i++) {
 
                     timer.restart();
