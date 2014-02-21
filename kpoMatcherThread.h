@@ -20,12 +20,12 @@ public:
     DescriptorCloud::Ptr scene_descriptors;
     RFCloud::Ptr scene_refs;
 
-    pcl::KdTreeFLANN<DescriptorType> match_search;
-    pcl::Hough3DGrouping<PointType, PointType, RFType, RFType> hough_clusterer;
+    float cg_size_;
+    float cg_thresh_;
 
     void copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCloud::Ptr scene_descriptors_, RFCloud::Ptr scene_refs_);
 
-    int operator ()();
+    void operator ()();
 
 };
 

@@ -138,11 +138,11 @@ void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
     std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
     std::cout << "saving normals with " << scene_normals_->size() << " points" << std::endl;
     std::cout << "saving descriptors with " << scene_descriptors_->size() << " points" << std::endl;
-    std::cout << "saving ref frames with " << scene_rf_->size() << " points" << std::endl;
+    std::cout << "saving ref frames with " << scene_refs_->size() << " points" << std::endl;
 
-    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_rf_));
+    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_refs_));
 
-    kpoMatcherThread model_thread(scene_keypoints_, scene_descriptors_, scene_rf_);
+    kpoMatcherThread model_thread(scene_keypoints_, scene_descriptors_, scene_refs_);
     threads.push_back(model_thread);
 
     object_desc->object_id = object_id;
@@ -229,9 +229,13 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 //            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
 //            std::cout << "resolution = " << res << std::endl;
 
-            scene_rf_.reset(new RFCloud ());
-            scene_pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_rf_);
+            scene_refs_.reset(new RFCloud ());
+            scene_pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
 
+
+            std::cout << "scene_keypoints->size = " << scene_keypoints_->size() << std::endl;
+            std::cout << "scene_descriptors->size = " << scene_descriptors_->size() << std::endl;
+            std::cout << "scene_refs->size = " << scene_refs_->size() << std::endl;
 
             if (match_models_) {
 
@@ -239,26 +243,24 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                 qint64 totalTime;
                 timer.start();
 
-//                pcl::copyPointCloud
 
-
-
-                for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
+                for (unsigned i=0; i<threads.size(); i++) {
 
                     timer.restart();
 
-                    kpoMatcherThread matcher = *(threads.begin());
+                    kpoMatcherThread matcher = threads.at(i);
 
-                    matcher.copySceneClouds(scene_keypoints_, scene_descriptors_, scene_rf_);
+                    matcher.copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
 
                     thread_pool.schedule(boost::ref( matcher ));
+
 
 int count = 0;
                     std::cout << timer.elapsed() << "ms ";
 
                     if (count != 0) {
-                        int position = it - models_.begin() ;
-                        oscSender.send("/object", (*it)->object_id);
+//                        int position = it - models_.begin() ;
+//                        oscSender.send("/object", (*it)->object_id);
 
                         std::cout << count << " ";
                     }
@@ -268,6 +270,8 @@ int count = 0;
 
                     std::cout << std::endl;
                 }
+
+                thread_pool.wait(0);
 
             }
         }

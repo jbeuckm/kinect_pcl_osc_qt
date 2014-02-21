@@ -58,7 +58,7 @@ protected:
     CloudPtr scene_keypoints_;
     NormalCloud::Ptr scene_normals_;
     DescriptorCloud::Ptr scene_descriptors_;
-    RFCloud::Ptr scene_rf_;
+    RFCloud::Ptr scene_refs_;
 
     pcl::UniformSampling<PointType> uniform_sampling;
     double grabber_downsampling_radius_;

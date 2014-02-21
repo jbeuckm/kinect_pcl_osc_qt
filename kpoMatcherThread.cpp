@@ -1,17 +1,23 @@
 #include "kpoMatcherThread.h"
 
 kpoMatcherThread::kpoMatcherThread(Cloud::Ptr model_keypoints_, DescriptorCloud::Ptr model_descriptors_, RFCloud::Ptr model_refs_)
+    : model_keypoints(new Cloud ())
+    , model_descriptors(new DescriptorCloud ())
+    , model_refs(new RFCloud ())
+    , scene_keypoints(new Cloud ())
+    , scene_descriptors(new DescriptorCloud ())
+    , scene_refs(new RFCloud ())
 {
-    model_keypoints = model_keypoints_;
-    model_descriptors = model_descriptors_;
-    model_refs = model_refs_;
+    cg_size_ = 0.01f;
+    cg_thresh_ = 5.0f;
 
-    scene_keypoints.reset (new Cloud ());
-    scene_descriptors.reset (new DescriptorCloud ());
-    scene_refs.reset (new RFCloud ());
+    pcl::copyPointCloud(*model_keypoints_, *model_keypoints);
+    pcl::copyPointCloud(*model_descriptors_, *model_descriptors);
+    pcl::copyPointCloud(*model_refs_, *model_refs);
 
-    hough_clusterer.setInputCloud (model_keypoints);
-    hough_clusterer.setInputRf (model_refs);
+    std::cout << "THREAD: model_keypoints->size = " << model_keypoints->size() << std::endl;
+    std::cout << "THREAD: model_descriptors->size = " << model_descriptors->size() << std::endl;
+    std::cout << "THREAD: model_refs->size = " << model_refs->size() << std::endl;
 }
 
 
@@ -20,13 +26,21 @@ void kpoMatcherThread::copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCl
     pcl::copyPointCloud(*scene_keypoints_, *scene_keypoints);
     pcl::copyPointCloud(*scene_descriptors_, *scene_descriptors);
     pcl::copyPointCloud(*scene_refs_, *scene_refs);
+
+    std::cout << "THREAD: scene_keypoints->size = " << scene_keypoints->size() << std::endl;
+    std::cout << "THREAD: scene_descriptors->size = " << scene_descriptors->size() << std::endl;
+    std::cout << "THREAD: scene_refs->size = " << scene_refs->size() << std::endl;
 }
 
 
-int kpoMatcherThread::operator ()()
+void kpoMatcherThread::operator ()()
 {
-    std::cout << "hello from thread" << std::endl;
-/*
+    std::cout << "**** HELLO FROM THREAD ****" << std::endl;
+
+    if (scene_descriptors->size() == 0) return;
+
+    pcl::KdTreeFLANN<DescriptorType> match_search;
+
     pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
 
     match_search.setInputCloud (model_descriptors);
@@ -49,14 +63,26 @@ int kpoMatcherThread::operator ()()
             model_scene_corrs->push_back (corr);
         }
     }
-//        std::cout << "msc" << model_scene_corrs->size() << "/" << model_->descriptors->size() << " ";
+
+    std::cout << "msc" << model_scene_corrs->size() << "/" << model_descriptors->size() << " ";
 
     if (model_scene_corrs->size() < 10) {
-        return -1;
+        return;
     }
 
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
+
+    pcl::Hough3DGrouping<PointType, PointType, RFType, RFType> hough_clusterer;
+
+    hough_clusterer.setUseInterpolation (true);
+    hough_clusterer.setUseDistanceWeight (false);
+    hough_clusterer.setHoughBinSize (cg_size_);
+    hough_clusterer.setHoughThreshold (cg_thresh_);
+
+
+    hough_clusterer.setInputCloud (model_keypoints);
+    hough_clusterer.setInputRf (model_refs);
 
     hough_clusterer.setSceneCloud (scene_keypoints);
     hough_clusterer.setSceneRf (scene_refs);
@@ -66,7 +92,6 @@ int kpoMatcherThread::operator ()()
     hough_clusterer.cluster (clustered_corrs);
     hough_clusterer.recognize (rototranslations, clustered_corrs);
 
-    return clustered_corrs.size();
-    */
-    return 0;
+//    return clustered_corrs.size();
+
 }
