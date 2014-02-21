@@ -16,8 +16,6 @@ kpoMatcherThread::kpoMatcherThread(Cloud::Ptr model_keypoints_, DescriptorCloud:
     pcl::copyPointCloud(*model_refs_, *model_refs);
 
     std::cout << "THREAD: model_keypoints->size = " << model_keypoints->size() << std::endl;
-    std::cout << "THREAD: model_descriptors->size = " << model_descriptors->size() << std::endl;
-    std::cout << "THREAD: model_refs->size = " << model_refs->size() << std::endl;
 }
 
 
@@ -26,16 +24,12 @@ void kpoMatcherThread::copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCl
     pcl::copyPointCloud(*scene_keypoints_, *scene_keypoints);
     pcl::copyPointCloud(*scene_descriptors_, *scene_descriptors);
     pcl::copyPointCloud(*scene_refs_, *scene_refs);
-
-    std::cout << "THREAD: scene_keypoints->size = " << scene_keypoints->size() << std::endl;
-    std::cout << "THREAD: scene_descriptors->size = " << scene_descriptors->size() << std::endl;
-    std::cout << "THREAD: scene_refs->size = " << scene_refs->size() << std::endl;
 }
 
 
 void kpoMatcherThread::operator ()()
 {
-    std::cout << "**** HELLO FROM THREAD ****" << std::endl;
+    std::cout << "**** HELLO FROM MODEL THREAD SIZE " << model_keypoints->size() << " ****" << std::endl;
 
     if (scene_descriptors->size() == 0) return;
 
@@ -92,6 +86,6 @@ void kpoMatcherThread::operator ()()
     hough_clusterer.cluster (clustered_corrs);
     hough_clusterer.recognize (rototranslations, clustered_corrs);
 
-//    return clustered_corrs.size();
+    std::cout << "**** GOODBYE FROM MODEL THREAD SIZE " << model_keypoints->size() << " ****" << std::endl;
 
 }

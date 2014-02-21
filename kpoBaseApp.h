@@ -77,7 +77,8 @@ protected:
     bool match_models_;
 
     boost::threadpool::pool thread_pool;
-    std::vector<kpoMatcherThread> threads;
+    std::vector<kpoMatcherThread> matcher_threads;
+    int model_index;
 
     double depth_threshold_;
 

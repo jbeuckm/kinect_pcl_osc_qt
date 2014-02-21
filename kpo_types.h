@@ -17,4 +17,20 @@ typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::PointCloud<RFType> RFCloud;
 
+// Useful macros
+#define FPS_CALC(_WHAT_) \
+do \
+{ \
+    static unsigned count = 0;\
+    static double last = pcl::getTime ();\
+    double now = pcl::getTime (); \
+    ++count; \
+    if (now - last >= 1.0) \
+    { \
+      std::cout << "Average framerate("<< _WHAT_ << "): " << double(count)/double(now - last) << " Hz" <<  std::endl; \
+      count = 0; \
+      last = now; \
+    } \
+}while(false)
+
 #endif // KPO_TYPES_H

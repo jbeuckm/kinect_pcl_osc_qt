@@ -23,6 +23,8 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     std::cout <<  m_sSettingsFile.toStdString() << endl;
     loadSettings();
 
+    model_index = 0;
+
     grabber_.start ();
 }
 
@@ -134,16 +136,20 @@ void kpoBaseApp::saveSettings()
 // Save the currently processed cloud/keypoints/descriptors tpo be matched
 void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
 {
+/*
     std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
     std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
     std::cout << "saving normals with " << scene_normals_->size() << " points" << std::endl;
     std::cout << "saving descriptors with " << scene_descriptors_->size() << " points" << std::endl;
     std::cout << "saving ref frames with " << scene_refs_->size() << " points" << std::endl;
-
+*/
     boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_refs_));
 
     kpoMatcherThread model_thread(scene_keypoints_, scene_descriptors_, scene_refs_);
-    threads.push_back(model_thread);
+
+    model_thread.object_id = object_id;
+
+    matcher_threads.push_back(model_thread);
 
     object_desc->object_id = object_id;
 
@@ -164,9 +170,9 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 
 void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 {
-    std::cout << "process_cloud() with " << cloud->size() << std::endl;
+
     QMutexLocker locker (&mtx_);
-    //  FPS_CALC ("computation");
+    FPS_CALC ("computation");
 
     // Computation goes here
     CloudPtr compressedCloud(new Cloud);
@@ -199,7 +205,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     pcl::copyPointCloud (*filteredCloud, sampled_indices.points, *scene_cloud_);
 */
-    std::cout << "depth_threshold_ " << depth_threshold_ << std::endl;
 
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);
@@ -234,8 +239,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
 
             std::cout << "scene_keypoints->size = " << scene_keypoints_->size() << std::endl;
-            std::cout << "scene_descriptors->size = " << scene_descriptors_->size() << std::endl;
-            std::cout << "scene_refs->size = " << scene_refs_->size() << std::endl;
 
             if (match_models_) {
 
@@ -243,36 +246,27 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                 qint64 totalTime;
                 timer.start();
 
-
-                for (unsigned i=0; i<threads.size(); i++) {
+                unsigned sim = boost::thread::hardware_concurrency();
+                for (unsigned i=0; i<sim; i++) {
 
                     timer.restart();
 
-                    kpoMatcherThread matcher = threads.at(i);
+                    kpoMatcherThread matcher = matcher_threads.at(model_index);
+
+                    std::cout << "scheduling matcher thread with object_id " << matcher.object_id << std::endl;
+                    std::cout << "scheduling matcher thread with size " << matcher.model_keypoints->size() << std::endl;
 
                     matcher.copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
 
                     thread_pool.schedule(boost::ref( matcher ));
 
+                    model_index = (model_index + 1) % matcher_threads.size();
 
-int count = 0;
-                    std::cout << timer.elapsed() << "ms ";
-
-                    if (count != 0) {
-//                        int position = it - models_.begin() ;
-//                        oscSender.send("/object", (*it)->object_id);
-
-                        std::cout << count << " ";
-                    }
-                    else {
-                        std::cout << "- ";
-                    }
-
-                    std::cout << std::endl;
                 }
 
+                std::cout << "started threads in " << timer.restart() << "ms";
                 thread_pool.wait(0);
-
+                std::cout << "threads comeplete in " << timer.elapsed() << "ms";
             }
         }
     }

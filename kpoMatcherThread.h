@@ -9,6 +9,7 @@
 class kpoMatcherThread {
 
 public:
+    int object_id;
 
     kpoMatcherThread(Cloud::Ptr model_keypoints_, DescriptorCloud::Ptr model_descriptors_, RFCloud::Ptr model_refs_);
 
