@@ -1,9 +1,12 @@
 #include "kpoBaseApp.h"
 
+
+
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , scene_pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
+    , thread_pool(8)
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -139,6 +142,9 @@ void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
 
     boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_rf_));
 
+    kpoMatcherThread model_thread(scene_keypoints_, scene_descriptors_, scene_rf_);
+    threads.push_back(model_thread);
+
     object_desc->object_id = object_id;
 
     models_.push_back(object_desc);
@@ -240,7 +246,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                 for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
                     timer.restart();
-                    int count = matchModel(*it);
+int count = 0;
                     std::cout << timer.elapsed() << "ms ";
 
                     if (count != 0) {
@@ -260,28 +266,4 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
         }
     }
 
-}
-
-
-int kpoBaseApp::matchModel(boost::shared_ptr<kpoObjectDescription> model_)
-{
-    kpoPclFunctions pcl_functions(keypoint_downsampling_radius_);
-
-    pcl::CorrespondencesPtr model_scene_corrs (new pcl::Correspondences ());
-
-    pcl_functions.correlateDescriptors(scene_descriptors_, model_->descriptors, model_scene_corrs);
-
-    std::cout << "msc" << model_scene_corrs->size() << "/" << model_->descriptors->size() << " ";
-
-    if (model_scene_corrs->size() < 10) {
-        return 0;
-    }
-
-    std::vector<pcl::Correspondences> clustered_corrs;
-    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
-
-    pcl_functions.setHoughSceneCloud(scene_keypoints_, scene_rf_);
-    pcl_functions.houghCorrespondences(model_->keypoints, model_->reference_frames, model_scene_corrs, clustered_corrs, rototranslations);
-
-    return clustered_corrs.size();
 }

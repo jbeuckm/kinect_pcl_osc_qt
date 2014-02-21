@@ -5,6 +5,9 @@
 #include <iostream>
 #include <string>
 
+#include <boost/thread/thread.hpp>
+#include <boost/threadpool.hpp>
+
 // QT4
 #include <QApplication>
 #include <QMutex>
@@ -30,7 +33,7 @@
 #include "kpoObjectDescription.h"
 #include "kpo_types.h"
 #include "kpoOscSender.h"
-
+#include "kpoMatcherThread.h"
 
 class kpoBaseApp
 {
@@ -73,6 +76,9 @@ protected:
     bool compute_descriptors_;
     bool match_models_;
 
+    boost::threadpool::pool thread_pool;
+    std::vector<kpoMatcherThread> threads;
+
     double depth_threshold_;
 
     QString m_sSettingsFile;
@@ -89,14 +95,11 @@ protected:
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
 
-    int matchModel(boost::shared_ptr<kpoObjectDescription> model_);
-
     void pause();
 
     kpoOscSender oscSender;
     QString osc_sender_ip_;
     int osc_sender_port_;
-
 };
 
 #endif // KPOBASEAPP_H

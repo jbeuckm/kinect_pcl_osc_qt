@@ -5,14 +5,17 @@ SOURCES += \
     kpoPclFunctions.cpp \
     kpoOscSender.cpp \
     kpoObjectDescription.cpp \
-    kpoBaseApp.cpp
+    kpoBaseApp.cpp \
+    kpoMatcherThread.cpp
 
 HEADERS += \
     kpoPclFunctions.h \
     kpoOscSender.h \
     kpoObjectDescription.h \
     kpo_types.h \
-    kpoBaseApp.h
+    kpoBaseApp.h \
+    kpoMatcherThread.h \
+    kpoMatcherThread.h
 
 
 LIBS += -L/usr/lib/pcl-1.7
