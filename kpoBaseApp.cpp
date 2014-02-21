@@ -246,6 +246,13 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                 for (std::vector< boost::shared_ptr<kpoObjectDescription> >::iterator it = models_.begin(); it != models_.end(); ++it) {
 
                     timer.restart();
+
+                    kpoMatcherThread matcher = *(threads.begin());
+
+                    matcher.copySceneClouds(scene_keypoints_, scene_descriptors_, scene_rf_);
+
+                    thread_pool.schedule(boost::ref( matcher ));
+
 int count = 0;
                     std::cout << timer.elapsed() << "ms ";
 

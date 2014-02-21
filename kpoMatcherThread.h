@@ -23,6 +23,8 @@ public:
     pcl::KdTreeFLANN<DescriptorType> match_search;
     pcl::Hough3DGrouping<PointType, PointType, RFType, RFType> hough_clusterer;
 
+    void copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCloud::Ptr scene_descriptors_, RFCloud::Ptr scene_refs_);
+
     int operator ()();
 
 };
