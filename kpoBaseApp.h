@@ -94,6 +94,7 @@ protected:
 
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
+    bool processing_cloud;
 
     void pause();
 

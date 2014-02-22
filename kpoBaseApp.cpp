@@ -24,6 +24,8 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     std::cout <<  m_sSettingsFile.toStdString() << endl;
     loadSettings();
 
+    processing_cloud = false;
+
     grabber_.start ();
 }
 
@@ -169,6 +171,8 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 
 void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 {
+    if (processing_cloud) return;
+    processing_cloud = true;
 
     QMutexLocker locker (&mtx_);
     FPS_CALC ("computation");
@@ -272,5 +276,5 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
             }
         }
     }
-
+    processing_cloud = false;
 }
