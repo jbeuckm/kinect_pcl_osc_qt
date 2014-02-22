@@ -77,6 +77,7 @@ protected:
     bool match_models_;
 
     std::vector<kpoMatcherThread> matcher_threads;
+    unsigned thread_count;
     int model_index;
 
     double depth_threshold_;
