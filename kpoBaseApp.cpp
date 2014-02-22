@@ -167,14 +167,16 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
+    if (processing_cloud) return;
+    std::cout << "### WILL PROCESS CLOUD ###" << std::endl;
+    processing_cloud = true;
     process_cloud(cloud);
+    processing_cloud = false;
 }
 
 
 void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 {
-    if (processing_cloud) return;
-    std::cout << "### WILL PROCESS CLOUD ###" << std::endl;
 
     QMutexLocker locker (&mtx_);
     FPS_CALC ("computation");
@@ -246,7 +248,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
             std::cout << "scene_keypoints->size = " << scene_keypoints_->size() << std::endl;
 
             if (match_models_) {
-                processing_cloud = true;
 
                 QElapsedTimer timer;
                 qint64 totalTime;
@@ -260,7 +261,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
                     kpoMatcherThread matcher = matcher_threads.at(model_index);
 
-                    std::cout << "matching object " << matcher.object_id << " with " << matcher.model_keypoints->size() << std::endl;
+//                    std::cout << "matching object " << matcher.object_id << " with " << matcher.model_keypoints->size() << std::endl;
 
                     matcher.copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
 
@@ -270,11 +271,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
                 }
 
-                std::cout << "started threads in " << timer.restart() << "ms" << std::endl;
                 thread_pool.wait();
-                std::cout << "threads comeplete in " << timer.elapsed() << "ms" << std::endl;
-
-                processing_cloud = false;
             }
         }
     }
