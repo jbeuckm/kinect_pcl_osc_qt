@@ -4,6 +4,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , scene_pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
+    , thread_pool(8)
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -51,7 +52,7 @@ void kpoBaseApp::loadSettings()
 
     osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.4").toString();
     osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
-    oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
+    osc_sender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 
     match_models_ = false;
     estimate_normals_ = true;
@@ -161,10 +162,12 @@ void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
 //    addStringToModelsList(filename);
 }
 
-void kpoBaseApp::matchesFound(unsigned object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation)
+void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation)
 {
     std::cout << "found object " << object_id << " at ";
     std::cout << translation(0) << "," << translation(1) << "," << translation(2) << std::endl;
+
+    osc_sender.sendObject(object_id, translation(0), translation(1), translation(2));
 }
 
 
@@ -222,7 +225,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);
 
-    oscSender.send("/pointcloud/size", scene_cloud_->size());
+    osc_sender.send("/pointcloud/size", scene_cloud_->size());
 
     if (scene_cloud_->size() < 25) {
         std::cout << "cloud too small" << std::endl;
@@ -259,7 +262,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                 qint64 totalTime;
                 timer.start();
 
-                boost::threadpool::pool thread_pool(thread_count);
 
                 for (unsigned i=0; i<thread_count; i++) {
 

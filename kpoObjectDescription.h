@@ -13,7 +13,7 @@ public:
     kpoObjectDescription();
     kpoObjectDescription(CloudPtr _cloud, CloudPtr _keypoints, NormalCloudPtr _normals, DescriptorCloud::Ptr _descriptors, RFCloud::Ptr _reference_frames);
 
-    int object_id;
+    unsigned object_id;
 
     Cloud::Ptr cloud;
     NormalCloud::Ptr normals;

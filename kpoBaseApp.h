@@ -76,11 +76,12 @@ protected:
     bool compute_descriptors_;
     bool match_models_;
 
+    boost::threadpool::pool thread_pool;
     std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
     unsigned thread_count;
     int model_index;
 
-    void matchesFound(unsigned object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation);
+    void matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation);
 
     double depth_threshold_;
 
@@ -101,7 +102,7 @@ protected:
 
     void pause();
 
-    kpoOscSender oscSender;
+    kpoOscSender osc_sender;
     QString osc_sender_ip_;
     int osc_sender_port_;
 };

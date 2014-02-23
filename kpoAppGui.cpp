@@ -268,7 +268,7 @@ void kpoAppGui::on_setOscTargetButton_clicked()
     osc_sender_port_ = ui_->portTextInput->text().toInt();
     osc_sender_ip_ = ui_->ipTextInput->text();
 
-    oscSender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
+    osc_sender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 }
 
 
