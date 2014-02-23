@@ -80,7 +80,7 @@ protected:
     unsigned thread_count;
     int model_index;
 
-    void matchesFound(int cnt);
+    void matchesFound(unsigned object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation);
 
     double depth_threshold_;
 

@@ -89,7 +89,11 @@ void kpoMatcherThread::operator ()()
     hough_clusterer.cluster (clustered_corrs);
     hough_clusterer.recognize (rototranslations, clustered_corrs);
 
-    if (rototranslations.size() > 0) {
-        callback_(rototranslations.size());
+    for (size_t i = 0; i < rototranslations.size (); ++i)
+    {
+        Eigen::Matrix3f rotation = rototranslations[i].block<3,3>(0, 0);
+        Eigen::Vector3f translation = rototranslations[i].block<3,1>(0, 3);
+
+        callback_(object_id, translation, rotation);
     }
 }

@@ -19,7 +19,7 @@ typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::PointCloud<RFType> RFCloud;
 
-typedef boost::function<void(int)> MatchCallback;
+typedef boost::function<void(unsigned, Eigen::Vector3f, Eigen::Matrix3f)> MatchCallback;
 
 
 // Useful macros

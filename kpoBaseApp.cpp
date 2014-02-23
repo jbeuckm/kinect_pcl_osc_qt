@@ -148,7 +148,7 @@ void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
     boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(scene_keypoints_, scene_descriptors_, scene_refs_));
     model_thread->object_id = object_id;
 
-    MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1);
+    MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1, _2, _3);
     model_thread->setMatchCallback(f);
 
     matcher_threads.push_back(model_thread);
@@ -161,9 +161,10 @@ void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
 //    addStringToModelsList(filename);
 }
 
-void kpoBaseApp::matchesFound(int cnt)
+void kpoBaseApp::matchesFound(unsigned object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation)
 {
-    cout << cnt << " matches found" << std::endl;
+    std::cout << "found object " << object_id << " at ";
+    std::cout << translation(0) << "," << translation(1) << "," << translation(2) << std::endl;
 }
 
 
@@ -265,8 +266,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                     timer.restart();
 
                     boost::shared_ptr<kpoMatcherThread> matcher = matcher_threads.at(model_index);
-
-//                    std::cout << "matching object " << matcher.object_id << " with " << matcher.model_keypoints->size() << std::endl;
 
                     matcher->copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
 
