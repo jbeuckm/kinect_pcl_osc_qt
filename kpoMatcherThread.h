@@ -5,7 +5,6 @@
 
 #include "kpo_types.h"
 
-
 class kpoMatcherThread {
 
 public:
@@ -25,6 +24,10 @@ public:
     float cg_thresh_;
 
     void copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCloud::Ptr scene_descriptors_, RFCloud::Ptr scene_refs_);
+
+    // to be called what matches are found
+    MatchCallback callback_;
+    void setMatchCallback(MatchCallback callback);
 
     void operator ()();
 

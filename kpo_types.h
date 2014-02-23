@@ -1,6 +1,8 @@
 #ifndef KPO_TYPES_H
 #define KPO_TYPES_H
 
+#include <boost/function.hpp>
+
 typedef pcl::PointXYZ PointType;
 
 typedef pcl::PointCloud<PointType> Cloud;
@@ -16,6 +18,9 @@ typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::PointCloud<RFType> RFCloud;
+
+typedef boost::function<void(int)> MatchCallback;
+
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \

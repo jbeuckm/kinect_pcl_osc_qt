@@ -1,5 +1,6 @@
 
 QT += concurrent
+CONFIG += c++11
 
 SOURCES += \
     kpoPclFunctions.cpp \

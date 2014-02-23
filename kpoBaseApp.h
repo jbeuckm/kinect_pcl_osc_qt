@@ -40,7 +40,7 @@ class kpoBaseApp
 public:
 
     kpoBaseApp (pcl::OpenNIGrabber& grabber);
-    ~kpoBaseApp ()
+    ~kpoBaseApp()
     {
       if (grabber_.isRunning ()) {
         grabber_.stop ();
@@ -76,9 +76,11 @@ protected:
     bool compute_descriptors_;
     bool match_models_;
 
-    std::vector<kpoMatcherThread> matcher_threads;
+    std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
     unsigned thread_count;
     int model_index;
+
+    void matchesFound(int cnt);
 
     double depth_threshold_;
 

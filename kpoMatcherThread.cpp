@@ -18,6 +18,11 @@ kpoMatcherThread::kpoMatcherThread(Cloud::Ptr model_keypoints_, DescriptorCloud:
     std::cout << "THREAD: model_keypoints->size = " << model_keypoints->size() << std::endl;
 }
 
+void kpoMatcherThread::setMatchCallback(MatchCallback callback)
+{
+    callback_ = callback;
+}
+
 
 void kpoMatcherThread::copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCloud::Ptr scene_descriptors_, RFCloud::Ptr scene_refs_)
 {
@@ -29,8 +34,6 @@ void kpoMatcherThread::copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCl
 
 void kpoMatcherThread::operator ()()
 {
-    std::cout << "**** HELLO FROM MODEL THREAD SIZE " << model_keypoints->size() << " ****" << std::endl;
-
     if (scene_descriptors->size() == 0) return;
 
     pcl::KdTreeFLANN<DescriptorType> match_search;
@@ -58,7 +61,7 @@ void kpoMatcherThread::operator ()()
         }
     }
 
-    std::cout << "msc" << model_scene_corrs->size() << "/" << model_descriptors->size() << " ";
+    std::cout << "msc" << model_scene_corrs->size() << "/" << model_descriptors->size() << std::endl;
 
     if (model_scene_corrs->size() < 10) {
         return;
@@ -86,6 +89,7 @@ void kpoMatcherThread::operator ()()
     hough_clusterer.cluster (clustered_corrs);
     hough_clusterer.recognize (rototranslations, clustered_corrs);
 
-    std::cout << "**** GOODBYE FROM MODEL THREAD SIZE " << model_keypoints->size() << " ****" << std::endl;
-
+    if (rototranslations.size() > 0) {
+        callback_(rototranslations.size());
+    }
 }

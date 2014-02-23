@@ -1,7 +1,5 @@
 #include "kpoBaseApp.h"
 
-
-
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , scene_pcl_functions_( kpoPclFunctions(.01f) )
@@ -65,6 +63,27 @@ void kpoBaseApp::loadSettings()
     compute_descriptors_ = settings.value("compute_descriptors_", true).toBool();
 
 }
+void kpoBaseApp::saveSettings()
+{
+    std::cout << "saveSettings()" << std::endl;
+
+    QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
+
+    std::cout << "depth_threshold_ = " << depth_threshold_ << std::endl;
+    settings.setValue("depth_threshold_", depth_threshold_);
+
+    settings.setValue("keypoint_downsampling_radius_", keypoint_downsampling_radius_);
+
+    settings.setValue("models_folder_", models_folder_);
+
+    settings.setValue("estimate_normals_", estimate_normals_);
+    settings.setValue("compute_descriptors_", compute_descriptors_);
+
+    settings.setValue("osc_sender_ip_", osc_sender_ip_);
+    settings.setValue("osc_sender_port_", osc_sender_port_);
+
+    settings.sync();
+}
 
 
 void kpoBaseApp::loadModelFiles()
@@ -113,27 +132,6 @@ void kpoBaseApp::loadExemplar(string filepath, int object_id)
     }
 }
 
-void kpoBaseApp::saveSettings()
-{
-    std::cout << "saveSettings()" << std::endl;
-
-    QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
-
-    std::cout << "depth_threshold_ = " << depth_threshold_ << std::endl;
-    settings.setValue("depth_threshold_", depth_threshold_);
-
-    settings.setValue("keypoint_downsampling_radius_", keypoint_downsampling_radius_);
-
-    settings.setValue("models_folder_", models_folder_);
-
-    settings.setValue("estimate_normals_", estimate_normals_);
-    settings.setValue("compute_descriptors_", compute_descriptors_);
-
-    settings.setValue("osc_sender_ip_", osc_sender_ip_);
-    settings.setValue("osc_sender_port_", osc_sender_port_);
-
-    settings.sync();
-}
 
 
 // Save the currently processed cloud/keypoints/descriptors tpo be matched
@@ -146,19 +144,26 @@ void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
     std::cout << "saving descriptors with " << scene_descriptors_->size() << " points" << std::endl;
     std::cout << "saving ref frames with " << scene_refs_->size() << " points" << std::endl;
 */
-    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_refs_));
 
-    kpoMatcherThread model_thread(scene_keypoints_, scene_descriptors_, scene_refs_);
+    boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(scene_keypoints_, scene_descriptors_, scene_refs_));
+    model_thread->object_id = object_id;
 
-    model_thread.object_id = object_id;
+    MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1);
+    model_thread->setMatchCallback(f);
 
     matcher_threads.push_back(model_thread);
 
-    object_desc->object_id = object_id;
 
+    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_refs_));
+    object_desc->object_id = object_id;
     models_.push_back(object_desc);
 
 //    addStringToModelsList(filename);
+}
+
+void kpoBaseApp::matchesFound(int cnt)
+{
+    cout << cnt << " matches found" << std::endl;
 }
 
 
@@ -259,13 +264,13 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
                     timer.restart();
 
-                    kpoMatcherThread matcher = matcher_threads.at(model_index);
+                    boost::shared_ptr<kpoMatcherThread> matcher = matcher_threads.at(model_index);
 
 //                    std::cout << "matching object " << matcher.object_id << " with " << matcher.model_keypoints->size() << std::endl;
 
-                    matcher.copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
+                    matcher->copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
 
-                    thread_pool.schedule(boost::ref( matcher ));
+                    thread_pool.schedule(boost::ref( *matcher ));
 
                     model_index = (model_index + 1) % matcher_threads.size();
 
