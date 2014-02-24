@@ -13,7 +13,7 @@ TEMPLATE = lib
 DEFINES += KPO_BASE_LIBRARY
 
 
-CONFIG += c++11
+#CONFIG += c++11
 
 SOURCES += \
     kpoPclFunctions.cpp \
@@ -32,12 +32,14 @@ HEADERS += KPO_Base_global.h \
 
 
 
-
 INCLUDEPATH += /usr/include/vtk-5.8 /usr/include/pcl-1.7 /usr/include/eigen3 /usr/include/flann
 
 
 INCLUDEPATH += $$PWD/../../../../usr/include
 DEPENDPATH += $$PWD/../../../../usr/include
+
+INCLUDEPATH += $$PWD/../../../../usr/include/pcl-1.7
+DEPENDPATH += $$PWD/../../../../usr/include/pcl-1.7
 
 
 
@@ -138,32 +140,11 @@ else:symbian: LIBS += -lpcl_recognition
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_recognition
 
 
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_common
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_common
-else:symbian: LIBS += -lpcl_common
-else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_common
-
-INCLUDEPATH += $$PWD/../../../../usr/include/pcl-1.7
-DEPENDPATH += $$PWD/../../../../usr/include/pcl-1.7
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_kdtree
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_kdtree
+else:symbian: LIBS += -lpcl_kdtree
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_kdtree
 
 
-
-symbian {
-    MMP_RULES += EXPORTUNFROZEN
-    TARGET.UID3 = 0xE71D83AF
-    TARGET.CAPABILITY =
-    TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = KPO_Base.dll
-    addFiles.path = !:/sys/bin
-    DEPLOYMENT += addFiles
-}
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}
+INCLUDEPATH += $$PWD/../../../../usr/include
+DEPENDPATH += $$PWD/../../../../usr/include

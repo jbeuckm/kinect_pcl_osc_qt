@@ -1,7 +1,7 @@
 #ifndef KPOAPPCURSES_H
 #define KPOAPPCURSES_H
 
-#include "../KPO_Base/kpoBaseApp.h"
+#include "kpoBaseApp.h"
 
 class kpoAppCurses : public kpoBaseApp
 {

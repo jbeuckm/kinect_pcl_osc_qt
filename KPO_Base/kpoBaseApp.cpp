@@ -44,12 +44,12 @@ void kpoBaseApp::loadSettings()
 
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
-    depth_threshold_ = settings.value("depth_threshold_", 5).toDouble();
+    depth_threshold_ = settings.value("depth_threshold_", 1.031).toDouble();
 
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
     scene_pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
 
-    models_folder_ = settings.value("models_folder_", "/home").toString();
+    models_folder_ = settings.value("models_folder_", "/myshare/pointclouds/objects").toString();
 
     osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.4").toString();
     osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
