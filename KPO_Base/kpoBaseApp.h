@@ -80,7 +80,7 @@ public:
 
     boost::threadpool::pool thread_pool;
     std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
-    unsigned thread_count;
+    unsigned thread_load;
     int model_index;
 
     void matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation);
@@ -100,7 +100,6 @@ public:
 
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
-    bool processing_cloud;
 
     void pause();
 

@@ -24,9 +24,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     std::cout <<  m_sSettingsFile.toStdString() << endl;
     loadSettings();
 
-    processing_cloud = false;
-
-    thread_count = 8;
+    thread_load = 12;
 
     grabber_.start ();
 }
@@ -139,14 +137,6 @@ void kpoBaseApp::loadExemplar(string filepath, int object_id)
 // Save the currently processed cloud/keypoints/descriptors tpo be matched
 void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
 {
-/*
-    std::cout << "saving cloud with " << scene_cloud_->size() << " points" << std::endl;
-    std::cout << "saving keypoints with " << scene_keypoints_->size() << " points" << std::endl;
-    std::cout << "saving normals with " << scene_normals_->size() << " points" << std::endl;
-    std::cout << "saving descriptors with " << scene_descriptors_->size() << " points" << std::endl;
-    std::cout << "saving ref frames with " << scene_refs_->size() << " points" << std::endl;
-*/
-
     boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(scene_keypoints_, scene_descriptors_, scene_refs_));
     model_thread->object_id = object_id;
 
@@ -177,11 +167,15 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
-    if (processing_cloud) return;
-    std::cout << "### WILL PROCESS CLOUD ###" << std::endl;
-    processing_cloud = true;
-    process_cloud(cloud);
-    processing_cloud = false;
+    std::cout << "thread_pool.pending() = " << thread_pool.pending() << std::endl;
+
+    if (thread_pool.pending() < thread_load) {
+
+        std::cout << "### WILL PROCESS CLOUD ###" << std::endl;
+
+        process_cloud(cloud);
+    }
+
 }
 
 
@@ -199,7 +193,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     CloudPtr cleanCloud(new Cloud);
     CloudPtr filteredCloud(new Cloud);
     scene_cloud_.reset (new Cloud);
-/*
+
     if (remove_noise_) {
 
         scene_pcl_functions_.removeNoise(cloud, cleanCloud);
@@ -207,9 +201,9 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
         depth_filter_.setInputCloud (cleanCloud);
     }
     else {
-*/
+
         depth_filter_.setInputCloud (cloud);
-//    }
+    }
 
     /*
     depth_filter_.filter (*filteredCloud);
@@ -263,8 +257,9 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                 qint64 totalTime;
                 timer.start();
 
+                int batch = thread_load - thread_pool.pending();
 
-                for (unsigned i=0; i<thread_count; i++) {
+                for (unsigned i=0; i<batch; i++) {
 
                     timer.restart();
 
@@ -278,7 +273,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
                 }
 
-                thread_pool.wait();
+//                thread_pool.wait();
             }
         }
     }
