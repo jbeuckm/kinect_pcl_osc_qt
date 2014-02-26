@@ -170,8 +170,6 @@ void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen:
 
 void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image>& image)
 {
-    std::cout << "image callback " << std::endl;
-
     unsigned image_width_ = image->getWidth();
     unsigned image_height_ = image->getHeight();
 
@@ -191,7 +189,9 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image>&
 
     scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image->getHeight(), image->getWidth());
 
-//    BlobFinder bf(scene_image_);
+    std::cout << "image callback " << scene_image_.size() << std::endl;
+    BlobFinder bf(scene_image_);
+    std::cout << "nBlobs = " << bf.numBlobs << std::endl;
 }
 
 
