@@ -2,6 +2,7 @@
 
 #include "kpoPclFunctions.h"
 
+
 kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .01f) :
     downsampling_radius_(downsampling_radius)
 {
@@ -201,4 +202,11 @@ void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered
 {
     statistical_outlier_remover.setInputCloud (cloud);
     statistical_outlier_remover.filter (*filtered_cloud);
+}
+
+
+void kpoPclFunctions::openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols)
+{
+  int sizes[2] = {rows, cols};
+  cv_image = cv::Mat(2, sizes, CV_8UC3, (void*) pImageMap);
 }

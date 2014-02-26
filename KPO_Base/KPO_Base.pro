@@ -148,3 +148,16 @@ else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_kdtree
 
 INCLUDEPATH += $$PWD/../../../../usr/include
 DEPENDPATH += $$PWD/../../../../usr/include
+
+
+LIBS += -L/usr/lib/ -lopencv_core
+
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_contrib
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_calib
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_features
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_improc
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_flann
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_legacy
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_nonfree
+#LIBS += -L$$PWD/../../../../usr/lib/ -lopencv_ml
+

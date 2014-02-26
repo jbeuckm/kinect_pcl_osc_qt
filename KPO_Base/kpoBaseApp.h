@@ -35,6 +35,8 @@
 #include "kpoOscSender.h"
 #include "kpoMatcherThread.h"
 
+#include <opencv/cv.h>
+
 #include "KPO_Base_global.h"
 
 class KPO_BASESHARED_EXPORT kpoBaseApp
@@ -55,6 +57,8 @@ public:
     std::string device_id_;
 
     pcl::PassThrough<PointType> depth_filter_;
+
+    cv::Mat scene_image_;
 
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;

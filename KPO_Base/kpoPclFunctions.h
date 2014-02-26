@@ -12,6 +12,7 @@
 #include <pcl/search/kdtree.h>
 
 #include <pcl/io/pcd_io.h>
+#include <pcl/io/openni_grabber.h>
 #include <pcl/point_cloud.h>
 #include <pcl/correspondence.h>
 #include <pcl/features/normal_3d_omp.h>
@@ -26,6 +27,8 @@
 #include <pcl/kdtree/impl/kdtree_flann.hpp>
 #include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
+
+#include <opencv/cv.h>
 
 #include "kpo_types.h"
 
@@ -59,6 +62,7 @@ public:
     double computeCloudResolution (const CloudConstPtr &cloud);
     void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
 
+    void openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols);
 
 private:
 

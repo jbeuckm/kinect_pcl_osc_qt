@@ -21,7 +21,8 @@ HEADERS += \
     kpoAppCurses.h
 
 
-LIBS += -L../KPO_Base -lkpoBaseApp -L/usr/lib/vtk-5.8
+LIBS += -L../KPO_Base -lkpoBaseApp
+LIBS += -L/usr/lib/ -lopencv_core
 
 INCLUDEPATH += ../KPO_Base /usr/include/vtk-5.8 /usr/include/pcl-1.7 /usr/include/eigen3 /usr/include/flann
 

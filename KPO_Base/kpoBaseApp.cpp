@@ -169,6 +169,25 @@ void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen:
 void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image>& image)
 {
     std::cout << "image callback " << std::endl;
+
+    unsigned image_width_ = image->getWidth();
+    unsigned image_height_ = image->getHeight();
+
+    static unsigned rgb_array_size = 0;
+    static boost::shared_array<unsigned char> rgb_array ((unsigned char*)(NULL));
+
+    static unsigned char* rgb_buffer = 0;
+
+    // here we need exact the size of the point cloud for a one-one correspondence!
+    if (rgb_array_size < image_width_ * image_height_ * 3)
+    {
+      rgb_array_size = image_width_ * image_height_ * 3;
+      rgb_array.reset (new unsigned char [rgb_array_size]);
+      rgb_buffer = rgb_array.get ();
+    }
+    image->fillRGB (image_width_, image_height_, rgb_buffer, image_width_ * 3);
+
+    scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image->getHeight(), image->getWidth());
 }
 
 
