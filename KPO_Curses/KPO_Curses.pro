@@ -23,6 +23,15 @@ HEADERS += \
 
 LIBS += -L../KPO_Base -lkpoBaseApp
 LIBS += -L/usr/lib/ -lopencv_core
+LIBS += -L/usr/lib/ -lopencv_contrib
+#LIBS += -L/usr/lib/ -lopencv_calib
+#LIBS += -L/usr/lib/ -lopencv_features
+LIBS += -L/usr/lib/ -lopencv_imgproc
+LIBS += -L/usr/lib/ -lopencv_flann
+LIBS += -L/usr/lib/ -lopencv_legacy
+LIBS += -L/usr/lib/ -lopencv_nonfree
+LIBS += -L/usr/lib/ -lopencv_ml
+
 
 INCLUDEPATH += ../KPO_Base /usr/include/vtk-5.8 /usr/include/pcl-1.7 /usr/include/eigen3 /usr/include/flann
 

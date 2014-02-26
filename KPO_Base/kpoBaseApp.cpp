@@ -1,5 +1,7 @@
 #include "kpoBaseApp.h"
 
+#include "BlobFinder.h"
+
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , scene_pcl_functions_( kpoPclFunctions(.01f) )
@@ -188,6 +190,8 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image>&
     image->fillRGB (image_width_, image_height_, rgb_buffer, image_width_ * 3);
 
     scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image->getHeight(), image->getWidth());
+
+//    BlobFinder bf(scene_image_);
 }
 
 
