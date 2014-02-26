@@ -210,3 +210,4 @@ void kpoPclFunctions::openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::M
   int sizes[2] = {rows, cols};
   cv_image = cv::Mat(2, sizes, CV_8UC3, (void*) pImageMap);
 }
+

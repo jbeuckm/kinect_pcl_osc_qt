@@ -46,7 +46,6 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     QStringList list;
 
     modelListModel->setStringList(list);
-    ui_->modelListView->setModel(modelListModel);
 
 
     connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot ()));
@@ -137,6 +136,24 @@ void kpoAppGui::updateView()
     }
     //  FPS_CALC ("visualization");
     ui_->qvtk_widget->update ();
+
+
+    cv::Mat3b src = scene_image_;
+
+    QImage dest(src.cols, src.rows, QImage::Format_ARGB32);
+    for (int y = 0; y < src.rows; ++y) {
+            const cv::Vec3b *srcrow = src[y];
+            QRgb *destrow = (QRgb*)dest.scanLine(y);
+            for (int x = 0; x < src.cols; ++x) {
+                    destrow[x] = qRgba(srcrow[x][0], srcrow[x][1], srcrow[x][2], 255);
+            }
+    }
+
+    scene_qimage_ = dest;
+
+    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
+
+    ui_->sceneImageLabel->show();
 }
 
 

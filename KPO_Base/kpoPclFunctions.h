@@ -1,6 +1,7 @@
 #ifndef PCL_FUNCTIONS_H
 #define PCL_FUNCTIONS_H
 
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
@@ -63,6 +64,7 @@ public:
     void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
 
     void openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols);
+
 
 private:
 

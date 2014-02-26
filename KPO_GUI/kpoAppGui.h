@@ -37,6 +37,7 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     kpoAppGui (pcl::OpenNIGrabber& grabber);
 
 
+
   protected:
     QTimer *vis_timer_;
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;
@@ -46,6 +47,7 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
 
   private:
     Ui::KinectPclOsc *ui_;
+    QImage scene_qimage_;
 
     void loadModelFiles();
     void loadExemplar(string filename, int object_id);
