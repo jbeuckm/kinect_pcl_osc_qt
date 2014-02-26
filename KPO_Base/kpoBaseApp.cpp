@@ -10,6 +10,10 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
     boost::signals2::connection c = grabber_.registerCallback (f);
 
+    boost::function<void (const boost::shared_ptr<openni_wrapper::Image>&)> ic = boost::bind (&kpoBaseApp::image_callback, this, _1);
+    boost::signals2::connection d = grabber_.registerCallback (ic);
+
+
     // Set defaults
     depth_filter_.setFilterFieldName ("z");
     depth_filter_.setFilterLimits (0.5, 5.0);
@@ -159,6 +163,12 @@ void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen:
     std::cout << translation(0) << "," << translation(1) << "," << translation(2) << std::endl;
 
     osc_sender.sendObject(object_id, translation(0), translation(1), translation(2));
+}
+
+
+void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image>& image)
+{
+    std::cout << "image callback " << std::endl;
 }
 
 
