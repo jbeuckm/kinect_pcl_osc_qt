@@ -138,13 +138,16 @@ void kpoAppGui::updateView()
     ui_->qvtk_widget->update ();
 
 
-    cv::Mat3b src = scene_image_;
+    cv::Mat3b resized;
 
-    QImage dest(src.cols, src.rows, QImage::Format_ARGB32);
-    for (int y = 0; y < src.rows; ++y) {
-            const cv::Vec3b *srcrow = src[y];
+    cv::resize(scene_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
+
+
+    QImage dest(resized.cols, resized.rows, QImage::Format_ARGB32);
+    for (int y = 0; y < resized.rows; ++y) {
+            const cv::Vec3b *srcrow = resized[y];
             QRgb *destrow = (QRgb*)dest.scanLine(y);
-            for (int x = 0; x < src.cols; ++x) {
+            for (int x = 0; x < resized.cols; ++x) {
                     destrow[x] = qRgba(srcrow[x][0], srcrow[x][1], srcrow[x][2], 255);
             }
     }
@@ -152,7 +155,6 @@ void kpoAppGui::updateView()
     scene_qimage_ = dest;
 
     ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
-
     ui_->sceneImageLabel->show();
 }
 

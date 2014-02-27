@@ -193,7 +193,7 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
 {
     unsigned image_width_ = image->getWidth();
     unsigned image_height_ = image->getHeight();
-return;
+
     static unsigned rgb_array_size = 0;
     static boost::shared_array<unsigned char> rgb_array ((unsigned char*)(NULL));
 
@@ -209,6 +209,8 @@ return;
     image->fillRGB (image_width_, image_height_, rgb_buffer, image_width_ * 3);
 
     scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
+
+
 
 //    std::cout << "image callback " << scene_image_.size() << std::endl;
 
