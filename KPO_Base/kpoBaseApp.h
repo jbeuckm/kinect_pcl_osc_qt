@@ -37,6 +37,7 @@
 #include "kpoMatcherThread.h"
 
 #include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 #include "KPO_Base_global.h"
 

@@ -138,10 +138,9 @@ void kpoAppGui::updateView()
     ui_->qvtk_widget->update ();
 
 
+    if (false) {
     cv::Mat3b resized;
-
     cv::resize(scene_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
-
 
     QImage dest(resized.cols, resized.rows, QImage::Format_ARGB32);
     for (int y = 0; y < resized.rows; ++y) {
@@ -156,6 +155,7 @@ void kpoAppGui::updateView()
 
     ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
     ui_->sceneImageLabel->show();
+    }
 }
 
 

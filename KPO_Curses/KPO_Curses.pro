@@ -24,6 +24,8 @@ HEADERS += \
 LIBS += -L../KPO_Base -lkpoBaseApp
 LIBS += -L/usr/lib/ -lopencv_core
 LIBS += -L/usr/lib/ -lopencv_contrib
+LIBS += -L/usr/lib/ -lopencv_highgui
+
 #LIBS += -L/usr/lib/ -lopencv_calib
 #LIBS += -L/usr/lib/ -lopencv_features
 LIBS += -L/usr/lib/ -lopencv_imgproc

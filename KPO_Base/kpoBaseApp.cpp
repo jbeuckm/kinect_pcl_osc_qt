@@ -178,19 +178,37 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
     unsigned image_height_ = depth_image->getHeight();
 
     std::cout << "depth" << std::endl;
+/*
+    static unsigned depth_array_size = 0;
+    static boost::shared_array<float> depth_array ((float*)(NULL));
+
+    static float* depth_buffer = 0;
+
+    // here we need exact the size of the point cloud for a one-one correspondence!
+    if (depth_array_size < image_width_ * image_height_)
+    {
+      depth_array_size = image_width_ * image_height_;
+      depth_array.reset (new float [depth_array_size]);
+      depth_buffer = depth_array.get ();
+    }
+    depth_image->fillDepthImage (image_width_, image_height_, depth_buffer, image_width_);
+
+    scene_pcl_functions_.openniImage2opencvMat((XnDepthPixel*)depth_buffer, scene_depth_image_, image_height_, image_width_);
+*/
 
     const XnDepthPixel* pDepthMap = depth_image->getDepthMetaData().Data();
 
-    cv::Mat depth = cv::Mat(image_width_, image_height_, CV_16UC1, (void*) pDepthMap);
+    cv::Mat depth = cv::Mat(image_height_, image_width_, CV_16UC1, (void*) pDepthMap);
 
-/*
+    std::cout << depth.size() << std::endl;
+
     BlobFinder bf(depth);
     std::cout << "nBlobs = " << bf.numBlobs << std::endl;
-*/
+
 }
 
 void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> &image)
-{
+{return;
     unsigned image_width_ = image->getWidth();
     unsigned image_height_ = image->getHeight();
 
@@ -209,7 +227,6 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
     image->fillRGB (image_width_, image_height_, rgb_buffer, image_width_ * 3);
 
     scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
-
 
 
 //    std::cout << "image callback " << scene_image_.size() << std::endl;

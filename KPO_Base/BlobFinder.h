@@ -13,11 +13,13 @@ class BlobFinder
 
 public:
 
-    BlobFinder(cv::Mat src)
+    BlobFinder(cv::Mat img)
     {
         numBlobs = 0;
-        cv::Mat img; //must create a temporary Matrix to hold the gray scale or wont work
-        cv::cvtColor(src, img, CV_BGR2GRAY); //Convert image to GrayScale
+//        cv::Mat img; //must create a temporary Matrix to hold the gray scale or wont work
+
+//        cv::cvtColor(src, img, CV_BGR2GRAY); //Convert image to GrayScale
+
         img = img > 1; //create the binary image
         ////cv::adaptiveThreshold(src,src,64,ADAPTIVE_THRESH_MEAN_C,THRESH_BINARY,7,13); //create a binary image
 
