@@ -178,23 +178,6 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
     unsigned image_height_ = depth_image->getHeight();
 
     std::cout << "depth" << std::endl;
-/*
-    static unsigned depth_array_size = 0;
-    static boost::shared_array<float> depth_array ((float*)(NULL));
-
-    static float* depth_buffer = 0;
-
-    // here we need exact the size of the point cloud for a one-one correspondence!
-    if (depth_array_size < image_width_ * image_height_)
-    {
-      depth_array_size = image_width_ * image_height_;
-      depth_array.reset (new float [depth_array_size]);
-      depth_buffer = depth_array.get ();
-    }
-    depth_image->fillDepthImage (image_width_, image_height_, depth_buffer, image_width_);
-
-    scene_pcl_functions_.openniImage2opencvMat((XnDepthPixel*)depth_buffer, scene_depth_image_, image_height_, image_width_);
-*/
 
     const XnDepthPixel* pDepthMap = depth_image->getDepthMetaData().Data();
 
@@ -203,7 +186,7 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
     std::cout << depth.size() << std::endl;
 
     BlobFinder bf(depth);
-    std::cout << "nBlobs = " << bf.numBlobs << std::endl;
+    std::cout << "depth blobs = " << bf.numBlobs << std::endl;
 
 }
 
@@ -228,11 +211,8 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
 
     scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
 
-
-//    std::cout << "image callback " << scene_image_.size() << std::endl;
-
     BlobFinder bf(scene_image_);
-//    std::cout << "nBlobs = " << bf.numBlobs << std::endl;
+    std::cout << "scene blobs = " << bf.numBlobs << std::endl;
 }
 
 
@@ -263,40 +243,19 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     pcl::removeNaNFromPointCloud(*cloud, filtered, indices);
     std::cout << filtered.size() << std::endl;
 */
-    // Computation goes here
-    CloudPtr compressedCloud(new Cloud);
-
-    pcl::PointCloud<int> sampled_indices;
-
-    CloudPtr cleanCloud(new Cloud);
-    CloudPtr filteredCloud(new Cloud);
     scene_cloud_.reset (new Cloud);
+
+    depth_filter_.setInputCloud (cloud);
+    depth_filter_.setFilterLimits(0, depth_threshold_);
+    depth_filter_.filter (*scene_cloud_);
 
     if (remove_noise_) {
 
-        scene_pcl_functions_.removeNoise(cloud, cleanCloud);
-
-        depth_filter_.setInputCloud (cleanCloud);
-    }
-    else {
-
-        depth_filter_.setInputCloud (cloud);
+        CloudPtr cleanCloud(new Cloud);
+        scene_pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
+        pcl::copyPointCloud(*cleanCloud, *scene_cloud_);
     }
 
-    /*
-    depth_filter_.filter (*filteredCloud);
-
-
-    uniform_sampling.setInputCloud (filteredCloud);
-    uniform_sampling.setRadiusSearch (grabber_downsampling_radius_);
-
-    uniform_sampling.compute (sampled_indices);
-
-    pcl::copyPointCloud (*filteredCloud, sampled_indices.points, *scene_cloud_);
-*/
-
-    depth_filter_.setFilterLimits(0, depth_threshold_);
-    depth_filter_.filter (*scene_cloud_);
 
     osc_sender.send("/pointcloud/size", scene_cloud_->size());
 
