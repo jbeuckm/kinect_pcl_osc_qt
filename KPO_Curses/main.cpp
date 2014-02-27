@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     }
 
     kpoAppCurses v (grabber);
-//    v.show ();
+
+
     return (app.exec ());
 }

@@ -26,6 +26,7 @@
 #include <pcl/compression/octree_pointcloud_compression.h>
 #include <pcl/common/time.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/filters/filter.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/keypoints/uniform_sampling.h>
 
@@ -59,6 +60,7 @@ public:
     pcl::PassThrough<PointType> depth_filter_;
 
     cv::Mat scene_image_;
+    cv::Mat scene_depth_image_;
 
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;
@@ -105,7 +107,8 @@ public:
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
 
-    void image_callback (const boost::shared_ptr<openni_wrapper::Image>& image);
+    void image_callback (const boost::shared_ptr<openni_wrapper::Image> &image);
+    void depth_callback (const boost::shared_ptr< openni_wrapper::DepthImage > &depth_image);
 
     void pause();
 

@@ -3,7 +3,7 @@
 #include "kpoPclFunctions.h"
 
 
-kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .01f) :
+kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .005f) :
     downsampling_radius_(downsampling_radius)
 {
     uniform_sampling.setRadiusSearch (downsampling_radius_);
@@ -21,7 +21,7 @@ kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .01f) :
     norm_est.setKSearch (8);
 
 
-    shot.setNumberOfThreads(8);
+//    shot.setNumberOfThreads(8);
     shot.setRadiusSearch (shot_radius_);
 
     rf_est.setFindHoles (true);
@@ -45,10 +45,42 @@ void kpoPclFunctions::setDownsamplingRadius(float _radius)
 }
 
 
-void kpoPclFunctions::estimateNormals(const CloudConstPtr &cloud, NormalCloudPtr &normals)
+void kpoPclFunctions::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals)
 {
+/*
+    // Create a KD-Tree
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+
+    // Output has the PointNormal type in order to store the normals calculated by MLS
+    pcl::PointCloud<pcl::PointNormal> mls_points;
+
+    // Init object (second point type is for the normals, even if unused)
+    pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+
+    mls.setComputeNormals (true);
+
+    // Set parameters
+    mls.setInputCloud (cloud);
+    mls.setPolynomialFit (true);
+    mls.setSearchMethod (tree);
+    mls.setSearchRadius (0.03);
+
+    // Reconstruct
+    mls.process (mls_points);
+
+    std::vector<int> indices;
+    pcl::PointCloud<pcl::PointNormal> filtered;
+    pcl::removeNaNFromPointCloud(mls_points, filtered, indices);
+    std::cout << filtered.size() << std::endl;
+
+    pcl::copyPointCloud(filtered, *normals);
+    pcl::copyPointCloud(filtered, *cloud);
+
+*/
+
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
+
 }
 
 
@@ -205,9 +237,4 @@ void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered
 }
 
 
-void kpoPclFunctions::openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols)
-{
-  int sizes[2] = {rows, cols};
-  cv_image = cv::Mat(2, sizes, CV_8UC3, (void*) pImageMap);
-}
 

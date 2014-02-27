@@ -139,11 +139,15 @@ else:symbian: LIBS += -lpcl_recognition
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_recognition
 
 
-
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_common
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_common
 else:symbian: LIBS += -lpcl_common
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_common
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_surface
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_surface
+else:symbian: LIBS += -lpcl_surface
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_surface
 
 INCLUDEPATH += $$PWD/../../../../usr/include/pcl-1.7
 DEPENDPATH += $$PWD/../../../../usr/include/pcl-1.7

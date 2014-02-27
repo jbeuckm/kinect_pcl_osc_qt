@@ -146,6 +146,11 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/deb
 else:symbian: LIBS += -lpcl_kdtree
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_kdtree
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_surface
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_surface
+else:symbian: LIBS += -lpcl_surface
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_surface
+
 
 INCLUDEPATH += $$PWD/../../../../usr/include
 DEPENDPATH += $$PWD/../../../../usr/include
@@ -160,4 +165,6 @@ LIBS += -L/usr/lib/ -lopencv_flann
 LIBS += -L/usr/lib/ -lopencv_legacy
 LIBS += -L/usr/lib/ -lopencv_nonfree
 LIBS += -L/usr/lib/ -lopencv_ml
+
+
 

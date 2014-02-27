@@ -2,6 +2,7 @@
 
 #include "BlobFinder.h"
 
+
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , scene_pcl_functions_( kpoPclFunctions(.01f) )
@@ -14,6 +15,9 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
 
     boost::function<void (const boost::shared_ptr<openni_wrapper::Image>&)> ic = boost::bind (&kpoBaseApp::image_callback, this, _1);
     boost::signals2::connection d = grabber_.registerCallback (ic);
+
+    boost::function<void (const boost::shared_ptr<openni_wrapper::DepthImage>&)> dc = boost::bind (&kpoBaseApp::depth_callback, this, _1);
+    boost::signals2::connection e = grabber_.registerCallback (dc);
 
 
     // Set defaults
@@ -168,11 +172,28 @@ void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen:
 }
 
 
-void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image>& image)
+void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthImage > &depth_image)
+{
+    unsigned image_width_ = depth_image->getWidth();
+    unsigned image_height_ = depth_image->getHeight();
+
+    std::cout << "depth" << std::endl;
+
+    const XnDepthPixel* pDepthMap = depth_image->getDepthMetaData().Data();
+
+    cv::Mat depth = cv::Mat(image_width_, image_height_, CV_16UC1, (void*) pDepthMap);
+
+/*
+    BlobFinder bf(depth);
+    std::cout << "nBlobs = " << bf.numBlobs << std::endl;
+*/
+}
+
+void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> &image)
 {
     unsigned image_width_ = image->getWidth();
     unsigned image_height_ = image->getHeight();
-
+return;
     static unsigned rgb_array_size = 0;
     static boost::shared_array<unsigned char> rgb_array ((unsigned char*)(NULL));
 
@@ -187,11 +208,12 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image>&
     }
     image->fillRGB (image_width_, image_height_, rgb_buffer, image_width_ * 3);
 
-    scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image->getHeight(), image->getWidth());
+    scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
 
-    std::cout << "image callback " << scene_image_.size() << std::endl;
+//    std::cout << "image callback " << scene_image_.size() << std::endl;
+
     BlobFinder bf(scene_image_);
-    std::cout << "nBlobs = " << bf.numBlobs << std::endl;
+//    std::cout << "nBlobs = " << bf.numBlobs << std::endl;
 }
 
 
@@ -214,10 +236,14 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 
 void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 {
-
     QMutexLocker locker (&mtx_);
     FPS_CALC ("computation");
-
+/*
+    std::vector<int> indices;
+    Cloud filtered;
+    pcl::removeNaNFromPointCloud(*cloud, filtered, indices);
+    std::cout << filtered.size() << std::endl;
+*/
     // Computation goes here
     CloudPtr compressedCloud(new Cloud);
 

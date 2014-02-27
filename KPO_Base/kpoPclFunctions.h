@@ -8,19 +8,20 @@
 #include <pcl/common/io.h>
 #include <pcl/surface/mls.h>
 #include <pcl/keypoints/uniform_sampling.h>
-#include <pcl/features/shot_omp.h>
-#include <pcl/features/normal_3d_omp.h>
+#include <pcl/filters/filter.h>
+
+#include <pcl/features/shot.h>
+#include <pcl/features/normal_3d.h>
 #include <pcl/search/kdtree.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/openni_grabber.h>
-#include <pcl/point_cloud.h>
+
 #include <pcl/correspondence.h>
-#include <pcl/features/normal_3d_omp.h>
-#include <pcl/features/shot_omp.h>
+
 #include <pcl/features/board.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/keypoints/uniform_sampling.h>
+
 #include <pcl/recognition/cg/hough_3d.h>
 #include <pcl/recognition/cg/geometric_consistency.h>
 #include <pcl/visualization/pcl_visualizer.h>
@@ -43,7 +44,7 @@ public:
 
     void setDownsamplingRadius(float _radius);
 
-    void estimateNormals(const Cloud::ConstPtr &cloud, NormalCloudPtr &normals);
+    void estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals);
 
     void computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
 
@@ -63,8 +64,17 @@ public:
     double computeCloudResolution (const CloudConstPtr &cloud);
     void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
 
-    void openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols);
 
+    void openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols)
+    {
+      int sizes[2] = {rows, cols};
+      cv_image = cv::Mat(2, sizes, CV_8UC3, (void*) pImageMap);
+    }
+    void openniImage2opencvMat(const XnDepthPixel* pDepthMap, cv::Mat& cv_depth, int rows, int cols)
+    {
+      int sizes[2] = {rows, cols};
+      cv_depth = cv::Mat(2, sizes, CV_16UC1, (void*) pDepthMap);
+    }
 
 private:
 
@@ -77,9 +87,10 @@ private:
 
     pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
 
-    pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
+    pcl::NormalEstimation<PointType, NormalType> norm_est;
+
     pcl::UniformSampling<PointType> uniform_sampling;
-    pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> shot;
+    pcl::SHOTEstimation<PointType, NormalType, DescriptorType> shot;
     pcl::KdTreeFLANN<DescriptorType> match_search;
 
     pcl::GeometricConsistencyGrouping<PointType, PointType> gc_clusterer;
