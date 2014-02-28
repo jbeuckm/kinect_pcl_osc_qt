@@ -195,6 +195,10 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
     BlobFinder bf(depth);
     std::cout << "depth blobs = " << bf.numBlobs << std::endl;
 
+    for( int i = 0; i < bf.numBlobs; i++ )
+    {
+        osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
+    }
 }
 
 void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> &image)

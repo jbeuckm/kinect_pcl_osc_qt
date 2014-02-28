@@ -30,6 +30,8 @@ public:
     void send(const char *path, int value);
     void sendObject(int object_id, float x, float y, float z);
 
+    void sendBlob(float x, float y, float size);
+
 };
 
 #endif // OSCSENDER_H

@@ -39,6 +39,24 @@ void kpoOscSender::send(const char *path, int value)
 }
 
 
+void kpoOscSender::sendBlob(float x, float y, float size)
+{
+    if (!setup_) return;
+
+    char buffer[OUTPUT_BUFFER_SIZE];
+
+    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
+
+    p << osc::BeginBundleImmediate
+      << osc::BeginMessage( "/blob" );
+
+    p << x << y << size;
+
+    p << osc::EndMessage;
+
+    transmitSocket->Send( p.Data(), p.Size() );
+}
+
 
 void kpoOscSender::sendObject(int object_id, float x, float y, float z)
 {
