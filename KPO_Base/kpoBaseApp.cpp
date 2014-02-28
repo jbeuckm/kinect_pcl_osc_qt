@@ -110,7 +110,6 @@ void kpoBaseApp::loadModelFiles()
     std::cout << "will load " << count << " model files." << std::endl;
 
 
-
     for (int i=0; i<count; i++) {
 
         QString qs_filename = model_files[i];
@@ -182,24 +181,31 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
     unsigned image_width_ = depth_image->getWidth();
     unsigned image_height_ = depth_image->getHeight();
 
-    std::cout << "depth" << std::endl;
-
     const XnDepthPixel* pDepthMap = depth_image->getDepthMetaData().Data();
 
-    cv::Mat depth = cv::Mat(image_height_, image_width_, CV_16UC1, (void*) pDepthMap);
-    depth.convertTo(scene_depth_image_, CV_8UC1);
-//    threshold( scene_depth_image_, scene_depth_image_, depth_image_threshold_, 255, THRESH_BINARY );
+    cv::Mat depth(480, 640, CV_8UC1);
+    int x, y, i = 0;
+    for(  y =0; y < 480 ; y++)
+    {
+        for( x = 0; x < 640; x++)
+        {
 
-    std::cout << depth.size() << std::endl;
+            depth.at<unsigned char >(y,x) = (unsigned char)((float)pDepthMap[i] / 1024.0 * 256.0);
 
-    BlobFinder bf(depth);
-    std::cout << "depth blobs = " << bf.numBlobs << std::endl;
+            i++;
+        }
+    }
+
+    threshold( depth, scene_depth_image_, depth_image_threshold_, 255, THRESH_TOZERO );
+imwrite( "/home/cougar/greyscale_test_image.jpg", scene_depth_image_ );
+    BlobFinder bf(scene_depth_image_);
 
     for( int i = 0; i < bf.numBlobs; i++ )
     {
         osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
     }
 }
+
 
 void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> &image)
 {
@@ -235,11 +241,7 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
-    std::cout << "thread_pool.pending() = " << thread_pool.pending() << std::endl;
-
     if (thread_pool.pending() < thread_load) {
-
-        std::cout << "### WILL PROCESS CLOUD ###" << std::endl;
 
         process_cloud(cloud);
     }

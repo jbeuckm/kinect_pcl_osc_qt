@@ -329,6 +329,7 @@ void kpoAppGui::on_depthThresholdSlider_valueChanged(int value)
 void kpoAppGui::on_depthImageThresholdSlider_valueChanged(int value)
 {
     depth_image_threshold_ = value;
+    std::cout << "depth_image_threshold_ = " << depth_image_threshold_ << std::endl;
 }
 
 
