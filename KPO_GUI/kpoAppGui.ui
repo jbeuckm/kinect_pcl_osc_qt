@@ -357,12 +357,28 @@
      <rect>
       <x>20</x>
       <y>350</y>
-      <width>311</width>
-      <height>261</height>
+      <width>271</width>
+      <height>231</height>
      </rect>
     </property>
     <property name="text">
      <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="depthImageThresholdSlider">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>350</y>
+      <width>29</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>255</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
     </property>
    </widget>
   </widget>

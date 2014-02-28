@@ -61,7 +61,9 @@ public:
     pcl::PassThrough<PointType> depth_filter_;
 
     cv::Mat scene_image_;
+
     cv::Mat scene_depth_image_;
+    int depth_image_threshold_;
 
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;

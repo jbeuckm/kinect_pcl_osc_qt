@@ -138,7 +138,23 @@ void kpoAppGui::updateView()
     ui_->qvtk_widget->update ();
 
 
-    if (false) {
+//    drawRgbImage();
+    drawDepthImage();
+}
+
+void kpoAppGui::drawDepthImage()
+{
+    cv::Mat resized;
+    cv::resize(scene_depth_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
+
+    scene_qimage_ = MatToQImage(resized);
+
+    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
+    ui_->sceneImageLabel->show();
+}
+
+void kpoAppGui::drawRgbImage()
+{
     cv::Mat3b resized;
     cv::resize(scene_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
 
@@ -155,7 +171,7 @@ void kpoAppGui::updateView()
 
     ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
     ui_->sceneImageLabel->show();
-    }
+
 }
 
 
@@ -321,3 +337,41 @@ void kpoAppGui::on_depthThresholdSlider_valueChanged(int value)
 {
     depth_threshold_ = float(value) / 1000.0f;
 }
+
+void kpoAppGui::on_depthImageThresholdSlider_valueChanged(int value)
+{
+    depth_image_threshold_ = value;
+}
+
+
+QImage kpoAppGui::MatToQImage(const Mat& mat)
+{
+    // 8-bits unsigned, NO. OF CHANNELS=1
+    if(mat.type()==CV_8UC1)
+    {
+        // Set the color table (used to translate colour indexes to qRgb values)
+        QVector<QRgb> colorTable;
+        for (int i=0; i<256; i++)
+            colorTable.push_back(qRgb(i,i,i));
+        // Copy input Mat
+        const uchar *qImageBuffer = (const uchar*)mat.data;
+        // Create QImage with same dimensions as input Mat
+        QImage img(qImageBuffer, mat.cols, mat.rows, mat.step, QImage::Format_Indexed8);
+        img.setColorTable(colorTable);
+        return img;
+    }
+    // 8-bits unsigned, NO. OF CHANNELS=3
+    if(mat.type()==CV_8UC3)
+    {
+        // Copy input Mat
+        const uchar *qImageBuffer = (const uchar*)mat.data;
+        // Create QImage with same dimensions as input Mat
+        QImage img(qImageBuffer, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+        return img.rgbSwapped();
+    }
+    else
+    {
+        qDebug() << "ERROR: Mat could not be converted to QImage.";
+        return QImage();
+    }
+} // MatToQImage()

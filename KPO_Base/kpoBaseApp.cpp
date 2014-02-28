@@ -183,6 +183,8 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
     const XnDepthPixel* pDepthMap = depth_image->getDepthMetaData().Data();
 
     cv::Mat depth = cv::Mat(image_height_, image_width_, CV_16UC1, (void*) pDepthMap);
+    depth.convertTo(scene_depth_image_, CV_8UC1);
+    threshold( scene_depth_image_, scene_depth_image_, depth_image_threshold_, 255, THRESH_BINARY );
 
     std::cout << depth.size() << std::endl;
 

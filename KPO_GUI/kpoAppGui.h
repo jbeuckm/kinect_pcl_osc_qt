@@ -21,6 +21,7 @@
 #include "kpoBaseApp.h"
 
 
+using namespace cv;
 
 
 namespace Ui
@@ -55,6 +56,10 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     QStringListModel *modelListModel;
     void addStringToModelsList(string str);
 
+    void drawRgbImage();
+    void drawDepthImage();
+
+    QImage MatToQImage(const Mat& mat);
 
   public slots:
 
@@ -85,6 +90,8 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void on_browseForModelsButton_clicked();
 
     void on_depthThresholdSlider_valueChanged(int value);
+
+    void on_depthImageThresholdSlider_valueChanged(int value);
 
 signals:
     void valueChanged (int new_value);
