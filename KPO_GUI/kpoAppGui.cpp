@@ -133,7 +133,9 @@ void kpoAppGui::updateView()
 void kpoAppGui::drawDepthImage()
 {
     cv::Mat resized;
-    cv::resize(scene_depth_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
+    cv::Mat src;
+    scene_depth_image_.convertTo(src, CV_8UC3);
+    cv::resize(src, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
 
     scene_qimage_ = MatToQImage(resized);
 
