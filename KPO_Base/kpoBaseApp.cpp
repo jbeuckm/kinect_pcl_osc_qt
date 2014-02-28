@@ -12,10 +12,10 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
     boost::signals2::connection c = grabber_.registerCallback (f);
-
+/*
     boost::function<void (const boost::shared_ptr<openni_wrapper::Image>&)> ic = boost::bind (&kpoBaseApp::image_callback, this, _1);
     boost::signals2::connection d = grabber_.registerCallback (ic);
-
+*/
     boost::function<void (const boost::shared_ptr<openni_wrapper::DepthImage>&)> dc = boost::bind (&kpoBaseApp::depth_callback, this, _1);
     boost::signals2::connection e = grabber_.registerCallback (dc);
 
@@ -63,6 +63,7 @@ void kpoBaseApp::loadSettings()
     osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
     osc_sender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 
+    remove_noise_ = true;
     match_models_ = false;
     estimate_normals_ = true;
     compute_descriptors_ = true;
@@ -191,7 +192,7 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 }
 
 void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> &image)
-{return;
+{
     unsigned image_width_ = image->getWidth();
     unsigned image_height_ = image->getHeight();
 
@@ -211,8 +212,11 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
 
     scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
 
-    BlobFinder bf(scene_image_);
-    std::cout << "scene blobs = " << bf.numBlobs << std::endl;
+    cv::Mat img; //must create a temporary Matrix to hold the gray scale or wont work
+    cv::cvtColor(scene_image_, img, CV_BGR2GRAY); //Convert image to GrayScale
+
+    BlobFinder bf(img);
+    std::cout << "rgb blobs = " << bf.numBlobs << std::endl;
 }
 
 
@@ -251,11 +255,13 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     if (remove_noise_) {
 
-        CloudPtr cleanCloud(new Cloud);
+        Cloud cleanCloud;
         scene_pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
-        pcl::copyPointCloud(*cleanCloud, *scene_cloud_);
+        pcl::copyPointCloud(cleanCloud, *scene_cloud_);
     }
 
+    //            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
+    //            std::cout << "resolution = " << res << std::endl;
 
     osc_sender.send("/pointcloud/size", scene_cloud_->size());
 
@@ -278,9 +284,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
             scene_descriptors_.reset(new DescriptorCloud ());
             scene_pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
 
-
-//            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
-//            std::cout << "resolution = " << res << std::endl;
 
             scene_refs_.reset(new RFCloud ());
             scene_pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);

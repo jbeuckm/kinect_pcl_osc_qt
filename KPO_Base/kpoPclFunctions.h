@@ -40,7 +40,7 @@ public:
 
     kpoPclFunctions(float downsampling_radius);
 
-    void removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered_cloud);
+    void removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud);
 
     void setDownsamplingRadius(float _radius);
 

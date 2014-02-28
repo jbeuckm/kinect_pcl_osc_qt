@@ -230,10 +230,10 @@ double kpoPclFunctions::computeCloudResolution (const CloudConstPtr &cloud)
 }
 
 
-void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, CloudPtr &filtered_cloud)
+void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud)
 {
     statistical_outlier_remover.setInputCloud (cloud);
-    statistical_outlier_remover.filter (*filtered_cloud);
+    statistical_outlier_remover.filter (filtered_cloud);
 }
 
 
