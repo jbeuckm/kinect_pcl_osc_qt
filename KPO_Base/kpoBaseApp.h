@@ -80,13 +80,14 @@ public:
 
     QMutex mtx_;
 
-    kpoPclFunctions scene_pcl_functions_;
+    kpoPclFunctions pcl_functions_;
     bool paused_;
     bool remove_noise_;
     bool estimate_normals_;
     bool compute_descriptors_;
     bool match_models_;
 
+    boost::threadpool::pool model_loading_thread_pool;
     boost::threadpool::pool thread_pool;
     std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
     unsigned thread_load;

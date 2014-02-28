@@ -5,9 +5,10 @@
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
-    , scene_pcl_functions_( kpoPclFunctions(.01f) )
+    , pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
     , thread_pool(8)
+    , model_loading_thread_pool(8)
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -55,7 +56,7 @@ void kpoBaseApp::loadSettings()
     depth_threshold_ = settings.value("depth_threshold_", 1.031).toDouble();
 
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
-    scene_pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
+    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
 
     models_folder_ = settings.value("models_folder_", "/myshare/pointclouds/objects").toString();
 
@@ -108,6 +109,8 @@ void kpoBaseApp::loadModelFiles()
     int count = model_files.length();
     std::cout << "will load " << count << " model files." << std::endl;
 
+
+
     for (int i=0; i<count; i++) {
 
         QString qs_filename = model_files[i];
@@ -119,6 +122,7 @@ void kpoBaseApp::loadModelFiles()
 
         std::cout << "object_id " << object_id << std::endl;
 
+//        model_loading_thread_pool.schedule(boost::bind(&kpoBaseApp::loadExemplar, this, models_folder_.toStdString() + "/" + filename, object_id));
         loadExemplar(models_folder_.toStdString() + "/" + filename, object_id);
     }
 
@@ -184,7 +188,7 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 
     cv::Mat depth = cv::Mat(image_height_, image_width_, CV_16UC1, (void*) pDepthMap);
     depth.convertTo(scene_depth_image_, CV_8UC1);
-    threshold( scene_depth_image_, scene_depth_image_, depth_image_threshold_, 255, THRESH_BINARY );
+//    threshold( scene_depth_image_, scene_depth_image_, depth_image_threshold_, 255, THRESH_BINARY );
 
     std::cout << depth.size() << std::endl;
 
@@ -212,7 +216,7 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
     }
     image->fillRGB (image_width_, image_height_, rgb_buffer, image_width_ * 3);
 
-    scene_pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
+    pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
 
     cv::Mat img; //must create a temporary Matrix to hold the gray scale or wont work
     cv::cvtColor(scene_image_, img, CV_BGR2GRAY); //Convert image to GrayScale
@@ -256,14 +260,13 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     depth_filter_.filter (*scene_cloud_);
 
     if (remove_noise_) {
-
         Cloud cleanCloud;
-        scene_pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
+        pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
         pcl::copyPointCloud(cleanCloud, *scene_cloud_);
     }
 
-    //            double res = pcl_functions_.computeCloudResolution(scene_cloud_);
-    //            std::cout << "resolution = " << res << std::endl;
+    double res = pcl_functions_.computeCloudResolution(scene_cloud_);
+    std::cout << "resolution = " << res << std::endl;
 
     osc_sender.send("/pointcloud/size", scene_cloud_->size());
 
@@ -276,19 +279,19 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     if (estimate_normals_) {
 
         scene_normals_.reset (new NormalCloud ());
-        scene_pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
+        pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
 
         if (compute_descriptors_) {
 
             scene_keypoints_.reset(new Cloud ());
-            scene_pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
+            pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
 
             scene_descriptors_.reset(new DescriptorCloud ());
-            scene_pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
+            pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
 
 
             scene_refs_.reset(new RFCloud ());
-            scene_pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
+            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
 
 
             std::cout << "scene_keypoints->size = " << scene_keypoints_->size() << std::endl;
@@ -314,8 +317,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
                     model_index = (model_index + 1) % matcher_threads.size();
 
                 }
-
-//                thread_pool.wait();
             }
         }
     }

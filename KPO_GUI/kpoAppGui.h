@@ -50,7 +50,6 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     Ui::KinectPclOsc *ui_;
     QImage scene_qimage_;
 
-    void loadModelFiles();
     void loadExemplar(string filename, int object_id);
 
     QStringListModel *modelListModel;

@@ -72,18 +72,6 @@ void kpoAppGui::loadSettings()
 
 
 
-void kpoAppGui::loadModelFiles()
-{
-/*
-    QProgressDialog progress("Loading Model files...", "Cancel", 0, count, this);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.setValue(i);
-    progress.setValue(count);
-*/
-}
-
-
-
 void kpoAppGui::loadExemplar(string filename, int object_id)
 {
     kpoBaseApp::loadExemplar(filename, object_id);
@@ -313,7 +301,7 @@ void kpoAppGui::on_downsamplingRadiusSlider_valueChanged(int value)
 {
     keypoint_downsampling_radius_ = float(value) / 10000.0f;
 
-    scene_pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
+    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
     ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
 }
 
