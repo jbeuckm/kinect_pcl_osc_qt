@@ -121,13 +121,15 @@ void kpoAppGui::updateView()
             vis_->addPointCloud (scene_keypoints_, scene_keypoints_color_handler, "scene_keypoints");
             vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "scene_keypoints");
         }
+
+
+        //    drawRgbImage();
+        drawDepthImage();
+
     }
     //  FPS_CALC ("visualization");
     ui_->qvtk_widget->update ();
 
-
-//    drawRgbImage();
-    drawDepthImage();
 }
 
 void kpoAppGui::drawDepthImage()

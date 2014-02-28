@@ -25,6 +25,8 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     depth_filter_.setFilterFieldName ("z");
     depth_filter_.setFilterLimits (0.5, 5.0);
 
+    depth_image_threshold_ = 128;
+
     grabber_downsampling_radius_ = .005f;
 
     QDir dir;
@@ -189,12 +191,12 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
     {
         for( x = 0; x < 640; x++)
         {
-
-            depth.at<unsigned char >(y,x) = (unsigned char)((float)pDepthMap[i] / 2048.0 * 256.0);
+            depth.at<unsigned char >(y,x) = pDepthMap[i] / 8;
 
             i++;
         }
     }
+
 
     threshold( depth, scene_depth_image_, depth_image_threshold_, 255, THRESH_TOZERO_INV );
 imwrite( "/home/cougar/greyscale_test_image.jpg", scene_depth_image_ );
