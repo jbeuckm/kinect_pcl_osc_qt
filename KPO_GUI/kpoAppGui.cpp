@@ -125,13 +125,14 @@ void kpoAppGui::updateView()
         }
 
 
-        //    drawRgbImage();
-        drawDepthImage();
+        drawRgbImage();
+//        drawDepthImage();
 
     }
     //  FPS_CALC ("visualization");
     ui_->qvtk_widget->update ();
 
+    blob_renderer->update();
 }
 
 void kpoAppGui::drawDepthImage()
@@ -139,18 +140,18 @@ void kpoAppGui::drawDepthImage()
     cv::Mat resized;
     cv::Mat src;
     scene_depth_image_.convertTo(src, CV_8UC3);
-    cv::resize(src, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
+//    cv::resize(src, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
 
     scene_qimage_ = MatToQImage(resized);
 
-    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
-    ui_->sceneImageLabel->show();
+//    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
+//    ui_->sceneImageLabel->show();
 }
 
 void kpoAppGui::drawRgbImage()
 {
-    cv::Mat3b resized;
-    cv::resize(scene_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
+    cv::Mat3b resized = scene_image_;
+//    cv::resize(scene_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
 
     QImage dest(resized.cols, resized.rows, QImage::Format_ARGB32);
     for (int y = 0; y < resized.rows; ++y) {
@@ -163,8 +164,10 @@ void kpoAppGui::drawRgbImage()
 
     scene_qimage_ = dest;
 
-    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
-    ui_->sceneImageLabel->show();
+    blob_renderer->updateBackgroundImage(dest);
+
+//    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
+//    ui_->sceneImageLabel->show();
 
 }
 

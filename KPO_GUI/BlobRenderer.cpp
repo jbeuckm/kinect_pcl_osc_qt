@@ -12,9 +12,27 @@ BlobRenderer::BlobRenderer(QWidget *parent)
     setAutoFillBackground(true);
 }
 
+void BlobRenderer::updateBackgroundImage(QImage image)
+{
+    pixmap = QPixmap::fromImage(image);
+
+    scaleX = (float)this->width()/(float)image.width();
+    scaleY = (float)this->height()/(float)image.height();
+}
 
 void BlobRenderer::paintEvent(QPaintEvent * /* event */)
 {
+    QPainter painter(this);
+
+    painter.scale(scaleX, scaleY);
+
+    painter.setPen(pen);
+    painter.setBrush(brush);
+    if (antialiased)
+        painter.setRenderHint(QPainter::Antialiasing, true);
+
+    painter.drawPixmap(0, 0, pixmap);
+
     /*
     static const QPoint points[4] = {
         QPoint(10, 80),
@@ -33,11 +51,6 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
     int startAngle = 20 * 16;
     int arcLength = 120 * 16;
 
-    QPainter painter(this);
-    painter.setPen(pen);
-    painter.setBrush(brush);
-    if (antialiased)
-        painter.setRenderHint(QPainter::Antialiasing, true);
 
     for (int x = 0; x < width(); x += 100) {
         for (int y = 0; y < height(); y += 100) {
@@ -88,7 +101,6 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
                 painter.drawText(rect, Qt::AlignCenter, tr("Qt by\nNokia"));
                 break;
             case Pixmap:
-                painter.drawPixmap(10, 10, pixmap);
             }
 
             painter.restore();

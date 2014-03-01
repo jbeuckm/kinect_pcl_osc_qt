@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QPainter>
 #include <QPen>
+#include <QImage>
+
 
 class BlobRenderer : public QWidget
 {
@@ -17,6 +19,8 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
+
+    void updateBackgroundImage(QImage image);
 
 public slots:
     void setShape(Shape shape);
@@ -35,6 +39,9 @@ private:
     bool antialiased;
     bool transformed;
     QPixmap pixmap;
+
+    float scaleX;
+    float scaleY;
 };
     
 

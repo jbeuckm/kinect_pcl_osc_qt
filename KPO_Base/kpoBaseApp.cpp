@@ -13,10 +13,10 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
     boost::signals2::connection c = grabber_.registerCallback (f);
-/*
+
     boost::function<void (const boost::shared_ptr<openni_wrapper::Image>&)> ic = boost::bind (&kpoBaseApp::image_callback, this, _1);
     boost::signals2::connection d = grabber_.registerCallback (ic);
-*/
+
     boost::function<void (const boost::shared_ptr<openni_wrapper::DepthImage>&)> dc = boost::bind (&kpoBaseApp::depth_callback, this, _1);
     boost::signals2::connection e = grabber_.registerCallback (dc);
 
