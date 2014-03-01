@@ -38,8 +38,6 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
   public:
     kpoAppGui (pcl::OpenNIGrabber& grabber);
 
-    void processDepthBlobs(BlobFinder bf);
-
 
 
   protected:

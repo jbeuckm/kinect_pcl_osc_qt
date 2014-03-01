@@ -200,17 +200,17 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 
 
     threshold( depth, scene_depth_image_, depth_image_threshold_, 255, THRESH_TOZERO_INV );
-//imwrite( "/home/cougar/greyscale_test_image.jpg", scene_depth_image_ );
-    blob_finder.find(scene_depth_image_);
 
-    processDepthBlobs(blob_finder);
+    depth_blob_finder.find(scene_depth_image_);
+
+    processDepthBlobs(depth_blob_finder);
 }
 void kpoBaseApp::processDepthBlobs(BlobFinder bf)
 {
     std::cout << "kpoBaseApp::processDepthBlobs" << std::endl;
     for( int i = 0; i < bf.numBlobs; i++ )
     {
-        if (bf.radius[i] > 5) {
+        if (bf.radius[i] > 20) {
             osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
         }
     }
@@ -241,7 +241,7 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
     cv::Mat img; //must create a temporary Matrix to hold the gray scale or wont work
     cv::cvtColor(scene_image_, img, CV_BGR2GRAY); //Convert image to GrayScale
 
-//    blob_findoer.find(img);
+//    blob_finder.find(img);
 //    std::cout << "rgb blobs = " << bf.numBlobs << std::endl;
 }
 

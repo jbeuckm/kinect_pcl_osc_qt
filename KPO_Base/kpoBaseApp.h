@@ -65,7 +65,7 @@ public:
 
     cv::Mat scene_depth_image_;
     int depth_image_threshold_;
-    BlobFinder blob_finder;
+    BlobFinder depth_blob_finder;
 
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;

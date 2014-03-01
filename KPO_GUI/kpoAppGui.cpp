@@ -131,8 +131,10 @@ void kpoAppGui::updateView()
         drawRgbImage();
 
         blob_renderer->resetPolygons();
-        for (int i=0; i<blob_finder.contours.size(); i++) {
-            blob_renderer->addContour(blob_finder.contours[i]);
+        for (int i=0; i<depth_blob_finder.contours.size(); i++) {
+            if (depth_blob_finder.radius[i] > 20) {
+                blob_renderer->addContour(depth_blob_finder.contours[i]);
+            }
         }
     }
     //  FPS_CALC ("visualization");
@@ -146,18 +148,14 @@ void kpoAppGui::drawDepthImage()
     cv::Mat resized;
     cv::Mat src;
     scene_depth_image_.convertTo(src, CV_8UC3);
-//    cv::resize(src, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
 
     scene_qimage_ = MatToQImage(resized);
 
-//    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
-//    ui_->sceneImageLabel->show();
 }
 
 void kpoAppGui::drawRgbImage()
 {
     cv::Mat3b resized = scene_image_;
-//    cv::resize(scene_image_, resized, cv::Size(ui_->sceneImageLabel->width(), ui_->sceneImageLabel->height()), 0, 0, cv::INTER_CUBIC);
 
     QImage dest(resized.cols, resized.rows, QImage::Format_ARGB32);
     for (int y = 0; y < resized.rows; ++y) {
@@ -171,24 +169,8 @@ void kpoAppGui::drawRgbImage()
     scene_qimage_ = dest;
 
     blob_renderer->updateBackgroundImage(dest);
-
-//    ui_->sceneImageLabel->setPixmap(QPixmap::fromImage(scene_qimage_));
-//    ui_->sceneImageLabel->show();
-
 }
 
-void kpoAppGui::processDepthBlobs(BlobFinder bf)
-{
-    std::cout << "kpoAppGui::processDepthBlobs" << std::endl;
-
-    for( int i = 0; i < bf.numBlobs; i++ )
-    {
-        if (bf.radius[i] > 10) {
-            osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
-        }
-
-    }
-}
 
 
 int main (int argc, char ** argv)
