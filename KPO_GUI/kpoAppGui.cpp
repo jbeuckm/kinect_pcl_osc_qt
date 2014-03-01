@@ -131,6 +131,7 @@ void kpoAppGui::updateView()
         drawRgbImage();
 //        drawDepthImage();
 
+        blob_renderer->resetPolygons();
         for (int i=0; i<blob_finder.contours.size(); i++) {
             blob_renderer->addContour(blob_finder.contours[i]);
         }

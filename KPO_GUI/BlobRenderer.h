@@ -23,6 +23,7 @@ public:
 
     void updateBackgroundImage(QImage image);
 
+    void resetPolygons();
     void addContour(std::vector<cv::Point>);
     QVector<QPolygon> polygons;
 
