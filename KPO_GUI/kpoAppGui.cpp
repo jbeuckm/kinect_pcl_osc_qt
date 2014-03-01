@@ -115,21 +115,20 @@ void kpoAppGui::updateView()
         vis_->removePointCloud("scene_cloud_", 0);
         vis_->addPointCloud (scene_cloud_, "scene_cloud_");
 
+        vis_->removePointCloud("scene_keypoints", 0);
+        if (compute_descriptors_ && scene_keypoints_) {
+            pcl::visualization::PointCloudColorHandlerCustom<PointType> scene_keypoints_color_handler (scene_keypoints_, 0, 0, 255);
+            vis_->addPointCloud (scene_keypoints_, scene_keypoints_color_handler, "scene_keypoints");
+            vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "scene_keypoints");
+        }
+
+        vis_->removePointCloud("normals", 0);
         if (estimate_normals_ && scene_normals_) {
-            vis_->removePointCloud("normals", 0);
             vis_->addPointCloudNormals<PointType, NormalType> (scene_cloud_, scene_normals_, 100, .05, "normals");
             vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 1.0, 1.0, 0.0, "normals");
         }
 
-        if (compute_descriptors_ && scene_keypoints_) {
-            vis_->removePointCloud("scene_keypoints", 0);
-            pcl::visualization::PointCloudColorHandlerCustom<PointType> scene_keypoints_color_handler (scene_keypoints_, 0, 0, 255);
-            vis_->addPointCloud (scene_keypoints_, scene_keypoints_color_handler, "scene_keypoints");
-            vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "scene_keypoints");
-        }
-
         drawRgbImage();
-//        drawDepthImage();
 
         blob_renderer->resetPolygons();
         for (int i=0; i<blob_finder.contours.size(); i++) {

@@ -59,6 +59,8 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
 
     for (int i=0; i<polygons.size(); i++) {
 
+        painter.setPen(Qt::green);
+        painter.setBrush(QColor(255, 0, 0, .3));
         painter.drawPolyline(polygons[i]);
 
     }
@@ -140,7 +142,6 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
     }
 
     painter.setRenderHint(QPainter::Antialiasing, false);
-    painter.setPen(palette().dark().color());
     painter.setBrush(Qt::NoBrush);
     painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
     */
