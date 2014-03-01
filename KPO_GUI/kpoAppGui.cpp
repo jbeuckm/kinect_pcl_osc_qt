@@ -63,6 +63,7 @@ void kpoAppGui::loadSettings()
     }
 
     ui_->downsamplingRadiusSlider->setValue(keypoint_downsampling_radius_ * 10000);
+*/
     ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
 
     ui_->computeNormalsCheckbox->setChecked(estimate_normals_);
@@ -70,7 +71,7 @@ void kpoAppGui::loadSettings()
     ui_->matchModelsCheckbox->setChecked(match_models_);
 
     ui_->modelsFolderEdit->setText(models_folder_);
-*/
+
 
      ui_->portTextInput->setText(QString::number(osc_sender_port_));
      ui_->ipTextInput->setText(osc_sender_ip_);

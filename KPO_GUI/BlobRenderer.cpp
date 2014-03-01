@@ -5,15 +5,13 @@
 BlobRenderer::BlobRenderer(QWidget *parent)
     : QWidget(parent)
     , polygons()
+    , brush(QColor(0,0,255), Qt::Dense7Pattern)
+    , pen(QColor(0,255,0))
 {
-    shape = Polygon;
     antialiased = false;
-    transformed = false;
-//    pixmap.load(":/images/qt-logo.png");
 
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
-
 }
 
 void BlobRenderer::updateBackgroundImage(QImage image)
@@ -52,6 +50,7 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(pen);
     painter.setBrush(brush);
+
     if (antialiased)
         painter.setRenderHint(QPainter::Antialiasing, true);
 
@@ -59,92 +58,10 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
 
     for (int i=0; i<polygons.size(); i++) {
 
-        painter.setPen(Qt::green);
-        painter.setBrush(QColor(255, 0, 0, .3));
-        painter.drawPolyline(polygons[i]);
+        painter.drawPolygon(polygons[i]);
 
     }
 
-
-
-    /*
-    static const QPoint points[4] = {
-        QPoint(10, 80),
-        QPoint(20, 10),
-        QPoint(80, 30),
-        QPoint(90, 70)
-    };
-
-    QRect rect(10, 20, 80, 60);
-
-    QPainterPath path;
-    path.moveTo(20, 80);
-    path.lineTo(20, 30);
-    path.cubicTo(80, 0, 50, 50, 80, 80);
-
-    int startAngle = 20 * 16;
-    int arcLength = 120 * 16;
-
-
-    for (int x = 0; x < width(); x += 100) {
-        for (int y = 0; y < height(); y += 100) {
-            painter.save();
-            painter.translate(x, y);
-
-            if (transformed) {
-                painter.translate(50, 50);
-                painter.rotate(60.0);
-                painter.scale(0.6, 0.9);
-                painter.translate(-50, -50);
-            }
-            switch (shape) {
-            case Line:
-                painter.drawLine(rect.bottomLeft(), rect.topRight());
-                break;
-            case Points:
-                painter.drawPoints(points, 4);
-                break;
-            case Polyline:
-                painter.drawPolyline(points, 4);
-                break;
-            case Polygon:
-                painter.drawPolygon(points, 4);
-                break;
-            case Rect:
-                painter.drawRect(rect);
-                break;
-            case RoundedRect:
-                painter.drawRoundedRect(rect, 25, 25, Qt::RelativeSize);
-                break;
-            case Ellipse:
-                painter.drawEllipse(rect);
-                break;
-            case Arc:
-                painter.drawArc(rect, startAngle, arcLength);
-                break;
-            case Chord:
-                painter.drawChord(rect, startAngle, arcLength);
-                break;
-            case Pie:
-                painter.drawPie(rect, startAngle, arcLength);
-                break;
-            case Path:
-                painter.drawPath(path);
-                break;
-            case Text:
-                painter.drawText(rect, Qt::AlignCenter, tr("Qt by\nNokia"));
-                break;
-            case Pixmap:
-            }
-
-            painter.restore();
-        }
-    }
-
-    painter.setRenderHint(QPainter::Antialiasing, false);
-    painter.setBrush(Qt::NoBrush);
-    painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
-    */
 }
 
 
@@ -158,11 +75,6 @@ QSize BlobRenderer::minimumSizeHint() const
     return QSize(100, 100);
 }
 
-void BlobRenderer::setShape(Shape shape)
-{
-    this->shape = shape;
-    update();
-}
 
 void BlobRenderer::setPen(const QPen &pen)
 {
@@ -178,11 +90,5 @@ void BlobRenderer::setBrush(const QBrush &brush)
 void BlobRenderer::setAntialiased(bool antialiased)
 {
     this->antialiased = antialiased;
-    update();
-}
-
-void BlobRenderer::setTransformed(bool transformed)
-{
-    this->transformed = transformed;
     update();
 }

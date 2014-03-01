@@ -111,7 +111,9 @@ void kpoBaseApp::loadModelFiles()
 
     int count = model_files.length();
     std::cout << "will load " << count << " model files." << std::endl;
-
+    if (count < thread_load) {
+        thread_load = count;
+    }
 
     for (int i=0; i<count; i++) {
 
@@ -210,7 +212,7 @@ void kpoBaseApp::processDepthBlobs(BlobFinder bf)
     std::cout << "kpoBaseApp::processDepthBlobs" << std::endl;
     for( int i = 0; i < bf.numBlobs; i++ )
     {
-        if (bf.radius[i] > 20) {
+        if (bf.radius[i] > 15) {
             osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
         }
     }
