@@ -1,7 +1,10 @@
 #include "BlobRenderer.h"
+#include <QVector>
+
 
 BlobRenderer::BlobRenderer(QWidget *parent)
     : QWidget(parent)
+    , polygons()
 {
     shape = Polygon;
     antialiased = false;
@@ -10,14 +13,32 @@ BlobRenderer::BlobRenderer(QWidget *parent)
 
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
+
 }
 
 void BlobRenderer::updateBackgroundImage(QImage image)
 {
-    pixmap = QPixmap::fromImage(image);
+    backgroundPixmap = QPixmap::fromImage(image);
 
     scaleX = (float)this->width()/(float)image.width();
     scaleY = (float)this->height()/(float)image.height();
+}
+
+void BlobRenderer::addContour(std::vector<cv::Point> contour)
+{
+    std::cout << "addContour" << std::endl;
+    QVector<QPoint> points;
+
+    for (int j=0; j<contour.size(); j++) {
+        cv::Point p = contour.at(j);
+        QPoint qp(p.x, p.y);
+        points.append(qp);
+        std::cout << p.x << "," << p.y << std::endl;
+    }
+
+    QPolygon poly(points);
+//    polygons.resize(0);
+//    polygons.append(poly);
 }
 
 void BlobRenderer::paintEvent(QPaintEvent * /* event */)
@@ -31,7 +52,22 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
     if (antialiased)
         painter.setRenderHint(QPainter::Antialiasing, true);
 
-    painter.drawPixmap(0, 0, pixmap);
+    painter.drawPixmap(0, 0, backgroundPixmap);
+/*
+    for (int i=0; i<contours.size(); i++) {
+        std::vector<cv::Point> contour = contours[i];
+        QPoint points[contour.size()];
+
+        for (int j=0; j<contour.size(); j++) {
+            cv::Point p = contour[j];
+            points[j] = QPoint(p.x, p.y);
+        }
+
+        painter.drawPolyline(points, contour.size());
+
+    }
+*/
+
 
     /*
     static const QPoint points[4] = {

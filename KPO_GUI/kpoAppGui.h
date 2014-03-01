@@ -75,7 +75,6 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void on_pauseCheckBox_toggled(bool checked);
 
     void on_saveCloudButton_clicked();
-    void on_loadDescriptorButton_clicked();
     void on_loadRawCloudButton_clicked();
 
     void on_removeNoiseCheckBox_toggled(bool checked);

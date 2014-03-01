@@ -12,7 +12,7 @@ class BlobFinder
 {
 
 public:
-    vector<vector<cv::Point> > contours;
+    vector< vector<cv::Point> > contours;
     vector<cv::Vec4i> hierarchy;
     vector<cv::Moments> mu;
     vector<cv::Point2f> mc;
@@ -22,7 +22,7 @@ public:
 
     int numBlobs;
 
-    BlobFinder(cv::Mat img)
+    void find(cv::Mat img)
     {
         numBlobs = 0;
 
@@ -55,24 +55,6 @@ public:
         radius = _radius;
     }
 
-/*
-    void Draw(cv::Mat &dst)
-    {
-        // iterate through all the top-level contours,
-        // draw each connected component with its own random color
-        for( int i = 0; i < contours.size(); i++ )
-        {
-            Scalar color(  rng.uniform(0,255),  rng.uniform(0,255),  rng.uniform(0,255) );
-            drawContours( dst, contours, i, color, CV_FILLED, 8, hierarchy );
-            // drawCross(mc[i],Scalar(0,0,255), 5,dst); //put a cross
-            char buff[255];
-            sprintf(buff, "%d", i);
-
-            string text = std::string(buff);
-            cv::putText(dst,text,mc[i],0,0.5,Scalar(0,0,255),1,8,false);
-        }
-    }
-*/
 
 };
 

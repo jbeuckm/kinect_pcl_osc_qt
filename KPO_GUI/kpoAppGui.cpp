@@ -131,6 +131,9 @@ void kpoAppGui::updateView()
         drawRgbImage();
 //        drawDepthImage();
 
+        for (int i=0; i<blob_finder.contours.size(); i++) {
+            blob_renderer->addContour(blob_finder.contours[i]);
+        }
     }
     //  FPS_CALC ("visualization");
     ui_->qvtk_widget->update ();
@@ -180,7 +183,10 @@ void kpoAppGui::processDepthBlobs(BlobFinder bf)
 
     for( int i = 0; i < bf.numBlobs; i++ )
     {
-        osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
+        if (bf.radius[i] > 10) {
+            osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
+        }
+
     }
 }
 
@@ -255,22 +261,6 @@ void kpoAppGui::on_saveCloudButton_clicked()
     }
 }
 
-
-
-
-void kpoAppGui::on_loadDescriptorButton_clicked()
-{
-    pause();
-
-    QString filename = QFileDialog::getOpenFileName(this, tr("Load Descriptor"),
-                                                    "",
-                                                    tr("Files (*.descriptor.pcd)"));
-/*
-    if (!filename.isEmpty()) {
-        loadExemplar(filename.toStdString());
-    }
-*/
-}
 
 
 

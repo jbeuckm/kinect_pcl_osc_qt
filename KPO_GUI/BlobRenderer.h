@@ -6,6 +6,7 @@
 #include <QPen>
 #include <QImage>
 
+#include <opencv/cv.h>
 
 class BlobRenderer : public QWidget
 {
@@ -21,6 +22,9 @@ public:
     QSize sizeHint() const;
 
     void updateBackgroundImage(QImage image);
+
+    void addContour(std::vector<cv::Point>);
+    QVector<QPolygon> polygons;
 
 public slots:
     void setShape(Shape shape);
@@ -38,7 +42,8 @@ private:
     QBrush brush;
     bool antialiased;
     bool transformed;
-    QPixmap pixmap;
+    QPixmap backgroundPixmap;
+
 
     float scaleX;
     float scaleY;

@@ -65,6 +65,7 @@ public:
 
     cv::Mat scene_depth_image_;
     int depth_image_threshold_;
+    BlobFinder blob_finder;
 
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;
@@ -114,7 +115,7 @@ public:
 
     void image_callback (const boost::shared_ptr<openni_wrapper::Image> &image);
     void depth_callback (const boost::shared_ptr< openni_wrapper::DepthImage > &depth_image);
-    void processDepthBlobs(BlobFinder bf);
+    virtual void processDepthBlobs(BlobFinder bf);
 
     void pause();
 
