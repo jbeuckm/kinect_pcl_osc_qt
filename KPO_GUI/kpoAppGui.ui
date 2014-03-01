@@ -38,7 +38,7 @@
    <widget class="QVTKWidget" name="qvtk_widget">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>470</x>
       <y>10</y>
       <width>461</width>
       <height>361</height>
@@ -274,8 +274,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>460</y>
+      <x>480</x>
+      <y>400</y>
       <width>161</width>
       <height>17</height>
      </rect>
@@ -287,8 +287,8 @@
    <widget class="QLineEdit" name="downsamplingRadiusEdit">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>460</y>
+      <x>640</x>
+      <y>400</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -297,9 +297,9 @@
    <widget class="QSlider" name="downsamplingRadiusSlider">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>490</y>
-      <width>571</width>
+      <x>480</x>
+      <y>440</y>
+      <width>441</width>
       <height>29</height>
      </rect>
     </property>
@@ -342,10 +342,10 @@
    <widget class="QSlider" name="depthImageThresholdSlider">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>430</x>
       <y>350</y>
       <width>29</width>
-      <height>241</height>
+      <height>331</height>
      </rect>
     </property>
     <property name="maximum">
@@ -363,8 +363,8 @@
      <rect>
       <x>10</x>
       <y>360</y>
-      <width>281</width>
-      <height>231</height>
+      <width>411</width>
+      <height>321</height>
      </rect>
     </property>
    </widget>

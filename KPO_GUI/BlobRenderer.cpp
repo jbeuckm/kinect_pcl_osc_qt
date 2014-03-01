@@ -5,7 +5,7 @@
 BlobRenderer::BlobRenderer(QWidget *parent)
     : QWidget(parent)
     , polygons()
-    , brush(QColor(0,0,255), Qt::Dense7Pattern)
+    , brush(QColor(0,0,255,50))
     , pen(QColor(0,255,0))
 {
     antialiased = false;
