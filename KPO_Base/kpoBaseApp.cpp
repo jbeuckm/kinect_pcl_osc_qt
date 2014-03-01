@@ -210,7 +210,9 @@ void kpoBaseApp::processDepthBlobs(BlobFinder bf)
     std::cout << "kpoBaseApp::processDepthBlobs" << std::endl;
     for( int i = 0; i < bf.numBlobs; i++ )
     {
-        osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
+        if (bf.radius[i] > 5) {
+            osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
+        }
     }
 }
 

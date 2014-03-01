@@ -18,10 +18,15 @@ kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .005f) :
 
     rf_rad_ = 0.015f;
 
-    norm_est.setKSearch (8);
+    if (false) {
+        norm_est.setKSearch (16);
+    }
+    else {
+        pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType> ());
+        norm_est.setSearchMethod (tree);
+        norm_est.setRadiusSearch (0.02);
+    }
 
-
-//    shot.setNumberOfThreads(8);
     shot.setRadiusSearch (shot_radius_);
 
     rf_est.setFindHoles (true);

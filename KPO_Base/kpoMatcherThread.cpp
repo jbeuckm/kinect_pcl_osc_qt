@@ -60,13 +60,13 @@ void kpoMatcherThread::operator ()()
             model_scene_corrs->push_back (corr);
         }
     }
-
+/*
     std::cout << "msc" << model_scene_corrs->size() << "/" << model_descriptors->size() << std::endl;
 
     if (model_scene_corrs->size() < 10) {
         return;
     }
-
+*/
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 

@@ -3,7 +3,7 @@
 
 #include <boost/function.hpp>
 
-typedef pcl::PointXYZ PointType;
+typedef pcl::PointXYZRGBA PointType;
 
 typedef pcl::PointCloud<PointType> Cloud;
 typedef Cloud::Ptr CloudPtr;
