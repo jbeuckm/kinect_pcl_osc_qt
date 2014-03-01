@@ -57,7 +57,7 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
 void kpoAppGui::loadSettings()
 {
     kpoBaseApp::loadSettings();
-
+/*
     if (ui_->depthThresholdSlider) {
         ui_->depthThresholdSlider->setValue(depth_threshold_ * 1000);
     }
@@ -70,6 +70,10 @@ void kpoAppGui::loadSettings()
     ui_->matchModelsCheckbox->setChecked(match_models_);
 
     ui_->modelsFolderEdit->setText(models_folder_);
+*/
+
+     ui_->portTextInput->setText(QString::number(osc_sender_port_));
+     ui_->ipTextInput->setText(osc_sender_ip_);
 }
 
 
@@ -124,7 +128,6 @@ void kpoAppGui::updateView()
             vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "scene_keypoints");
         }
 
-
         drawRgbImage();
 //        drawDepthImage();
 
@@ -171,6 +174,14 @@ void kpoAppGui::drawRgbImage()
 
 }
 
+void kpoAppGui::processDepthBlobs(BlobFinder bf)
+{
+    std::cout << "kpoAppGui::processDepthBlobs" << std::endl;
+    for( int i = 0; i < bf.numBlobs; i++ )
+    {
+        osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
+    }
+}
 
 
 int main (int argc, char ** argv)

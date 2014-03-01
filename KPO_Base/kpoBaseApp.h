@@ -40,6 +40,7 @@
 #include <opencv/highgui.h>
 
 #include "KPO_Base_global.h"
+#include "BlobFinder.h"
 
 class KPO_BASESHARED_EXPORT kpoBaseApp
 {
@@ -105,14 +106,15 @@ public:
     void loadExemplar(string filepath, int object_id);
     void addCurrentObjectToMatchList(int object_id);
 
-    void loadSettings();
-    void saveSettings();
+    virtual void loadSettings();
+    virtual void saveSettings();
 
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
 
     void image_callback (const boost::shared_ptr<openni_wrapper::Image> &image);
     void depth_callback (const boost::shared_ptr< openni_wrapper::DepthImage > &depth_image);
+    void processDepthBlobs(BlobFinder bf);
 
     void pause();
 

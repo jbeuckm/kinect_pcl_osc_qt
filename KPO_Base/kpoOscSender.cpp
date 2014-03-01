@@ -48,7 +48,7 @@ void kpoOscSender::sendBlob(float x, float y, float size)
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
     p << osc::BeginBundleImmediate
-      << osc::BeginMessage( "/blob" );
+      << osc::BeginMessage( "/kinect/blob" );
 
     p << x << y << size;
 

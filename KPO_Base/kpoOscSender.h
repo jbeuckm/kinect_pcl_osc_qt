@@ -8,8 +8,8 @@
 #include <boost/variant.hpp>
 
 
-#define ADDRESS "127.0.0.1"
-#define PORT 7000
+#define ADDRESS "192.168.0.48"
+#define PORT 12345
 
 #define OUTPUT_BUFFER_SIZE 1024
 

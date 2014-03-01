@@ -62,8 +62,9 @@ void kpoBaseApp::loadSettings()
 
     models_folder_ = settings.value("models_folder_", "/myshare/pointclouds/objects").toString();
 
-    osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.4").toString();
-    osc_sender_port_ = settings.value("osc_sender_port_", 12345).toInt();
+    osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.48").toString();
+    osc_sender_port_ = settings.value("osc_sender_port_", 7000).toInt();
+    std::cout << "loaded ip " << osc_sender_ip_.toStdString() << ":" << osc_sender_port_ << std::endl;
     osc_sender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 
     remove_noise_ = true;
@@ -199,9 +200,14 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 
 
     threshold( depth, scene_depth_image_, depth_image_threshold_, 255, THRESH_TOZERO_INV );
-imwrite( "/home/cougar/greyscale_test_image.jpg", scene_depth_image_ );
+//imwrite( "/home/cougar/greyscale_test_image.jpg", scene_depth_image_ );
     BlobFinder bf(scene_depth_image_);
 
+    processDepthBlobs(bf);
+}
+void kpoBaseApp::processDepthBlobs(BlobFinder bf)
+{
+    std::cout << "kpoBaseApp::processDepthBlobs" << std::endl;
     for( int i = 0; i < bf.numBlobs; i++ )
     {
         osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
@@ -234,7 +240,7 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
     cv::cvtColor(scene_image_, img, CV_BGR2GRAY); //Convert image to GrayScale
 
     BlobFinder bf(img);
-    std::cout << "rgb blobs = " << bf.numBlobs << std::endl;
+//    std::cout << "rgb blobs = " << bf.numBlobs << std::endl;
 }
 
 
@@ -274,7 +280,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     }
 
     double res = pcl_functions_.computeCloudResolution(scene_cloud_);
-    std::cout << "resolution = " << res << std::endl;
+//    std::cout << "resolution = " << res << std::endl;
 
     osc_sender.send("/pointcloud/size", scene_cloud_->size());
 
