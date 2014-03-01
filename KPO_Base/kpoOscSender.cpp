@@ -67,7 +67,7 @@ void kpoOscSender::sendObject(int object_id, float x, float y, float z)
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
     p << osc::BeginBundleImmediate
-      << osc::BeginMessage( "/object" );
+      << osc::BeginMessage( "/kinect/object" );
 
     p << object_id << x << y << z;
 

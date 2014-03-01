@@ -177,6 +177,7 @@ void kpoAppGui::drawRgbImage()
 void kpoAppGui::processDepthBlobs(BlobFinder bf)
 {
     std::cout << "kpoAppGui::processDepthBlobs" << std::endl;
+
     for( int i = 0; i < bf.numBlobs; i++ )
     {
         osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
