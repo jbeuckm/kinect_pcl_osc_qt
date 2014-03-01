@@ -384,6 +384,16 @@
      <enum>Qt::Vertical</enum>
     </property>
    </widget>
+   <widget class="QWidget" name="blobs" native="true">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>110</y>
+      <width>301</width>
+      <height>211</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

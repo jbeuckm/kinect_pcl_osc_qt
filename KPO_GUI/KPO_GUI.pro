@@ -10,9 +10,11 @@ TARGET = kpoAppGui
 TEMPLATE = app
 
 
-SOURCES += kpoAppGui.cpp
+SOURCES += kpoAppGui.cpp \
+    BlobRenderer.cpp
 
-HEADERS  += kpoAppGui.h
+HEADERS  += kpoAppGui.h \
+    BlobRenderer.h
 
 FORMS    += kpoAppGui.ui
 

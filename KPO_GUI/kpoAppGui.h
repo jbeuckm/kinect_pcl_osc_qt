@@ -20,6 +20,7 @@
 #include <ui_kpoAppGui.h>
 #include "kpoBaseApp.h"
 
+#include "BlobRenderer.h"
 
 using namespace cv;
 
@@ -57,6 +58,8 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
 
     void drawRgbImage();
     void drawDepthImage();
+
+    BlobRenderer *blob_renderer;
 
     QImage MatToQImage(const Mat& mat);
 

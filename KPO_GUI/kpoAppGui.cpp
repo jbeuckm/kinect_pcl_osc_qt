@@ -15,9 +15,6 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     : vis_ ()
     , vis_timer_ (new QTimer (this))
     , kpoBaseApp(grabber)
-//    , device_id_ ()
-//    , scene_cloud_()
-//    , depth_filter_ ()
     , ui_ (new Ui::KinectPclOsc)
 {
     remove_noise_ = false;
@@ -40,7 +37,12 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     vis_->getInteractorStyle ()->setKeyboardModifier (pcl::visualization::INTERACTOR_KB_MOD_SHIFT);
     ui_->qvtk_widget->update ();
 
+    QRect blobsSize(ui_->blobs->geometry().topLeft(), ui_->blobs->geometry().bottomRight());
 
+    blob_renderer = new BlobRenderer(ui_->centralwidget);
+
+    blob_renderer->setGeometry(blobsSize);
+    blob_renderer->show();
 
     modelListModel = new QStringListModel(this);
     QStringList list;
