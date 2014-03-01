@@ -90,7 +90,8 @@ private:
     pcl::NormalEstimation<PointType, NormalType> norm_est;
 
     pcl::UniformSampling<PointType> uniform_sampling;
-    pcl::SHOTEstimation<PointType, NormalType, DescriptorType> shot;
+//    pcl::SHOTEstimation<PointType, NormalType, DescriptorType> shot;
+    pcl::SHOTColorEstimation<PointType, NormalType, DescriptorType> shot;
     pcl::KdTreeFLANN<DescriptorType> match_search;
 
     pcl::GeometricConsistencyGrouping<PointType, PointType> gc_clusterer;

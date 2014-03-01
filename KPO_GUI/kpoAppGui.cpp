@@ -231,7 +231,7 @@ void kpoAppGui::pause()
 }
 
 
-void kpoAppGui::on_saveDescriptorButton_clicked()
+void kpoAppGui::on_saveCloudButton_clicked()
 {
     pause();
 
@@ -241,13 +241,16 @@ void kpoAppGui::on_saveDescriptorButton_clicked()
 
     std::replace( objectname.begin(), objectname.end(), ' ', '_');
 
-    QString defaultFilename = QString::fromUtf8(objectname.c_str()) + QString(".descriptor.pcd");
+    QString defaultFilename = QString::fromUtf8(objectname.c_str()) + QString(".pcd");
 
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save Descriptor"),
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save Pointcloud"),
                                                     defaultFilename,
-                                                    tr("Descriptors (*.dsc)"));
+                                                    tr("Pointcloud (*.pcd)"));
+
 
     if (!filename.isEmpty()) {
+        pcl::PCDWriter writer;
+        writer.writeASCII(filename.toStdString(), *scene_cloud_);
 //        addCurrentObjectToMatchList(std::stoi(objectname));
     }
 }

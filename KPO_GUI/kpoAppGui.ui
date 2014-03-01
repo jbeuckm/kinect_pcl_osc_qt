@@ -87,7 +87,7 @@
      <string>Find SHOT Descriptors</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="saveDescriptorButton">
+   <widget class="QPushButton" name="saveCloudButton">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -97,7 +97,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Save Descriptor</string>
+     <string>Save Pointcloud</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="objectNameTextInput">
@@ -136,24 +136,11 @@
      <string>Match Models</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="loadDescriptorButton">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>220</y>
-      <width>131</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Load Descriptor</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="loadRawCloudButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
+      <x>150</x>
+      <y>220</y>
       <width>131</width>
       <height>27</height>
      </rect>

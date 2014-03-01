@@ -13,7 +13,7 @@ typedef pcl::Normal NormalType;
 typedef pcl::PointCloud<NormalType> NormalCloud;
 typedef NormalCloud::Ptr NormalCloudPtr;
 
-typedef pcl::SHOT352 DescriptorType;
+typedef pcl::SHOT1344 DescriptorType;
 typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 
 typedef pcl::ReferenceFrame RFType;
