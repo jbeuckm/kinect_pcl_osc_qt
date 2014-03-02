@@ -35,6 +35,11 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event);
 
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+signals:
+    void contourSelected(std::vector<cv::Point>);
+
 private:
     QPen pen;
     QBrush brush;
@@ -44,6 +49,9 @@ private:
 
     float scaleX;
     float scaleY;
+
+    QPoint m_lastPoint;
+    bool m_mouseClick;
 };
     
 

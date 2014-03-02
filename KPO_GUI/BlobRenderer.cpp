@@ -1,6 +1,6 @@
 #include "BlobRenderer.h"
 #include <QVector>
-
+#include <QMouseEvent>
 
 BlobRenderer::BlobRenderer(QWidget *parent)
     : QWidget(parent)
@@ -64,6 +64,25 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
 
 }
 
+void BlobRenderer::mousePressEvent ( QMouseEvent * e )
+{
+    // store click position
+    m_lastPoint = e->pos();
+    // set the flag meaning "click begin"
+    m_mouseClick = true;
+}
+void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
+{
+
+    std::vector<cv::Point> contour;
+
+    // check if cursor not moved since click beginning
+    if ((m_mouseClick) && (e->pos() == m_lastPoint))
+    {
+        // do something: for example emit Click signal
+        emit contourSelected(contour);
+    }
+}
 
 QSize BlobRenderer::sizeHint() const
 {
