@@ -19,6 +19,18 @@ typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::PointCloud<RFType> RFCloud;
 
+struct kpoObjectDescription
+{
+    std::string filename;
+    unsigned object_id;
+
+    Cloud::Ptr cloud;
+    NormalCloud::Ptr normals;
+    Cloud::Ptr keypoints;
+    DescriptorCloud::Ptr descriptors;
+    RFCloud::Ptr reference_frames;
+
+};
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \

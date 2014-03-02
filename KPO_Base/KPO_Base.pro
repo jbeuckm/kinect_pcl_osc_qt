@@ -16,20 +16,19 @@ DEFINES += KPO_BASE_LIBRARY
 #CONFIG += c++11
 
 SOURCES += \
-    kpoPclFunctions.cpp \
     kpoOscSender.cpp \
-    kpoObjectDescription.cpp \
     kpoMatcherThread.cpp \
-    kpoBaseApp.cpp
+    kpoBaseApp.cpp \
+    kpoAnalyzerThread.cpp
 
 HEADERS += KPO_Base_global.h \
-    kpoPclFunctions.h \
     kpoOscSender.h \
     kpoObjectDescription.h \
     kpo_types.h \
     kpoMatcherThread.h \
     kpoBaseApp.h \
-    BlobFinder.h
+    BlobFinder.h \
+    kpoAnalyzerThread.h
 
 
 

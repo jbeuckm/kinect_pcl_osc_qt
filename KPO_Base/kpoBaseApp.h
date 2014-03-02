@@ -30,7 +30,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/keypoints/uniform_sampling.h>
 
-#include "kpoPclFunctions.h"
+#include "kpoAnalyzerThread.h"
 #include "kpoObjectDescription.h"
 #include "kpo_types.h"
 #include "kpoOscSender.h"
@@ -81,13 +81,14 @@ public:
 
     QMutex mtx_;
 
-    kpoPclFunctions pcl_functions_;
+    void sceneCloudAnalyzed(kpoObjectDescription od);
+
     bool paused_;
     bool process_scene_;
     bool match_models_;
 
-    boost::threadpool::pool model_loading_thread_pool;
-    boost::threadpool::pool thread_pool;
+
+    boost::threadpool::pool matcher_thread_pool;
     std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
     unsigned thread_load;
     int model_index;
@@ -102,7 +103,8 @@ public:
 
     void loadModelFiles();
     void loadExemplar(string filepath, int object_id);
-    void addCurrentObjectToMatchList(string filename, int object_id);
+    boost::threadpool::pool model_loading_thread_pool;
+    void modelCloudAnalyzed(kpoObjectDescription od);
 
     virtual void loadSettings();
     virtual void saveSettings();
