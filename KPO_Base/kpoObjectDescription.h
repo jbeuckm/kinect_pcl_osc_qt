@@ -13,6 +13,7 @@ public:
     kpoObjectDescription();
     kpoObjectDescription(CloudPtr _cloud, CloudPtr _keypoints, NormalCloudPtr _normals, DescriptorCloud::Ptr _descriptors, RFCloud::Ptr _reference_frames);
 
+    std::string filename;
     unsigned object_id;
 
     Cloud::Ptr cloud;
@@ -20,7 +21,6 @@ public:
     Cloud::Ptr keypoints;
     DescriptorCloud::Ptr descriptors;
     RFCloud::Ptr reference_frames;
-
 };
 
 #endif // KPOOBJECTDESCRIPTION_H

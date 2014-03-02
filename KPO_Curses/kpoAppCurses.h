@@ -7,6 +7,8 @@ class kpoAppCurses : public kpoBaseApp
 {
 public:
     kpoAppCurses(pcl::OpenNIGrabber& grabber);
+
+    void loadSettings();
 };
 
 #endif // KPOAPPCURSES_H

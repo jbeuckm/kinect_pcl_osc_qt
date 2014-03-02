@@ -1,15 +1,16 @@
 #include "kpoBaseApp.h"
 
 #include "BlobFinder.h"
-
+#include "kpoCloudAnalyzer.h"
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
-    , thread_pool(8)
-    , model_loading_thread_pool(8)
+    , analyzer_thread_pool(8)
+    , matcher_thread_pool(8)
     , osc_sender (new kpoOscSender())
+    , scene_cloud_(new Cloud())
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -27,8 +28,6 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     depth_filter_.setFilterLimits (0.5, 5.0);
 
     depth_image_threshold_ = 128;
-
-    grabber_downsampling_radius_ = .005f;
 
     QDir dir;
     m_sSettingsFile = dir.absolutePath() + "/settings.ini";
@@ -136,35 +135,42 @@ void kpoBaseApp::loadModelFiles()
 // load a raw model cap and process it into a matchable set of keypoints, descriptors
 void kpoBaseApp::loadExemplar(string filename, int object_id)
 {
-    pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
+    CloudPtr model_(new Cloud());
 
     pcl::PCDReader reader;
     reader.read<PointType> (filename, *model_);
 
-    process_cloud(model_);
+    boost::shared_ptr<kpoCloudAnalyzer> analyzer_thread(new kpoCloudAnalyzer());
+    AnalysisCallback ac = boost::bind (&kpoBaseApp::modelAnalyzed, this, _1);
+    analyzer_thread->callback_ = ac;
 
+    analyzer_thread->filename = filename;
+    analyzer_thread->object_id = object_id;
+
+    analyzer_thread->setInputCloud(model_);
+
+    analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
+}
+
+// prepare a thread to match this model cloud to a give scene on demand
+void kpoBaseApp::modelAnalyzed(kpoObjectDescription od)
+{
     if (scene_cloud_->size() != 0) {
 
-        addCurrentObjectToMatchList(filename, object_id);
+        kpoMatcherThread *mt = new kpoMatcherThread(od.keypoints, od.descriptors, od.reference_frames);
 
+        boost::shared_ptr<kpoMatcherThread> model_thread(mt);
+        model_thread->object_id = od.object_id;
+        model_thread->filename = od.filename;
+
+        MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1, _2, _3);
+        model_thread->setMatchCallback(f);
+
+        matcher_threads.push_back(model_thread);
     }
 }
 
 
-
-// Save the currently processed cloud/keypoints/descriptors tpo be matched
-void kpoBaseApp::addCurrentObjectToMatchList(string filename, int object_id)
-{
-    boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(scene_keypoints_, scene_descriptors_, scene_refs_));
-    model_thread->object_id = object_id;
-    model_thread->filename = filename;
-
-    MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1, _2, _3);
-    model_thread->setMatchCallback(f);
-
-    matcher_threads.push_back(model_thread);
-
-}
 
 void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation)
 {
@@ -247,7 +253,7 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
 
-    if (thread_pool.pending() < thread_load) {
+    if (matcher_thread_pool.pending() < thread_load) {
 
         process_cloud(cloud);
     }
@@ -262,62 +268,46 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     scene_cloud_.reset (new Cloud);
 
-    // fi
     depth_filter_.setInputCloud (cloud);
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);
 
+    osc_sender->send("/pointcloud/size", scene_cloud_->size());
+
+
     if (process_scene_) {
 
-        Cloud cleanCloud;
-        pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
-        pcl::copyPointCloud(cleanCloud, *scene_cloud_);
+        boost::shared_ptr<kpoCloudAnalyzer> analyzer_thread(new kpoCloudAnalyzer());
 
-        osc_sender->send("/pointcloud/size", scene_cloud_->size());
+        AnalysisCallback ac = boost::bind (&kpoBaseApp::sceneAnalyzed, this, _1);
+        analyzer_thread->callback_ = ac;
 
-        if (scene_cloud_->size() < 25) {
-            std::cout << "cloud too small" << std::endl;
-            return;
-        }
-        if (scene_cloud_->size() > 35000) {
-            std::cout << "cloud too large" << std::endl;
-            return;
-        }
-        std::cout << "cloud has " << scene_cloud_->size() << " points" << std::endl;
+        analyzer_thread->setInputCloud(scene_cloud_);
+
+        analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
+
+    }
+}
 
 
-        scene_normals_.reset (new NormalCloud ());
-        pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
+void kpoBaseApp::sceneAnalyzed(kpoObjectDescription objectDescription)
+{
 
+    if (match_models_) {
 
-        scene_keypoints_.reset(new Cloud ());
-        pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
+        int batch = thread_load - matcher_thread_pool.pending();
 
-        scene_descriptors_.reset(new DescriptorCloud ());
-        pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
+        for (unsigned i=0; i<batch; i++) {
 
+            boost::shared_ptr<kpoMatcherThread> matcher = matcher_threads.at(model_index);
 
-        scene_refs_.reset(new RFCloud ());
-        pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
+            matcher->copySceneClouds(objectDescription.keypoints, objectDescription.descriptors, objectDescription.reference_frames);
 
+            matcher_thread_pool.schedule(boost::ref( *matcher ));
 
-        std::cout << "scene_keypoints->size = " << scene_keypoints_->size() << std::endl;
+            model_index = (model_index + 1) % matcher_threads.size();
 
-        if (match_models_) {
-
-            int batch = thread_load - thread_pool.pending();
-
-            for (unsigned i=0; i<batch; i++) {
-
-                boost::shared_ptr<kpoMatcherThread> matcher = matcher_threads.at(model_index);
-
-                matcher->copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
-
-                thread_pool.schedule(boost::ref( *matcher ));
-
-                model_index = (model_index + 1) % matcher_threads.size();
-
-            }
         }
     }
+
 }

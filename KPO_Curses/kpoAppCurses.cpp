@@ -7,3 +7,11 @@ kpoAppCurses::kpoAppCurses(pcl::OpenNIGrabber& grabber)
     process_scene_ = true;
     match_models_ = true;
 }
+
+void kpoAppCurses::loadSettings()
+{
+    kpoBaseApp::loadSettings();
+
+    process_scene_ = true;
+    match_models_ = true;
+}

@@ -20,7 +20,8 @@ SOURCES += \
     kpoOscSender.cpp \
     kpoObjectDescription.cpp \
     kpoMatcherThread.cpp \
-    kpoBaseApp.cpp
+    kpoBaseApp.cpp \
+    kpoCloudAnalyzer.cpp
 
 HEADERS += KPO_Base_global.h \
     kpoPclFunctions.h \
@@ -29,7 +30,8 @@ HEADERS += KPO_Base_global.h \
     kpo_types.h \
     kpoMatcherThread.h \
     kpoBaseApp.h \
-    BlobFinder.h
+    BlobFinder.h \
+    kpoCloudAnalyzer.h
 
 
 

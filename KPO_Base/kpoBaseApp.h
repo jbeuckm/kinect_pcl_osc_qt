@@ -74,20 +74,21 @@ public:
     RFCloud::Ptr scene_refs_;
 
     pcl::UniformSampling<PointType> uniform_sampling;
-    double grabber_downsampling_radius_;
     double keypoint_downsampling_radius_;
-
-    std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
 
     QMutex mtx_;
 
     kpoPclFunctions pcl_functions_;
     bool paused_;
     bool process_scene_;
+
+    void sceneAnalyzed(kpoObjectDescription objectDescription);
+
     bool match_models_;
 
-    boost::threadpool::pool model_loading_thread_pool;
-    boost::threadpool::pool thread_pool;
+    boost::threadpool::pool analyzer_thread_pool;
+
+    boost::threadpool::pool matcher_thread_pool;
     std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
     unsigned thread_load;
     int model_index;
@@ -102,7 +103,7 @@ public:
 
     void loadModelFiles();
     void loadExemplar(string filepath, int object_id);
-    void addCurrentObjectToMatchList(string filename, int object_id);
+    void modelAnalyzed(kpoObjectDescription od);
 
     virtual void loadSettings();
     virtual void saveSettings();
