@@ -17,9 +17,8 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     , kpoBaseApp(grabber)
     , ui_ (new Ui::KinectPclOsc)
 {
-    remove_noise_ = false;
     paused_ = false;
-    estimate_normals_ = false;
+    process_scene_ = false;
     match_models_ = false;
 
     ui_->setupUi (this);
@@ -68,8 +67,7 @@ void kpoAppGui::loadSettings()
 */
     ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
 
-    ui_->computeNormalsCheckbox->setChecked(estimate_normals_);
-    ui_->findSHOTdescriptors->setChecked(compute_descriptors_);
+    ui_->processSceneCheckBox->setChecked(process_scene_);
     ui_->matchModelsCheckbox->setChecked(match_models_);
 
     ui_->modelsFolderEdit->setText(models_folder_);
@@ -119,14 +117,14 @@ void kpoAppGui::updateView()
         vis_->addPointCloud (scene_cloud_, "scene_cloud_");
 
         vis_->removePointCloud("scene_keypoints", 0);
-        if (compute_descriptors_ && scene_keypoints_) {
+        if (process_scene_ && scene_keypoints_) {
             pcl::visualization::PointCloudColorHandlerCustom<PointType> scene_keypoints_color_handler (scene_keypoints_, 0, 0, 255);
             vis_->addPointCloud (scene_keypoints_, scene_keypoints_color_handler, "scene_keypoints");
             vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "scene_keypoints");
         }
 
         vis_->removePointCloud("normals", 0);
-        if (estimate_normals_ && scene_normals_) {
+        if (process_scene_ && scene_normals_) {
             vis_->addPointCloudNormals<PointType, NormalType> (scene_cloud_, scene_normals_, 100, .05, "normals");
             vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 1.0, 1.0, 0.0, "normals");
         }
@@ -203,18 +201,6 @@ void kpoAppGui::on_pauseCheckBox_toggled(bool checked)
 }
 
 
-void kpoAppGui::on_computeNormalsCheckbox_toggled(bool checked)
-{
-    estimate_normals_ = checked;
-    ui_->findSHOTdescriptors->setEnabled(checked);
-}
-
-
-void kpoAppGui::on_findSHOTdescriptors_toggled(bool checked)
-{
-    compute_descriptors_ = checked;
-}
-
 void kpoAppGui::pause()
 {
     paused_ = true;
@@ -255,11 +241,6 @@ void kpoAppGui::on_matchModelsCheckbox_toggled(bool checked)
 }
 
 
-void kpoAppGui::on_presampleRadiusSlider_valueChanged(int value)
-{
-    grabber_downsampling_radius_ = 0.1f / float(value);
-}
-
 void kpoAppGui::on_loadRawCloudButton_clicked()
 {
     pause();
@@ -280,10 +261,6 @@ void kpoAppGui::on_loadRawCloudButton_clicked()
     }
 }
 
-void kpoAppGui::on_removeNoiseCheckBox_toggled(bool checked)
-{
-    remove_noise_ = checked;
-}
 
 void kpoAppGui::on_setOscTargetButton_clicked()
 {
@@ -369,3 +346,8 @@ QImage kpoAppGui::MatToQImage(const Mat& mat)
         return QImage();
     }
 } // MatToQImage()
+
+void kpoAppGui::on_processSceneCheckBox_toggled(bool checked)
+{
+    process_scene_ = checked;
+}

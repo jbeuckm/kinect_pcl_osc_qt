@@ -84,9 +84,7 @@ public:
 
     kpoPclFunctions pcl_functions_;
     bool paused_;
-    bool remove_noise_;
-    bool estimate_normals_;
-    bool compute_descriptors_;
+    bool process_scene_;
     bool match_models_;
 
     boost::threadpool::pool model_loading_thread_pool;

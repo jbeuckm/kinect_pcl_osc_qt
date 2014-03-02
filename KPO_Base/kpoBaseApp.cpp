@@ -68,15 +68,13 @@ void kpoBaseApp::loadSettings()
     std::cout << "loaded ip " << osc_sender_ip_.toStdString() << ":" << osc_sender_port_ << std::endl;
     osc_sender->setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 
-    remove_noise_ = true;
+    process_scene_ = true;
     match_models_ = false;
-    estimate_normals_ = true;
-    compute_descriptors_ = true;
-    loadModelFiles();
-    match_models_ = true;
 
-    estimate_normals_ = settings.value("estimate_normals_", true).toBool();
-    compute_descriptors_ = settings.value("compute_descriptors_", true).toBool();
+    loadModelFiles();
+
+    process_scene_ = settings.value("process_scene_", false).toBool();
+    match_models_ = settings.value("match_models_", false).toBool();
 
 }
 void kpoBaseApp::saveSettings()
@@ -92,8 +90,8 @@ void kpoBaseApp::saveSettings()
 
     settings.setValue("models_folder_", models_folder_);
 
-    settings.setValue("estimate_normals_", estimate_normals_);
-    settings.setValue("compute_descriptors_", compute_descriptors_);
+    settings.setValue("process_scene_", process_scene_);
+    settings.setValue("match_models_", match_models_);
 
     settings.setValue("osc_sender_ip_", osc_sender_ip_);
     settings.setValue("osc_sender_port_", osc_sender_port_);
@@ -267,80 +265,63 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 {
     QMutexLocker locker (&mtx_);
     FPS_CALC ("computation");
-/*
-    std::vector<int> indices;
-    Cloud filtered;
-    pcl::removeNaNFromPointCloud(*cloud, filtered, indices);
-    std::cout << filtered.size() << std::endl;
-*/
+
     scene_cloud_.reset (new Cloud);
 
+    // fi
     depth_filter_.setInputCloud (cloud);
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);
 
-    if (remove_noise_) {
+    if (process_scene_) {
         Cloud cleanCloud;
         pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
         pcl::copyPointCloud(cleanCloud, *scene_cloud_);
-    }
 
-    double res = pcl_functions_.computeCloudResolution(scene_cloud_);
-//    std::cout << "resolution = " << res << std::endl;
+        osc_sender->send("/pointcloud/size", scene_cloud_->size());
 
-    osc_sender->send("/pointcloud/size", scene_cloud_->size());
+        if (scene_cloud_->size() < 25) {
+            std::cout << "cloud too small" << std::endl;
+            return;
+        }
+        if (scene_cloud_->size() > 35000) {
+            std::cout << "cloud too large" << std::endl;
+            return;
+        }
+        std::cout << "cloud has " << scene_cloud_->size() << " points" << std::endl;
 
-    if (scene_cloud_->size() < 25) {
-        std::cout << "cloud too small" << std::endl;
-        return;
-    }
-    if (scene_cloud_->size() > 30000) {
-        std::cout << "cloud too large" << std::endl;
-        return;
-    }
-    std::cout << "cloud has " << scene_cloud_->size() << " points" << std::endl;
-
-    if (estimate_normals_) {
 
         scene_normals_.reset (new NormalCloud ());
         pcl_functions_.estimateNormals(scene_cloud_, scene_normals_);
 
-        if (compute_descriptors_) {
 
-            scene_keypoints_.reset(new Cloud ());
-            pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
+        scene_keypoints_.reset(new Cloud ());
+        pcl_functions_.downSample(scene_cloud_, scene_keypoints_);
 
-            scene_descriptors_.reset(new DescriptorCloud ());
-            pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
-
-
-            scene_refs_.reset(new RFCloud ());
-            pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
+        scene_descriptors_.reset(new DescriptorCloud ());
+        pcl_functions_.computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
 
 
-            std::cout << "scene_keypoints->size = " << scene_keypoints_->size() << std::endl;
+        scene_refs_.reset(new RFCloud ());
+        pcl_functions_.estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
 
-            if (match_models_) {
 
-                QElapsedTimer timer;
-                qint64 totalTime;
-                timer.start();
+        std::cout << "scene_keypoints->size = " << scene_keypoints_->size() << std::endl;
 
-                int batch = thread_load - thread_pool.pending();
+        if (match_models_) {
 
-                for (unsigned i=0; i<batch; i++) {
+            int batch = thread_load - thread_pool.pending();
 
-                    timer.restart();
+            for (unsigned i=0; i<batch; i++) {
 
-                    boost::shared_ptr<kpoMatcherThread> matcher = matcher_threads.at(model_index);
+                boost::shared_ptr<kpoMatcherThread> matcher = matcher_threads.at(model_index);
 
-                    matcher->copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
+                matcher->copySceneClouds(scene_keypoints_, scene_descriptors_, scene_refs_);
 
-                    thread_pool.schedule(boost::ref( *matcher ));
+                thread_pool.schedule(boost::ref( *matcher ));
 
-                    model_index = (model_index + 1) % matcher_threads.size();
+                model_index = (model_index + 1) % matcher_threads.size();
 
-                }
             }
         }
     }

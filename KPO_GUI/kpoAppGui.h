@@ -70,31 +70,24 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void timeoutSlot ();
     void updateView();
 
-    void on_pauseCheckBox_toggled(bool checked);
-
     void on_saveCloudButton_clicked();
     void on_loadRawCloudButton_clicked();
+    void on_browseForModelsButton_clicked();
 
-    void on_removeNoiseCheckBox_toggled(bool checked);
-    void on_presampleRadiusSlider_valueChanged(int value);
-
-
-    void on_computeNormalsCheckbox_toggled(bool checked);
-    void on_findSHOTdescriptors_toggled(bool checked);
-
+    void on_pauseCheckBox_toggled(bool checked);
+    void on_processSceneCheckBox_toggled(bool checked);
     void on_matchModelsCheckbox_toggled(bool checked);
 
     void on_setOscTargetButton_clicked();
 
     void on_downsamplingRadiusSlider_valueChanged(int value);
 
-    void on_browseForModelsButton_clicked();
 
     void on_depthThresholdSlider_valueChanged(int value);
-
     void on_depthImageThresholdSlider_valueChanged(int value);
 
     void on_contourSelected(QPainterPath contour);
+
 
 signals:
     void valueChanged (int new_value);

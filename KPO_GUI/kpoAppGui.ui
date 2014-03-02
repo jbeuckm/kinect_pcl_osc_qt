@@ -58,35 +58,6 @@
      <string>Pause Grabber</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="computeNormalsCheckbox">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>110</y>
-      <width>151</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Compute Normals</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="findSHOTdescriptors">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>140</y>
-      <width>181</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Find SHOT Descriptors</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="saveCloudButton">
     <property name="geometry">
      <rect>
@@ -149,7 +120,7 @@
      <string>Load Raw Cloud</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="removeNoiseCheckBox">
+   <widget class="QCheckBox" name="processSceneCheckBox">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -159,7 +130,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Remove Noise</string>
+     <string>Process Scene</string>
     </property>
     <property name="checked">
      <bool>false</bool>
