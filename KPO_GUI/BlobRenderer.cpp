@@ -4,7 +4,7 @@
 
 BlobRenderer::BlobRenderer(QWidget *parent)
     : QWidget(parent)
-    , polygons()
+    , contours()
     , brush(QColor(0,0,255,50))
     , pen(QColor(0,255,0))
 {
@@ -22,24 +22,24 @@ void BlobRenderer::updateBackgroundImage(QImage image)
     scaleY = (float)this->height()/(float)image.height();
 }
 
-void BlobRenderer::resetPolygons()
+void BlobRenderer::resetContours()
 {
-    polygons.resize(0);
+    contours.resize(0);
 }
 
 void BlobRenderer::addContour(std::vector<cv::Point> contour)
 {
-    QVector<QPoint> points;
+    QPainterPath path(QPoint(contour.at(0).x, contour.at(0).y));
 
     for (int j=0; j<contour.size(); j++) {
         cv::Point p = contour.at(j);
         QPoint qp(p.x, p.y);
-        points.append(qp);
+
+        path.lineTo(qp);
     }
 
-    QPolygon poly(points);
-
-    polygons.append(poly);
+    path.closeSubpath();
+    contours.append(path.simplified());
 }
 
 void BlobRenderer::paintEvent(QPaintEvent * /* event */)
@@ -56,9 +56,10 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
 
     painter.drawPixmap(0, 0, backgroundPixmap);
 
-    for (int i=0; i<polygons.size(); i++) {
 
-        painter.drawPolygon(polygons[i]);
+    for (int i=0; i<contours.size(); i++) {
+
+        painter.drawPath(contours[i]);
 
     }
 
@@ -73,14 +74,18 @@ void BlobRenderer::mousePressEvent ( QMouseEvent * e )
 }
 void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
 {
-
-    std::vector<cv::Point> contour;
-
     // check if cursor not moved since click beginning
     if ((m_mouseClick) && (e->pos() == m_lastPoint))
     {
-        // do something: for example emit Click signal
-        emit contourSelected(contour);
+        for (int i=0; i<contours.size(); i++) {
+
+            QPainterPath poly = contours[i];
+
+            if (poly.contains(e->pos())) {
+                emit contourSelected(poly);
+                break;
+            }
+        }
     }
 }
 

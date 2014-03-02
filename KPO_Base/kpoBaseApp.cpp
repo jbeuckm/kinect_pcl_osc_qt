@@ -209,7 +209,6 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 }
 void kpoBaseApp::processDepthBlobs(BlobFinder bf)
 {
-    std::cout << "kpoBaseApp::processDepthBlobs" << std::endl;
     for( int i = 0; i < bf.numBlobs; i++ )
     {
         if (bf.radius[i] > 15) {

@@ -44,7 +44,7 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     blob_renderer->setGeometry(blobsSize);
     blob_renderer->show();
 
-    connect(blob_renderer, SIGNAL(contourSelected(std::vector<cv::Point>)), this, SLOT(on_contourSelected(std::vector<cv::Point>)));
+    connect(blob_renderer, SIGNAL(contourSelected(QPolygon)), this, SLOT(on_contourSelected(QPolygon)));
 
     modelListModel = new QStringListModel(this);
     QStringList list;
@@ -133,7 +133,7 @@ void kpoAppGui::updateView()
 
         drawRgbImage();
 
-        blob_renderer->resetPolygons();
+        blob_renderer->resetContours();
         for (int i=0; i<depth_blob_finder.contours.size(); i++) {
             if (depth_blob_finder.radius[i] > 20) {
                 blob_renderer->addContour(depth_blob_finder.contours[i]);
@@ -331,9 +331,11 @@ void kpoAppGui::on_depthImageThresholdSlider_valueChanged(int value)
     std::cout << "depth_image_threshold_ = " << depth_image_threshold_ << std::endl;
 }
 
-void kpoAppGui::on_contourSelected(std::vector<cv::Point> contour)
+void kpoAppGui::on_contourSelected(QPainterPath contour)
 {
     pause();
+
+    std::cout << contour.elementCount() << std::endl;
 }
 
 QImage kpoAppGui::MatToQImage(const Mat& mat)

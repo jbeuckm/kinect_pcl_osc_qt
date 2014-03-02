@@ -13,8 +13,6 @@ class BlobRenderer : public QWidget
     Q_OBJECT
 
 public:
-    enum Shape { Line, Points, Polyline, Polygon, Rect, RoundedRect, Ellipse, Arc,
-                 Chord, Pie, Path, Text, Pixmap };
 
     BlobRenderer(QWidget *parent = 0);
 
@@ -23,9 +21,9 @@ public:
 
     void updateBackgroundImage(QImage image);
 
-    void resetPolygons();
+    void resetContours();
     void addContour(std::vector<cv::Point>);
-    QVector<QPolygon> polygons;
+    QVector<QPainterPath> contours;
 
 public slots:
     void setPen(const QPen &pen);
@@ -37,8 +35,9 @@ protected:
 
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+
 signals:
-    void contourSelected(std::vector<cv::Point>);
+    void contourSelected(QPainterPath contour);
 
 private:
     QPen pen;
