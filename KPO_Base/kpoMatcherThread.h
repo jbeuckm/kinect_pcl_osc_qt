@@ -5,6 +5,9 @@
 
 #include "kpo_types.h"
 
+
+typedef boost::function<void(unsigned, Eigen::Vector3f, Eigen::Matrix3f)> MatchCallback;
+
 class kpoMatcherThread {
 
 public:

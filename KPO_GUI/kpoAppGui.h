@@ -54,7 +54,6 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void loadExemplar(string filename, int object_id);
 
     QStringListModel *modelListModel;
-    void addStringToModelsList(string str);
 
     void drawRgbImage();
     void drawDepthImage();

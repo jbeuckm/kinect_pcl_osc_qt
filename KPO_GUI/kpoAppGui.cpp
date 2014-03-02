@@ -82,17 +82,8 @@ void kpoAppGui::loadSettings()
 void kpoAppGui::loadExemplar(string filename, int object_id)
 {
     kpoBaseApp::loadExemplar(filename, object_id);
-
-    addStringToModelsList(filename);
 }
 
-
-void kpoAppGui::addStringToModelsList(string str)
-{
-    modelListModel->insertRow(modelListModel->rowCount());
-    QModelIndex index = modelListModel->index(modelListModel->rowCount()-1);
-    modelListModel->setData(index, QString(str.c_str()).section("/",-1,-1) );
-}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,7 +219,6 @@ void kpoAppGui::on_saveCloudButton_clicked()
     if (!filename.isEmpty()) {
         pcl::PCDWriter writer;
         writer.writeASCII(filename.toStdString(), *scene_cloud_);
-//        addCurrentObjectToMatchList(std::stoi(objectname));
     }
 }
 

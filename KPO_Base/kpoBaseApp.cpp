@@ -262,7 +262,6 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     scene_cloud_.reset (new Cloud);
 
-    // fi
     depth_filter_.setInputCloud (cloud);
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);

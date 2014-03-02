@@ -21,10 +21,11 @@
 
 #include <pcl/features/board.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-
+/*
 #include <pcl/recognition/cg/hough_3d.h>
 #include <pcl/recognition/cg/geometric_consistency.h>
 #include <pcl/visualization/pcl_visualizer.h>
+*/
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/kdtree/impl/kdtree_flann.hpp>
 #include <pcl/common/transforms.h>
@@ -33,6 +34,11 @@
 #include <opencv/cv.h>
 
 #include "kpo_types.h"
+#include "kpoObjectDescription.h"
+
+
+typedef boost::function<void(kpoObjectDescription)> AnalyzerCallback;
+
 
 class kpoPclFunctions
 {
@@ -40,29 +46,33 @@ public:
 
     kpoPclFunctions(float downsampling_radius);
 
+    void analyzeCloud(CloudPtr &cloud);
+    AnalyzerCallback callback_;
+
     void removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud);
 
-    void setDownsamplingRadius(float _radius);
+    double computeCloudResolution (const CloudConstPtr &cloud);
 
     void estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals);
 
+    void setDownsamplingRadius(float _radius);
+    void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
+
     void computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
-
-    void correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
-
-    std::vector<pcl::Correspondences> clusterCorrespondences(const CloudConstPtr &scene_keypoints, const CloudConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
 
     void estimateReferenceFrames(const Cloud::ConstPtr &cloud,
                                  const NormalCloud::ConstPtr &normals,
                                  const Cloud::ConstPtr &keypoints,
                                  RFCloud::Ptr &rf);
+/*
+    void correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs);
+
+    std::vector<pcl::Correspondences> clusterCorrespondences(const CloudConstPtr &scene_keypoints, const CloudConstPtr &model_keypoints, const pcl::CorrespondencesPtr &model_scene_corrs);
 
     void setHoughSceneCloud(const CloudConstPtr &scene_keypoints, const RFCloud::ConstPtr &scene_rf);
     void houghCorrespondences(const CloudConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs,
                 std::vector<pcl::Correspondences> &clustered_corrs, std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > &rototranslations);
-
-    double computeCloudResolution (const CloudConstPtr &cloud);
-    void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
+*/
 
 
     void openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols)
@@ -85,19 +95,29 @@ private:
     float cg_size_;
     float cg_thresh_;
 
+    CloudPtr scene_cloud_;
+    CloudPtr scene_keypoints_;
+    NormalCloud::Ptr scene_normals_;
+    DescriptorCloud::Ptr scene_descriptors_;
+    RFCloud::Ptr scene_refs_;
+
     pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
 
     pcl::NormalEstimation<PointType, NormalType> norm_est;
 
     pcl::UniformSampling<PointType> uniform_sampling;
-//    pcl::SHOTEstimation<PointType, NormalType, DescriptorType> shot;
+
     pcl::SHOTColorEstimation<PointType, NormalType, DescriptorType> shot;
+
+    pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
+
+    /*
     pcl::KdTreeFLANN<DescriptorType> match_search;
 
     pcl::GeometricConsistencyGrouping<PointType, PointType> gc_clusterer;
 
-    pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
     pcl::Hough3DGrouping<PointType, PointType, RFType, RFType> clusterer;
+*/
 };
 
 #endif // PCL_FUNCTIONS_H

@@ -31,7 +31,7 @@ kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .005f) :
 
     rf_est.setFindHoles (true);
     rf_est.setRadiusSearch (rf_rad_);
-
+/*
     clusterer.setUseInterpolation (true);
     clusterer.setUseDistanceWeight (false);
     clusterer.setHoughBinSize (cg_size_);
@@ -39,7 +39,7 @@ kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .005f) :
 
     gc_clusterer.setGCSize (cg_size_);
     gc_clusterer.setGCThreshold (cg_thresh_);
-
+*/
 }
 
 
@@ -50,42 +50,17 @@ void kpoPclFunctions::setDownsamplingRadius(float _radius)
 }
 
 
+void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud)
+{
+    statistical_outlier_remover.setInputCloud (cloud);
+    statistical_outlier_remover.filter (filtered_cloud);
+}
+
+
 void kpoPclFunctions::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals)
 {
-/*
-    // Create a KD-Tree
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-
-    // Output has the PointNormal type in order to store the normals calculated by MLS
-    pcl::PointCloud<pcl::PointNormal> mls_points;
-
-    // Init object (second point type is for the normals, even if unused)
-    pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
-
-    mls.setComputeNormals (true);
-
-    // Set parameters
-    mls.setInputCloud (cloud);
-    mls.setPolynomialFit (true);
-    mls.setSearchMethod (tree);
-    mls.setSearchRadius (0.03);
-
-    // Reconstruct
-    mls.process (mls_points);
-
-    std::vector<int> indices;
-    pcl::PointCloud<pcl::PointNormal> filtered;
-    pcl::removeNaNFromPointCloud(mls_points, filtered, indices);
-    std::cout << filtered.size() << std::endl;
-
-    pcl::copyPointCloud(filtered, *normals);
-    pcl::copyPointCloud(filtered, *cloud);
-
-*/
-
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
-
 }
 
 
@@ -109,13 +84,9 @@ void kpoPclFunctions::computeShotDescriptors(const CloudConstPtr &cloud, const C
     shot.compute (*descriptors);
 }
 
-
+/*
 void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
 {
-//    QElapsedTimer timer;
-//    qint64 totalTime;
-//    timer.start();
-
     match_search.setInputCloud (model_descriptors);
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
@@ -129,8 +100,6 @@ void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scen
             continue;
         }
 
-//        timer.restart();
-
         int found_neighs = match_search.nearestKSearch (scene_descriptors->at (i), 1, neigh_indices, neigh_sqr_dists);
 
         if(found_neighs == 1 && neigh_sqr_dists[0] < 0.25f) //  add match only if the squared descriptor distance is less than 0.25 (SHOT descriptor distances are between 0 and 1 by design)
@@ -139,7 +108,6 @@ void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scen
             model_scene_corrs->push_back (corr);
         }
 
-//        totalTime += timer.nsecsElapsed();
     }
 
 //    cout << "correlated " << size << " descriptors in avg~" << ((float)totalTime / (float)size) << "ns" << std::endl;
@@ -155,7 +123,6 @@ std::vector<pcl::Correspondences> kpoPclFunctions::clusterCorrespondences(const 
     gc_clusterer.setSceneCloud (scene_keypoints);
     gc_clusterer.setModelSceneCorrespondences (model_scene_corrs);
 
-//    gc_clusterer.cluster (clustered_corrs);
     gc_clusterer.recognize (rototranslations, clustered_corrs);
 
     return clustered_corrs;
@@ -171,21 +138,14 @@ void kpoPclFunctions::setHoughSceneCloud(const CloudConstPtr &scene_keypoints, c
 void kpoPclFunctions::houghCorrespondences(const CloudConstPtr &model_keypoints, const RFCloud::ConstPtr &model_rf, const pcl::CorrespondencesPtr &model_scene_corrs,
                                            std::vector<pcl::Correspondences> &clustered_corrs, std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > &rototranslations)
 {
-/*
-    std::cout << "model " << model_keypoints->size() << "/" << model_rf->size() << std::endl;
-    std::cout << "scene " << scene_keypoints->size() << "/" << scene_rf->size() << std::endl;
-    std::cout << "correspondences " << model_scene_corrs->size() << std::endl;
-*/
     clusterer.setInputCloud (model_keypoints);
     clusterer.setInputRf (model_rf);
     clusterer.setModelSceneCorrespondences (model_scene_corrs);
 
     clusterer.cluster (clustered_corrs);
     clusterer.recognize (rototranslations, clustered_corrs);
-//    std::cout << "model instances: " << rototranslations.size() << std::endl;
-
 }
-
+*/
 
 void kpoPclFunctions::estimateReferenceFrames(const CloudConstPtr &cloud,
                              const NormalCloud::ConstPtr &normals,
@@ -232,13 +192,6 @@ double kpoPclFunctions::computeCloudResolution (const CloudConstPtr &cloud)
     res /= n_points;
   }
   return res;
-}
-
-
-void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud)
-{
-    statistical_outlier_remover.setInputCloud (cloud);
-    statistical_outlier_remover.filter (filtered_cloud);
 }
 
 
