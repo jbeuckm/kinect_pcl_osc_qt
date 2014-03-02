@@ -9,6 +9,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     , mtx_ ()
     , thread_pool(8)
     , model_loading_thread_pool(8)
+    , osc_sender (new kpoOscSender())
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -65,7 +66,7 @@ void kpoBaseApp::loadSettings()
     osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.48").toString();
     osc_sender_port_ = settings.value("osc_sender_port_", 7000).toInt();
     std::cout << "loaded ip " << osc_sender_ip_.toStdString() << ":" << osc_sender_port_ << std::endl;
-    osc_sender.setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
+    osc_sender->setNetworkTarget(osc_sender_ip_.toStdString().c_str(), osc_sender_port_);
 
     remove_noise_ = true;
     match_models_ = false;
@@ -135,18 +136,18 @@ void kpoBaseApp::loadModelFiles()
 
 
 // load a raw model cap and process it into a matchable set of keypoints, descriptors
-void kpoBaseApp::loadExemplar(string filepath, int object_id)
+void kpoBaseApp::loadExemplar(string filename, int object_id)
 {
     pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
 
     pcl::PCDReader reader;
-    reader.read<PointType> (filepath, *model_);
+    reader.read<PointType> (filename, *model_);
 
     process_cloud(model_);
 
     if (scene_cloud_->size() != 0) {
 
-        addCurrentObjectToMatchList(object_id);
+        addCurrentObjectToMatchList(filename, object_id);
 
     }
 }
@@ -154,10 +155,11 @@ void kpoBaseApp::loadExemplar(string filepath, int object_id)
 
 
 // Save the currently processed cloud/keypoints/descriptors tpo be matched
-void kpoBaseApp::addCurrentObjectToMatchList(int object_id)
+void kpoBaseApp::addCurrentObjectToMatchList(string filename, int object_id)
 {
     boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(scene_keypoints_, scene_descriptors_, scene_refs_));
     model_thread->object_id = object_id;
+    model_thread->filename = filename;
 
     MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1, _2, _3);
     model_thread->setMatchCallback(f);
@@ -177,7 +179,7 @@ void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen:
     std::cout << "found object " << object_id << " at ";
     std::cout << translation(0) << "," << translation(1) << "," << translation(2) << std::endl;
 
-    osc_sender.sendObject(object_id, translation(0), translation(1), translation(2));
+    osc_sender->sendObject(object_id, translation(0), translation(1), translation(2));
 }
 
 
@@ -209,10 +211,12 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 }
 void kpoBaseApp::processDepthBlobs(BlobFinder bf)
 {
+    QMutexLocker locker (&mtx_);
+
     for( int i = 0; i < bf.numBlobs; i++ )
     {
         if (bf.radius[i] > 15) {
-            osc_sender.sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
+            osc_sender->sendBlob(bf.center[i].x, bf.center[i].y, bf.radius[i]);
         }
     }
 }
@@ -285,13 +289,17 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     double res = pcl_functions_.computeCloudResolution(scene_cloud_);
 //    std::cout << "resolution = " << res << std::endl;
 
-    osc_sender.send("/pointcloud/size", scene_cloud_->size());
+    osc_sender->send("/pointcloud/size", scene_cloud_->size());
 
     if (scene_cloud_->size() < 25) {
         std::cout << "cloud too small" << std::endl;
         return;
     }
-
+    if (scene_cloud_->size() > 30000) {
+        std::cout << "cloud too large" << std::endl;
+        return;
+    }
+    std::cout << "cloud has " << scene_cloud_->size() << " points" << std::endl;
 
     if (estimate_normals_) {
 

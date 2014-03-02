@@ -94,6 +94,8 @@ void kpoMatcherThread::operator ()()
         Eigen::Matrix3f rotation = rototranslations[i].block<3,3>(0, 0);
         Eigen::Vector3f translation = rototranslations[i].block<3,1>(0, 3);
 
+        std::cout << "matched from file " << filename << std::endl;
+
         callback_(object_id, translation, rotation);
     }
 }

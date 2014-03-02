@@ -44,7 +44,7 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     blob_renderer->setGeometry(blobsSize);
     blob_renderer->show();
 
-    connect(blob_renderer, SIGNAL(contourSelected(QPolygon)), this, SLOT(on_contourSelected(QPolygon)));
+    connect(blob_renderer, SIGNAL(contourSelected(QPainterPath)), this, SLOT(on_contourSelected(QPainterPath)));
 
     modelListModel = new QStringListModel(this);
     QStringList list;

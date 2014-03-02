@@ -105,7 +105,7 @@ public:
 
     void loadModelFiles();
     void loadExemplar(string filepath, int object_id);
-    void addCurrentObjectToMatchList(int object_id);
+    void addCurrentObjectToMatchList(string filename, int object_id);
 
     virtual void loadSettings();
     virtual void saveSettings();
@@ -119,7 +119,7 @@ public:
 
     void pause();
 
-    kpoOscSender osc_sender;
+    boost::shared_ptr< kpoOscSender > osc_sender;
     QString osc_sender_ip_;
     int osc_sender_port_;
 };
