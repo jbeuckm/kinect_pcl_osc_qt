@@ -1,17 +1,9 @@
 #include "kpoCloudAnalyzer.h"
 #include "kpoObjectDescription.h"
 
-kpoCloudAnalyzer::kpoCloudAnalyzer()
-    : pcl_functions_(.01f)
+kpoCloudAnalyzer::kpoCloudAnalyzer(CloudPtr inputCloud)
+    : pcl_functions_(kpoPclFunctions(.01f))
     , scene_cloud_(new Cloud())
-    , scene_normals_(new NormalCloud())
-    , scene_keypoints_(new Cloud())
-    , scene_descriptors_(new DescriptorCloud())
-    , scene_refs_(new RFCloud())
-{
-}
-
-void kpoCloudAnalyzer::setInputCloud(CloudPtr inputCloud)
 {
     std::cout << "will copy cloud with " << inputCloud->size() << std::endl;
 
@@ -20,9 +12,24 @@ void kpoCloudAnalyzer::setInputCloud(CloudPtr inputCloud)
 
 void kpoCloudAnalyzer::operator ()()
 {
-    Cloud cleanCloud;
-    pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
-    pcl::copyPointCloud(cleanCloud, *scene_cloud_);
+    CloudPtr cleanCloud(new Cloud());
+
+    std::cout << "scene_cloud_ " << scene_cloud_->size() << " cleanCloud " << cleanCloud->size() << std::endl;
+
+//    pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
+
+
+    pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
+
+    statistical_outlier_remover.setMeanK (50);
+    statistical_outlier_remover.setStddevMulThresh (1.0);
+
+    statistical_outlier_remover.setInputCloud (scene_cloud_);
+    statistical_outlier_remover.filter (*cleanCloud);
+
+
+
+    pcl::copyPointCloud(*cleanCloud, *scene_cloud_);
 
     if (scene_cloud_->size() < 25) {
         std::cout << "cloud too small" << std::endl;

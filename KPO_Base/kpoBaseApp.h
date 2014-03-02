@@ -34,7 +34,9 @@
 #include "kpoObjectDescription.h"
 #include "kpo_types.h"
 #include "kpoOscSender.h"
+
 #include "kpoMatcherThread.h"
+#include "kpoCloudAnalyzer.h"
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>

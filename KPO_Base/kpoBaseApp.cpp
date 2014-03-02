@@ -1,16 +1,15 @@
 #include "kpoBaseApp.h"
 
 #include "BlobFinder.h"
-#include "kpoCloudAnalyzer.h"
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
-    , pcl_functions_( kpoPclFunctions(.01f) )
     , mtx_ ()
     , analyzer_thread_pool(8)
     , matcher_thread_pool(8)
     , osc_sender (new kpoOscSender())
     , scene_cloud_(new Cloud())
+    , pcl_functions_( kpoPclFunctions(.01f) )
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -39,7 +38,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
 
     thread_load = 12;
 
-    grabber_.start ();
+//    grabber_.start ();
 }
 
 
@@ -113,7 +112,8 @@ void kpoBaseApp::loadModelFiles()
         thread_load = count;
     }
 
-    for (int i=0; i<count; i++) {
+//    for (int i=0; i<count; i++) {
+        for (int i=0; i<1; i++) {
 
         QString qs_filename = model_files[i];
         string filename = qs_filename.toStdString();
@@ -122,9 +122,6 @@ void kpoBaseApp::loadModelFiles()
 
         int object_id = qs_filename.replace(QRegExp("[a-z]*.pcd"), "").toInt();
 
-        std::cout << "object_id " << object_id << std::endl;
-
-//        model_loading_thread_pool.schedule(boost::bind(&kpoBaseApp::loadExemplar, this, models_folder_.toStdString() + "/" + filename, object_id));
         loadExemplar(models_folder_.toStdString() + "/" + filename, object_id);
     }
 
@@ -140,14 +137,12 @@ void kpoBaseApp::loadExemplar(string filename, int object_id)
     pcl::PCDReader reader;
     reader.read<PointType> (filename, *model_);
 
-    boost::shared_ptr<kpoCloudAnalyzer> analyzer_thread(new kpoCloudAnalyzer());
+    boost::shared_ptr<kpoCloudAnalyzer> analyzer_thread(new kpoCloudAnalyzer(model_));
     AnalysisCallback ac = boost::bind (&kpoBaseApp::modelAnalyzed, this, _1);
     analyzer_thread->callback_ = ac;
 
     analyzer_thread->filename = filename;
     analyzer_thread->object_id = object_id;
-
-    analyzer_thread->setInputCloud(model_);
 
     analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
 }
@@ -155,7 +150,9 @@ void kpoBaseApp::loadExemplar(string filename, int object_id)
 // prepare a thread to match this model cloud to a give scene on demand
 void kpoBaseApp::modelAnalyzed(kpoObjectDescription od)
 {
-    if (scene_cloud_->size() != 0) {
+    if (od.cloud->size() != 0) {
+
+        QMutexLocker locker (&mtx_);
 
         kpoMatcherThread *mt = new kpoMatcherThread(od.keypoints, od.descriptors, od.reference_frames);
 
@@ -277,12 +274,10 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     if (process_scene_) {
 
-        boost::shared_ptr<kpoCloudAnalyzer> analyzer_thread(new kpoCloudAnalyzer());
+        boost::shared_ptr<kpoCloudAnalyzer> analyzer_thread(new kpoCloudAnalyzer(scene_cloud_));
 
         AnalysisCallback ac = boost::bind (&kpoBaseApp::sceneAnalyzed, this, _1);
         analyzer_thread->callback_ = ac;
-
-        analyzer_thread->setInputCloud(scene_cloud_);
 
         analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
 
@@ -292,8 +287,9 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
 void kpoBaseApp::sceneAnalyzed(kpoObjectDescription objectDescription)
 {
-
     if (match_models_) {
+
+        QMutexLocker locker (&mtx_);
 
         int batch = thread_load - matcher_thread_pool.pending();
 

@@ -8,9 +8,6 @@ kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .005f) :
 {
     uniform_sampling.setRadiusSearch (downsampling_radius_);
 
-    statistical_outlier_remover.setMeanK (50);
-    statistical_outlier_remover.setStddevMulThresh (1.0);
-
     shot_radius_ = 0.04f;
 
     cg_size_ = 0.01f;
@@ -18,14 +15,6 @@ kpoPclFunctions::kpoPclFunctions(float downsampling_radius = .005f) :
 
     rf_rad_ = 0.015f;
 
-    if (false) {
-        norm_est.setKSearch (16);
-    }
-    else {
-        pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType> ());
-        norm_est.setSearchMethod (tree);
-        norm_est.setRadiusSearch (0.02);
-    }
 
     shot.setRadiusSearch (shot_radius_);
 
@@ -50,7 +39,19 @@ void kpoPclFunctions::setDownsamplingRadius(float _radius)
 }
 
 
-void kpoPclFunctions::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals)
+void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud)
+{
+    pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
+
+    statistical_outlier_remover.setMeanK (50);
+    statistical_outlier_remover.setStddevMulThresh (1.0);
+
+    statistical_outlier_remover.setInputCloud (cloud);
+    statistical_outlier_remover.filter (filtered_cloud);
+}
+
+
+void kpoPclFunctions::estimateNormals(const CloudConstPtr &cloud, NormalCloudPtr &normals)
 {
 /*
     // Create a KD-Tree
@@ -83,6 +84,17 @@ void kpoPclFunctions::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals)
 
 */
 
+    pcl::NormalEstimation<PointType, NormalType> norm_est;
+
+    if (false) {
+        norm_est.setKSearch (16);
+    }
+    else {
+        pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType> ());
+        norm_est.setSearchMethod (tree);
+        norm_est.setRadiusSearch (0.02);
+    }
+
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
 
@@ -112,10 +124,6 @@ void kpoPclFunctions::computeShotDescriptors(const CloudConstPtr &cloud, const C
 
 void kpoPclFunctions::correlateDescriptors(const DescriptorCloud::ConstPtr &scene_descriptors, const DescriptorCloud::ConstPtr &model_descriptors, pcl::CorrespondencesPtr &model_scene_corrs)
 {
-//    QElapsedTimer timer;
-//    qint64 totalTime;
-//    timer.start();
-
     match_search.setInputCloud (model_descriptors);
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
@@ -232,13 +240,6 @@ double kpoPclFunctions::computeCloudResolution (const CloudConstPtr &cloud)
     res /= n_points;
   }
   return res;
-}
-
-
-void kpoPclFunctions::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud)
-{
-    statistical_outlier_remover.setInputCloud (cloud);
-    statistical_outlier_remover.filter (filtered_cloud);
 }
 
 

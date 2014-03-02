@@ -13,9 +13,7 @@ typedef boost::function<void(kpoObjectDescription)> AnalysisCallback;
 class kpoCloudAnalyzer
 {
 public:
-    kpoCloudAnalyzer();
-
-    void setInputCloud(CloudPtr inputCloud);
+    kpoCloudAnalyzer(CloudPtr inputCloud);
 
     std::string filename;
     unsigned object_id;
