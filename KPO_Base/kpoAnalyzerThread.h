@@ -30,7 +30,6 @@
 #include <opencv/cv.h>
 
 #include "kpo_types.h"
-#include "kpoObjectDescription.h"
 
 
 typedef boost::function<void(kpoObjectDescription)> AnalyzerCallback;
@@ -40,7 +39,7 @@ class kpoAnalyzerThread
 {
 public:
 
-    kpoAnalyzerThread(float downsampling_radius=.0075f);
+    kpoAnalyzerThread(float downsampling_radius);
 
     void setInputCloud(CloudPtr &cloud);
     void operator ()();

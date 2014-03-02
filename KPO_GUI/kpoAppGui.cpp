@@ -43,7 +43,7 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     blob_renderer->setGeometry(blobsSize);
     blob_renderer->show();
 
-    connect(blob_renderer, SIGNAL(contourSelected(QPainterPath)), this, SLOT(on_contourSelected(QPainterPath)));
+    connect(blob_renderer, SIGNAL(contourSelected(QPainterPath path)), this, SLOT(on_contourSelected(QPainterPath path)));
 
     modelListModel = new QStringListModel(this);
     QStringList list;
@@ -267,7 +267,7 @@ void kpoAppGui::on_downsamplingRadiusSlider_valueChanged(int value)
 {
     keypoint_downsampling_radius_ = float(value) / 10000.0f;
 
-    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
+//    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
     ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
 }
 

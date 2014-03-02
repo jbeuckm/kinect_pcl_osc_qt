@@ -7,7 +7,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , mtx_ ()
     , matcher_thread_pool(8)
-    , model_loading_thread_pool(8)
+    , analyzer_thread_pool(8)
     , osc_sender (new kpoOscSender())
 {
     // Start the OpenNI data acquision
@@ -39,7 +39,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
 
     thread_load = 12;
 
-//    grabber_.start ();
+    grabber_.start ();
 }
 
 
@@ -113,8 +113,7 @@ void kpoBaseApp::loadModelFiles()
         thread_load = count;
     }
 
-//    for (int i=0; i<count; i++) {
-    for (int i=0; i<1; i++) {
+    for (int i=0; i<count; i++) {
 
         QString qs_filename = model_files[i];
         string filename = qs_filename.toStdString();
@@ -142,17 +141,22 @@ void kpoBaseApp::loadExemplar(string filename, int object_id)
 
     if (model_->size() != 0) {
 
-        kpoAnalyzerThread pcl_functions_(keypoint_downsampling_radius_);
+        kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
 
-        pcl_functions_.setInputCloud(model_);
-        pcl_functions_.callback_ = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
-        pcl_functions_();
+        analyzer.setInputCloud(model_);
+        analyzer.callback_ = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
 
+        analyzer();
+
+//        boost::shared_ptr<kpoAnalyzerThread> analyzer_thread(analyzer);
+//        analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
     }
 }
 
 void kpoBaseApp::modelCloudAnalyzed(kpoObjectDescription od)
 {
+    std::cout << "modelCloudAnalyzed()" << std::endl;
+
     boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(od.keypoints, od.descriptors, od.reference_frames));
     model_thread->object_id = od.object_id;
     model_thread->filename = od.filename;
@@ -233,8 +237,8 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
     {
         QMutexLocker locker (&mtx_);
 
-        kpoAnalyzerThread pcl_functions_(keypoint_downsampling_radius_);
-        pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
+        kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
+        analyzer.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
     }
 
 }
@@ -266,11 +270,11 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     if (process_scene_) {
 
-        kpoAnalyzerThread pcl_functions_(keypoint_downsampling_radius_);
+        kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
 
-        pcl_functions_.setInputCloud(scene_cloud_);
-        pcl_functions_.callback_ = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
-        pcl_functions_();
+        analyzer.setInputCloud(scene_cloud_);
+        analyzer.callback_ = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
+        analyzer();
 
         osc_sender->send("/pointcloud/size", scene_cloud_->size());
 

@@ -31,7 +31,6 @@
 #include <pcl/keypoints/uniform_sampling.h>
 
 #include "kpoAnalyzerThread.h"
-#include "kpoObjectDescription.h"
 #include "kpo_types.h"
 #include "kpoOscSender.h"
 #include "kpoMatcherThread.h"
@@ -103,7 +102,7 @@ public:
 
     void loadModelFiles();
     void loadExemplar(string filepath, int object_id);
-    boost::threadpool::pool model_loading_thread_pool;
+    boost::threadpool::pool analyzer_thread_pool;
     void modelCloudAnalyzed(kpoObjectDescription od);
 
     virtual void loadSettings();

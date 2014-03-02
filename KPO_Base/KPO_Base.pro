@@ -23,7 +23,6 @@ SOURCES += \
 
 HEADERS += KPO_Base_global.h \
     kpoOscSender.h \
-    kpoObjectDescription.h \
     kpo_types.h \
     kpoMatcherThread.h \
     kpoBaseApp.h \
