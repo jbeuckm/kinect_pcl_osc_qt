@@ -241,13 +241,12 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
     }
     image->fillRGB (image_width_, image_height_, rgb_buffer, image_width_ * 3);
 
-    pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
+    {
+        QMutexLocker locker (&mtx_);
 
-    cv::Mat img; //must create a temporary Matrix to hold the gray scale or wont work
-    cv::cvtColor(scene_image_, img, CV_BGR2GRAY); //Convert image to GrayScale
+        pcl_functions_.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
+    }
 
-//    blob_finder.find(img);
-//    std::cout << "rgb blobs = " << bf.numBlobs << std::endl;
 }
 
 

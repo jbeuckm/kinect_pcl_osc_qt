@@ -67,9 +67,7 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
 
 void BlobRenderer::mousePressEvent ( QMouseEvent * e )
 {
-    // store click position
     m_lastPoint = e->pos();
-    // set the flag meaning "click begin"
     m_mouseClick = true;
 }
 void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
@@ -79,7 +77,7 @@ void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
     {
         for (int i=0; i<contours.size(); i++) {
 
-            QPainterPath poly = contours[i];
+            QPainterPath poly = contours.at(i);
 
             if (poly.contains(e->pos())) {
                 emit contourSelected(poly);
