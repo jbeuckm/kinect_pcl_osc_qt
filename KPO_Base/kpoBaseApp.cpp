@@ -164,12 +164,6 @@ void kpoBaseApp::addCurrentObjectToMatchList(string filename, int object_id)
 
     matcher_threads.push_back(model_thread);
 
-
-    boost::shared_ptr<kpoObjectDescription> object_desc(new kpoObjectDescription(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_, scene_refs_));
-    object_desc->object_id = object_id;
-    models_.push_back(object_desc);
-
-//    addStringToModelsList(filename);
 }
 
 void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation)
@@ -274,6 +268,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     depth_filter_.filter (*scene_cloud_);
 
     if (process_scene_) {
+
         Cloud cleanCloud;
         pcl_functions_.removeNoise(scene_cloud_, cleanCloud);
         pcl::copyPointCloud(cleanCloud, *scene_cloud_);

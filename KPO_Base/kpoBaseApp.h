@@ -77,7 +77,6 @@ public:
     double grabber_downsampling_radius_;
     double keypoint_downsampling_radius_;
 
-    std::vector< boost::shared_ptr<kpoObjectDescription> > models_;
     std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
 
     QMutex mtx_;
