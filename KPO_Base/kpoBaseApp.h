@@ -76,11 +76,11 @@ public:
     double grabber_downsampling_radius_;
     double keypoint_downsampling_radius_;
 
-    std::vector< boost::shared_ptr<kpoObjectDescription> > match_queue_;
+    std::vector< boost::shared_ptr<kpoCloudDescription> > match_queue_;
 
     QMutex mtx_;
 
-    void sceneCloudAnalyzed(kpoObjectDescription od);
+    void sceneCloudAnalyzed(kpoCloudDescription od);
 
     bool paused_;
     bool process_scene_;
@@ -103,7 +103,7 @@ public:
     void loadModelFiles();
     void loadExemplar(string filepath, int object_id);
     boost::threadpool::pool analyzer_thread_pool;
-    void modelCloudAnalyzed(kpoObjectDescription od);
+    void modelCloudAnalyzed(kpoCloudDescription od);
 
     virtual void loadSettings();
     virtual void saveSettings();

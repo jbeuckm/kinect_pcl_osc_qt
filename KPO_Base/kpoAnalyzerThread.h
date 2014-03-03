@@ -32,7 +32,7 @@
 #include "kpo_types.h"
 
 
-typedef boost::function<void(kpoObjectDescription)> AnalyzerCallback;
+typedef boost::function<void(kpoCloudDescription)> AnalyzerCallback;
 
 
 class kpoAnalyzerThread
@@ -41,7 +41,7 @@ public:
 
     kpoAnalyzerThread(float downsampling_radius);
 
-    void setInputCloud(CloudPtr &cloud);
+    void setInputCloud(CloudPtr &cloud, std::string filename, unsigned object_id);
     void operator ()();
     AnalyzerCallback callback_;
 
@@ -87,6 +87,9 @@ private:
 
     float cg_size_;
     float cg_thresh_;
+
+    std::string filename;
+    unsigned object_id;
 
 
     pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;

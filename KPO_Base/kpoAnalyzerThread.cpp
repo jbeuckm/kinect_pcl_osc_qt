@@ -34,8 +34,11 @@ kpoAnalyzerThread::kpoAnalyzerThread(float downsampling_radius = .005f)
     rf_est.setRadiusSearch (rf_rad_);
 }
 
-void kpoAnalyzerThread::setInputCloud(CloudPtr &cloud)
+void kpoAnalyzerThread::setInputCloud(CloudPtr &cloud, std::string filename_="none", unsigned object_id_=0)
 {
+    filename = filename_;
+    object_id = object_id_;
+
     pcl::copyPointCloud(*cloud, *scene_cloud_);
 }
 
@@ -69,12 +72,15 @@ void kpoAnalyzerThread::operator ()()
     scene_refs_.reset(new RFCloud ());
     estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
 
-    kpoObjectDescription od;
+    kpoCloudDescription od;
     od.cloud = scene_cloud_;
     od.keypoints = scene_keypoints_;
     od.normals = scene_normals_;
     od.descriptors = scene_descriptors_;
     od.reference_frames = scene_refs_;
+
+    od.filename = filename;
+    od.object_id = object_id;
 
     callback_(od);
 }

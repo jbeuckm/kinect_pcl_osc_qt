@@ -143,7 +143,7 @@ void kpoBaseApp::loadExemplar(string filename, int object_id)
 
         kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
 
-        analyzer.setInputCloud(model_);
+        analyzer.setInputCloud(model_, filename, object_id);
         analyzer.callback_ = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
 
         analyzer();
@@ -153,7 +153,7 @@ void kpoBaseApp::loadExemplar(string filename, int object_id)
     }
 }
 
-void kpoBaseApp::modelCloudAnalyzed(kpoObjectDescription od)
+void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
 {
     std::cout << "modelCloudAnalyzed()" << std::endl;
 
@@ -272,7 +272,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
         kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
 
-        analyzer.setInputCloud(scene_cloud_);
+        analyzer.setInputCloud(scene_cloud_, "", 0);
         analyzer.callback_ = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
         analyzer();
 
@@ -281,7 +281,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     }
 }
 
-void kpoBaseApp::sceneCloudAnalyzed(kpoObjectDescription od)
+void kpoBaseApp::sceneCloudAnalyzed(kpoCloudDescription od)
 {
     std::cout << "scene_keypoints->size = " << od.keypoints->size() << std::endl;
 
