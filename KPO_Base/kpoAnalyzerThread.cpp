@@ -6,11 +6,13 @@
 kpoAnalyzerThread::kpoAnalyzerThread(float downsampling_radius = .005f)
     : downsampling_radius_(downsampling_radius)
     , scene_cloud_ (new Cloud())
+    , statistical_outlier_remover()
 {
     uniform_sampling.setRadiusSearch (downsampling_radius_);
 
     statistical_outlier_remover.setMeanK (50);
     statistical_outlier_remover.setStddevMulThresh (1.0);
+
 
     shot_radius_ = 0.04f;
 
@@ -19,14 +21,6 @@ kpoAnalyzerThread::kpoAnalyzerThread(float downsampling_radius = .005f)
 
     rf_rad_ = 0.015f;
 
-    if (false) {
-        norm_est.setKSearch (16);
-    }
-    else {
-        pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType> ());
-        norm_est.setSearchMethod (tree);
-        norm_est.setRadiusSearch (0.02);
-    }
 
     shot.setRadiusSearch (shot_radius_);
 
@@ -34,7 +28,13 @@ kpoAnalyzerThread::kpoAnalyzerThread(float downsampling_radius = .005f)
     rf_est.setRadiusSearch (rf_rad_);
 }
 
-void kpoAnalyzerThread::setInputCloud(CloudPtr &cloud, std::string filename_="none", unsigned object_id_=0)
+void kpoAnalyzerThread::setAnalyzerCallback(AnalyzerCallback callback)
+{
+    callback_ = callback;
+}
+
+
+void kpoAnalyzerThread::copyInputCloud(CloudPtr cloud, std::string filename_, unsigned object_id_)
 {
     filename = filename_;
     object_id = object_id_;
@@ -44,6 +44,7 @@ void kpoAnalyzerThread::setInputCloud(CloudPtr &cloud, std::string filename_="no
 
 void kpoAnalyzerThread::operator ()()
 {
+
     Cloud cleanCloud;
     removeNoise(scene_cloud_, cleanCloud);
     pcl::copyPointCloud(cleanCloud, *scene_cloud_);
@@ -102,6 +103,15 @@ void kpoAnalyzerThread::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_
 
 void kpoAnalyzerThread::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals)
 {
+    pcl::NormalEstimation<PointType, NormalType> norm_est;
+    if (false) {
+        norm_est.setKSearch (16);
+    }
+    else {
+        pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType> ());
+        norm_est.setSearchMethod (tree);
+        norm_est.setRadiusSearch (0.02);
+    }
     norm_est.setInputCloud (cloud);
     norm_est.compute (*normals);
 }

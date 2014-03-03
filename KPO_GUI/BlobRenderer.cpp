@@ -51,8 +51,9 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
     painter.setPen(pen);
     painter.setBrush(brush);
 
-    if (antialiased)
+    if (antialiased) {
         painter.setRenderHint(QPainter::Antialiasing, true);
+    }
 
     painter.drawPixmap(0, 0, backgroundPixmap);
 

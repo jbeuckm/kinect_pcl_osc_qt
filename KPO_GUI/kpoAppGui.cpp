@@ -43,7 +43,7 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     blob_renderer->setGeometry(blobsSize);
     blob_renderer->show();
 
-    connect(blob_renderer, SIGNAL(contourSelected(QPainterPath path)), this, SLOT(on_contourSelected(QPainterPath path)));
+    connect(blob_renderer, SIGNAL(contourSelected(QPainterPath)), this, SLOT(on_contourSelected(QPainterPath)));
 
     modelListModel = new QStringListModel(this);
     QStringList list;
@@ -75,13 +75,6 @@ void kpoAppGui::loadSettings()
 
      ui_->portTextInput->setText(QString::number(osc_sender_port_));
      ui_->ipTextInput->setText(osc_sender_ip_);
-}
-
-
-
-void kpoAppGui::loadExemplar(string filename, int object_id)
-{
-    kpoBaseApp::loadExemplar(filename, object_id);
 }
 
 

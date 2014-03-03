@@ -76,26 +76,6 @@ public:
     double grabber_downsampling_radius_;
     double keypoint_downsampling_radius_;
 
-    std::vector< boost::shared_ptr<kpoCloudDescription> > match_queue_;
-
-    QMutex mtx_;
-
-    void sceneCloudAnalyzed(kpoCloudDescription od);
-
-    bool paused_;
-    bool process_scene_;
-    bool match_models_;
-
-
-    boost::threadpool::pool matcher_thread_pool;
-    std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
-    unsigned thread_load;
-    int model_index;
-
-    void matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation);
-
-    double depth_threshold_;
-
     QString m_sSettingsFile;
 
     QString models_folder_;
@@ -107,6 +87,24 @@ public:
 
     virtual void loadSettings();
     virtual void saveSettings();
+
+    QMutex mtx_;
+
+    void sceneCloudAnalyzed(kpoCloudDescription od);
+
+    bool paused_;
+    bool process_scene_;
+    bool match_models_;
+
+    boost::threadpool::pool matcher_thread_pool;
+    std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
+    unsigned thread_load;
+    int model_index;
+
+    void matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation);
+
+
+    double depth_threshold_;
 
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
@@ -120,6 +118,19 @@ public:
     boost::shared_ptr< kpoOscSender > osc_sender;
     QString osc_sender_ip_;
     int osc_sender_port_;
+
+
+
+    void openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols)
+    {
+      int sizes[2] = {rows, cols};
+      cv_image = cv::Mat(2, sizes, CV_8UC3, (void*) pImageMap);
+    }
+    void openniImage2opencvMat(const XnDepthPixel* pDepthMap, cv::Mat& cv_depth, int rows, int cols)
+    {
+      int sizes[2] = {rows, cols};
+      cv_depth = cv::Mat(2, sizes, CV_16UC1, (void*) pDepthMap);
+    }
 };
 
 #endif // KPOBASEAPP_H

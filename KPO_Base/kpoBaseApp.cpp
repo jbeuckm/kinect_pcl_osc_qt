@@ -58,7 +58,6 @@ void kpoBaseApp::loadSettings()
     depth_threshold_ = settings.value("depth_threshold_", 1.031).toDouble();
 
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
-//    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
 
     models_folder_ = settings.value("models_folder_", "/myshare/pointclouds/objects").toString();
 
@@ -127,6 +126,8 @@ void kpoBaseApp::loadModelFiles()
         loadExemplar(models_folder_.toStdString() + "/" + filename, object_id);
     }
 
+//    analyzer_thread_pool.wait();
+
 }
 
 
@@ -141,20 +142,33 @@ void kpoBaseApp::loadExemplar(string filename, int object_id)
 
     if (model_->size() != 0) {
 
-        kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
+        if (false) {
 
-        analyzer.setInputCloud(model_, filename, object_id);
-        analyzer.callback_ = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
+            kpoAnalyzerThread *kat = new kpoAnalyzerThread(keypoint_downsampling_radius_);
+            boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);
 
-        analyzer();
+            analyzer->copyInputCloud(model_, filename, object_id);
 
-//        boost::shared_ptr<kpoAnalyzerThread> analyzer_thread(analyzer);
-//        analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
+            AnalyzerCallback ac = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
+            analyzer->setAnalyzerCallback( ac );
+
+            analyzer_thread_pool.schedule(boost::ref( *analyzer ));
+        }
+        else {
+            kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
+
+            analyzer.copyInputCloud(model_, filename, object_id);
+            analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1) );
+
+            analyzer();
+        }
     }
 }
 
 void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
 {
+    QMutexLocker locker (&mtx_);
+
     std::cout << "modelCloudAnalyzed()" << std::endl;
 
     boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(od.keypoints, od.descriptors, od.reference_frames));
@@ -237,8 +251,7 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
     {
         QMutexLocker locker (&mtx_);
 
-        kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
-        analyzer.openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
+        openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
     }
 
 }
@@ -248,6 +261,8 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
 void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 {
     if (paused_) return;
+
+    osc_sender->send("/kinect/pointcloud/size", cloud->size());
 
     if (matcher_thread_pool.pending() < thread_load) {
 
@@ -270,20 +285,35 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     if (process_scene_) {
 
-        kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
+        if (false) {
 
-        analyzer.setInputCloud(scene_cloud_, "", 0);
-        analyzer.callback_ = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
-        analyzer();
+            kpoAnalyzerThread *kat = new kpoAnalyzerThread(keypoint_downsampling_radius_);
+            boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);
 
-        osc_sender->send("/pointcloud/size", scene_cloud_->size());
+            analyzer->copyInputCloud(scene_cloud_, "", 0);
 
+            AnalyzerCallback ac = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
+            analyzer->setAnalyzerCallback( ac );
+
+            analyzer_thread_pool.schedule(boost::ref( *analyzer ));
+        }
+        else {
+
+            kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
+
+            analyzer.copyInputCloud(scene_cloud_, "", 0);
+            analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1) );
+
+            analyzer();
+        }
     }
 }
 
 void kpoBaseApp::sceneCloudAnalyzed(kpoCloudDescription od)
 {
-    std::cout << "scene_keypoints->size = " << od.keypoints->size() << std::endl;
+    std::cout << "sceneCloudAnalyzed()" << std::endl;
+    std::cout << "cloud has " << od.cloud->size() << std::endl;
+
 
     if (match_models_) {
 

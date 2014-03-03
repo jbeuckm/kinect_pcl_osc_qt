@@ -43,7 +43,7 @@ void kpoMatcherThread::operator ()()
     match_search.setInputCloud (model_descriptors);
 
     size_t size = scene_descriptors->size ();
-    for (size_t i = 0; i < size; ++i)
+    for (size_t i = 0; i < size; i++)
     {
         std::vector<int> neigh_indices (1);
         std::vector<float> neigh_sqr_dists (1);
@@ -60,13 +60,7 @@ void kpoMatcherThread::operator ()()
             model_scene_corrs->push_back (corr);
         }
     }
-/*
-    std::cout << "msc" << model_scene_corrs->size() << "/" << model_descriptors->size() << std::endl;
 
-    if (model_scene_corrs->size() < 10) {
-        return;
-    }
-*/
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
 
@@ -86,7 +80,6 @@ void kpoMatcherThread::operator ()()
 
     hough_clusterer.setModelSceneCorrespondences (model_scene_corrs);
 
-    hough_clusterer.cluster (clustered_corrs);
     hough_clusterer.recognize (rototranslations, clustered_corrs);
 
     for (size_t i = 0; i < rototranslations.size (); ++i)

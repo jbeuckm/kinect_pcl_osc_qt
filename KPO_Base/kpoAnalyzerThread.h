@@ -32,7 +32,7 @@
 #include "kpo_types.h"
 
 
-typedef boost::function<void(kpoCloudDescription)> AnalyzerCallback;
+typedef boost::function< void(kpoCloudDescription) > AnalyzerCallback;
 
 
 class kpoAnalyzerThread
@@ -41,9 +41,11 @@ public:
 
     kpoAnalyzerThread(float downsampling_radius);
 
-    void setInputCloud(CloudPtr &cloud, std::string filename, unsigned object_id);
-    void operator ()();
+    void copyInputCloud(Cloud::Ptr cloud, std::string filename, unsigned object_id);
     AnalyzerCallback callback_;
+    void setAnalyzerCallback(AnalyzerCallback callback);
+
+    void operator ()();
 
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;
@@ -68,18 +70,7 @@ public:
                                  RFCloud::Ptr &rf);
 
 
-    void openniImage2opencvMat(const XnRGB24Pixel* pImageMap, cv::Mat& cv_image, int rows, int cols)
-    {
-      int sizes[2] = {rows, cols};
-      cv_image = cv::Mat(2, sizes, CV_8UC3, (void*) pImageMap);
-    }
-    void openniImage2opencvMat(const XnDepthPixel* pDepthMap, cv::Mat& cv_depth, int rows, int cols)
-    {
-      int sizes[2] = {rows, cols};
-      cv_depth = cv::Mat(2, sizes, CV_16UC1, (void*) pDepthMap);
-    }
 
-private:
 
     float downsampling_radius_;
     float shot_radius_;
@@ -91,10 +82,7 @@ private:
     std::string filename;
     unsigned object_id;
 
-
     pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
-
-    pcl::NormalEstimation<PointType, NormalType> norm_est;
 
     pcl::UniformSampling<PointType> uniform_sampling;
 
