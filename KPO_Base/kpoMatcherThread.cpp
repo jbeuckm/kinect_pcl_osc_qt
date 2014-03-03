@@ -42,11 +42,15 @@ void kpoMatcherThread::operator ()()
 
     match_search.setInputCloud (model_descriptors);
 
+
     size_t size = scene_descriptors->size ();
     for (size_t i = 0; i < size; i++)
     {
         std::vector<int> neigh_indices (1);
         std::vector<float> neigh_sqr_dists (1);
+
+        if (scene_descriptors->size() <= i) return;
+
         if (!pcl_isfinite (scene_descriptors->at (i).descriptor[0])) //skipping NaNs
         {
             continue;
@@ -60,6 +64,7 @@ void kpoMatcherThread::operator ()()
             model_scene_corrs->push_back (corr);
         }
     }
+
 
     std::vector<pcl::Correspondences> clustered_corrs;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;

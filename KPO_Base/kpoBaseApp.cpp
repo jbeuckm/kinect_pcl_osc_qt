@@ -260,7 +260,9 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 {
-    if (paused_) return;
+    if (paused_) {
+        return;
+    }
 
     osc_sender->send("/kinect/pointcloud/size", cloud->size());
 
