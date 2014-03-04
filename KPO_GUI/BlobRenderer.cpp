@@ -39,7 +39,7 @@ void BlobRenderer::addContour(std::vector<cv::Point> contour)
     }
 
     path.closeSubpath();
-    contours.append(path.simplified());
+    contours.append(path);
 }
 
 void BlobRenderer::paintEvent(QPaintEvent * /* event */)

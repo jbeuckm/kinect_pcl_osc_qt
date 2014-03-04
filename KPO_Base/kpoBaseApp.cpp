@@ -128,8 +128,9 @@ void kpoBaseApp::loadModelFiles()
         loadExemplar(models_folder_.toStdString() + "/" + filename, object_id);
     }
 
-//    analyzer_thread_pool.wait();
-
+    if (THREADED_ANALYSIS) {
+        analyzer_thread_pool.wait();
+    }
 }
 
 
@@ -194,6 +195,8 @@ void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen:
 
 void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthImage > &depth_image)
 {
+    QMutexLocker locker (&mtx_);
+
     unsigned image_width_ = depth_image->getWidth();
     unsigned image_height_ = depth_image->getHeight();
 
@@ -219,7 +222,6 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 }
 void kpoBaseApp::processDepthBlobs(BlobFinder bf)
 {
-//    QMutexLocker locker (&mtx_);
 
     for( int i = 0; i < bf.numBlobs; i++ )
     {
