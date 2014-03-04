@@ -2,6 +2,8 @@
 
 #include "BlobFinder.h"
 
+#define THREADED_ANALYSIS false
+
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
@@ -142,7 +144,7 @@ void kpoBaseApp::loadExemplar(string filename, int object_id)
 
     if (model_->size() != 0) {
 
-        if (false) {
+        if (THREADED_ANALYSIS) {
 
             kpoAnalyzerThread *kat = new kpoAnalyzerThread(keypoint_downsampling_radius_);
             boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);
@@ -209,7 +211,6 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
         }
     }
 
-
     threshold( depth, scene_depth_image_, depth_image_threshold_, 255, THRESH_TOZERO_INV );
 
     depth_blob_finder.find(scene_depth_image_);
@@ -218,7 +219,7 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 }
 void kpoBaseApp::processDepthBlobs(BlobFinder bf)
 {
-    QMutexLocker locker (&mtx_);
+//    QMutexLocker locker (&mtx_);
 
     for( int i = 0; i < bf.numBlobs; i++ )
     {
@@ -287,7 +288,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     if (process_scene_) {
 
-        if (false) {
+        if (THREADED_ANALYSIS) {
 
             kpoAnalyzerThread *kat = new kpoAnalyzerThread(keypoint_downsampling_radius_);
             boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);

@@ -46,6 +46,8 @@ public:
 
             approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
             minEnclosingCircle( (Mat)contours_poly[i], _center[i], _radius[i] );
+
+            contours[i] = contours_poly[i];
         }
 
         mu = _mu;
