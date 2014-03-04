@@ -21,9 +21,9 @@ public:
 
     void updateBackgroundImage(QImage image);
 
-    void resetContours();
-    void addContour(std::vector<cv::Point>);
-    QVector<QPainterPath> contours;
+    void resetPaths();
+    void addPath(std::vector<cv::Point>);
+    QVector<QPainterPath> paths;
 
 public slots:
     void setPen(const QPen &pen);
@@ -35,6 +35,7 @@ protected:
 
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
 
 signals:
     void contourSelected(QPainterPath contour);
@@ -42,6 +43,7 @@ signals:
 private:
     QPen pen;
     QBrush brush;
+    QBrush hilightBrush;
     bool antialiased;
 
     QPixmap backgroundPixmap;
@@ -51,6 +53,8 @@ private:
 
     QPoint m_lastPoint;
     bool m_mouseClick;
+
+    QPoint mousePos;
 };
     
 

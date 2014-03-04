@@ -4,11 +4,14 @@
 
 BlobRenderer::BlobRenderer(QWidget *parent)
     : QWidget(parent)
-    , contours()
+    , paths()
     , brush(QColor(0,0,255,50))
+    , hilightBrush(QColor(0,0,255,255))
     , pen(QColor(0,255,0))
 {
     antialiased = false;
+
+    setMouseTracking(true);
 
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
@@ -22,12 +25,12 @@ void BlobRenderer::updateBackgroundImage(QImage image)
     scaleY = (float)this->height()/(float)image.height();
 }
 
-void BlobRenderer::resetContours()
+void BlobRenderer::resetPaths()
 {
-    contours.resize(0);
+    paths.resize(0);
 }
 
-void BlobRenderer::addContour(std::vector<cv::Point> contour)
+void BlobRenderer::addPath(std::vector<cv::Point> contour)
 {
     QPainterPath path(QPoint(contour.at(0).x, contour.at(0).y));
 
@@ -39,17 +42,16 @@ void BlobRenderer::addContour(std::vector<cv::Point> contour)
     }
 
     path.closeSubpath();
-    contours.append(path);
+    paths.append(path);
 }
 
-void BlobRenderer::paintEvent(QPaintEvent * /* event */)
+void BlobRenderer::paintEvent(QPaintEvent *e /* event */)
 {
     QPainter painter(this);
 
     painter.scale(scaleX, scaleY);
 
     painter.setPen(pen);
-    painter.setBrush(brush);
 
     if (antialiased) {
         painter.setRenderHint(QPainter::Antialiasing, true);
@@ -58,9 +60,17 @@ void BlobRenderer::paintEvent(QPaintEvent * /* event */)
     painter.drawPixmap(0, 0, backgroundPixmap);
 
 
-    for (int i=0; i<contours.size(); i++) {
+    for (int i=0; i<paths.size(); i++) {
 
-        painter.drawPath(contours[i]);
+        QPainterPath poly = paths.at(i);
+
+        if (poly.contains(mousePos)) {
+            painter.setBrush(hilightBrush);
+        }
+        else {
+            painter.setBrush(brush);
+        }
+        painter.drawPath(poly);
 
     }
 
@@ -73,19 +83,26 @@ void BlobRenderer::mousePressEvent ( QMouseEvent * e )
 }
 void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
 {
+    std::cout << (float)(e->x()) << std::endl;
+
     // check if cursor not moved since click beginning
     if ((m_mouseClick) && (e->pos() == m_lastPoint))
     {
-        for (int i=0; i<contours.size(); i++) {
+        for (int i=0; i<paths.size(); i++) {
 
-            QPainterPath poly = contours.at(i);
+            QPainterPath poly = paths.at(i);
 
-            if (poly.contains(e->pos())) {
+            if (poly.contains(mousePos)) {
                 emit contourSelected(poly);
                 break;
             }
         }
     }
+}
+void BlobRenderer::mouseMoveEvent(QMouseEvent *e)
+{
+    mousePos.setX(e->x() / scaleX);
+    mousePos.setY(e->y() / scaleY);
 }
 
 QSize BlobRenderer::sizeHint() const

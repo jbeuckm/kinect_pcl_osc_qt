@@ -115,10 +115,10 @@ void kpoAppGui::updateView()
 
         drawRgbImage();
 
-        blob_renderer->resetContours();
+        blob_renderer->resetPaths();
         for (int i=0; i<depth_blob_finder.contours.size(); i++) {
             if (depth_blob_finder.radius[i] > 20) {
-                blob_renderer->addContour(depth_blob_finder.contours[i]);
+                blob_renderer->addPath(depth_blob_finder.contours[i]);
             }
         }
     }
@@ -293,9 +293,9 @@ void kpoAppGui::on_depthImageThresholdSlider_valueChanged(int value)
 
 void kpoAppGui::on_contourSelected(QPainterPath contour)
 {
-    pause();
+//    pause();
 
-    std::cout << contour.elementCount() << std::endl;
+    std::cout << "selected contour with " << contour.elementCount() << std::endl;
 }
 
 QImage kpoAppGui::MatToQImage(const Mat& mat)
