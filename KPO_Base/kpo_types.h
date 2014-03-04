@@ -42,6 +42,13 @@ struct kpoObjectContour
     std::string filename;
     unsigned object_id;
     Contour contour;
+
+    double error;
+
+    bool operator < (const kpoObjectContour &c)
+    {
+        return (error < c.error);
+    }
 };
 
 

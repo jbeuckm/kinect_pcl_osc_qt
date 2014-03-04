@@ -234,20 +234,24 @@ void kpoBaseApp::processDepthBlobs(BlobFinder bf)
     }
 }
 
+bool operator <(const kpoObjectContour& a, const kpoObjectContour& b) { return (a.error < b.error); }
+
 void kpoBaseApp::findMatchingContours(Contour scene_contour)
 {
     for (int i=0; i<contour_objects_.size(); i++) {
-
         kpoObjectContour test_object = contour_objects_[i];
-
-        double error1 = cv::matchShapes(scene_contour, test_object.contour, CV_CONTOURS_MATCH_I1, 0);
-        double error2 = cv::matchShapes(scene_contour, test_object.contour, CV_CONTOURS_MATCH_I2, 0);
-        double error3 = cv::matchShapes(scene_contour, test_object.contour, CV_CONTOURS_MATCH_I3, 0);
-
-//        std::cout << error1 << " " << error2 << " " << error3 << std::endl;
+        contour_objects_[i].error = cv::matchShapes(scene_contour, test_object.contour, CV_CONTOURS_MATCH_I3, 0);
     }
-}
 
+    std::sort(contour_objects_.begin(), contour_objects_.end());
+
+    for (int i=0; i<contour_objects_.size(); i++) {
+        kpoObjectContour test_object = contour_objects_[i];
+        std::cout << test_object.object_id << " ";
+    }
+
+    std::cout << std::endl;
+}
 
 
 void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> &image)
