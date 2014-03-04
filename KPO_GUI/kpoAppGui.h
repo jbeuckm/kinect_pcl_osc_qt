@@ -86,6 +86,8 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void on_contourSelected(Contour contour);
 
 
+    void on_browseContoursFolderButton_clicked();
+
 signals:
     void valueChanged (int new_value);
 };

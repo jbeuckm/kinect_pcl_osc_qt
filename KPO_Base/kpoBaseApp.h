@@ -62,6 +62,8 @@ public:
 
     cv::Mat scene_image_;
 
+    QString contours_folder_;
+
     cv::Mat scene_depth_image_;
     int depth_image_threshold_;
     BlobFinder depth_blob_finder;

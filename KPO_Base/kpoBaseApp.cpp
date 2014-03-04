@@ -62,6 +62,7 @@ void kpoBaseApp::loadSettings()
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
 
     models_folder_ = settings.value("models_folder_", "/myshare/pointclouds/objects").toString();
+    contours_folder_ = settings.value("contours_folder_", "/myshare/contours").toString();
 
     osc_sender_ip_ = settings.value("osc_sender_ip_", "192.168.0.48").toString();
     osc_sender_port_ = settings.value("osc_sender_port_", 7000).toInt();
@@ -89,6 +90,7 @@ void kpoBaseApp::saveSettings()
     settings.setValue("keypoint_downsampling_radius_", keypoint_downsampling_radius_);
 
     settings.setValue("models_folder_", models_folder_);
+    settings.setValue("contours_folder_", contours_folder_);
 
     settings.setValue("process_scene_", process_scene_);
     settings.setValue("match_models_", match_models_);
@@ -236,8 +238,6 @@ void kpoBaseApp::processDepthBlobs(BlobFinder bf)
 
 void kpoBaseApp::findMatchingContours(Contour scene_contour)
 {
-    std::cout << "findMatchingContours() count = " << contour_objects_.size() << std::endl;
-
     for (int i=0; i<contour_objects_.size(); i++) {
 
         kpoObjectContour test_object = contour_objects_[i];

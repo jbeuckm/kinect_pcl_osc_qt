@@ -295,7 +295,7 @@ void kpoAppGui::on_contourSelected(Contour contour)
 {
     std::cout << "selected contour with " << contour.size() << std::endl;
 
-    std::string objectname =  ui_->objectNameTextInput->text().toStdString();
+    std::string objectname =  ui_->contourObjectIdTextInput->text().toStdString();
 
     kpoObjectContour object;
     object.contour = contour;
@@ -338,4 +338,19 @@ QImage kpoAppGui::MatToQImage(const Mat& mat)
 void kpoAppGui::on_processSceneCheckBox_toggled(bool checked)
 {
     process_scene_ = checked;
+}
+
+void kpoAppGui::on_browseContoursFolderButton_clicked()
+{
+    pause();
+
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Contours Folder"),
+                                                    "/home",
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+
+    if (!dir.isEmpty()) {
+        contours_folder_ = dir;
+        ui_->contoursFolderTextInput->setText(dir);
+    }
 }
