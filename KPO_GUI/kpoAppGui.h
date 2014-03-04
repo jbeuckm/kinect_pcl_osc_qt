@@ -83,7 +83,7 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
     void on_depthThresholdSlider_valueChanged(int value);
     void on_depthImageThresholdSlider_valueChanged(int value);
 
-    void on_contourSelected(std::vector<cv::Point>contour);
+    void on_contourSelected(Contour contour);
 
 
 signals:

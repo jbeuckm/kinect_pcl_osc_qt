@@ -2,6 +2,9 @@
 #define KPO_TYPES_H
 
 #include <boost/function.hpp>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <opencv/cv.h>
 
 typedef pcl::PointXYZRGBA PointType;
 
@@ -30,6 +33,17 @@ struct kpoCloudDescription
     DescriptorCloud::Ptr descriptors;
     RFCloud::Ptr reference_frames;
 };
+
+
+typedef std::vector<cv::Point> Contour;
+
+struct kpoObjectContour
+{
+    std::string filename;
+    unsigned object_id;
+    Contour contour;
+};
+
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \

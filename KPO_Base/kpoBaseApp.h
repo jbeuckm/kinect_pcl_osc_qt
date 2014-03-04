@@ -66,7 +66,8 @@ public:
     int depth_image_threshold_;
     BlobFinder depth_blob_finder;
 
-    std::vector< std::vector<cv::Point> > match_contours_;
+    std::vector< kpoObjectContour > contour_objects_;
+    void findMatchingContours(Contour scene_contour);
 
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;

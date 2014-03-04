@@ -30,7 +30,7 @@ void BlobRenderer::resetPaths()
     paths.resize(0);
 }
 
-void BlobRenderer::addPath(std::vector<cv::Point> contour)
+void BlobRenderer::addPath(Contour contour)
 {
     QPainterPath path(QPoint(contour.at(0).x, contour.at(0).y));
 
@@ -45,9 +45,9 @@ void BlobRenderer::addPath(std::vector<cv::Point> contour)
     paths.append(path);
 }
 
-std::vector<cv::Point> BlobRenderer::path2vector(QPainterPath path)
+Contour BlobRenderer::path2vector(QPainterPath path)
 {
-    std::vector<cv::Point> contour;
+    Contour contour;
 
     for (int i=0; i<path.elementCount(); i++) {
         QPainterPath::Element el = path.elementAt(i);

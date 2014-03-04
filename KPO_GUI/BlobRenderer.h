@@ -7,6 +7,7 @@
 #include <QImage>
 
 #include <opencv/cv.h>
+#include "kpo_types.h"
 
 class BlobRenderer : public QWidget
 {
@@ -22,10 +23,10 @@ public:
     void updateBackgroundImage(QImage image);
 
     void resetPaths();
-    void addPath(std::vector<cv::Point>);
+    void addPath(Contour path);
     QVector<QPainterPath> paths;
 
-    std::vector<cv::Point> path2vector(QPainterPath path);
+    Contour path2vector(QPainterPath path);
 
 public slots:
     void setPen(const QPen &pen);
@@ -40,7 +41,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
 
 signals:
-    void contourSelected( std::vector<cv::Point> path );
+    void contourSelected( Contour path );
 
 private:
     QPen pen;

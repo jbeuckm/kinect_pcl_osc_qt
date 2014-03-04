@@ -43,7 +43,7 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
     blob_renderer->setGeometry(blobsSize);
     blob_renderer->show();
 
-    connect(blob_renderer, SIGNAL(contourSelected(std::vector<cv::Point>)), this, SLOT(on_contourSelected(std::vector<cv::Point>)));
+    connect(blob_renderer, SIGNAL(contourSelected(Contour)), this, SLOT(on_contourSelected(Contour)));
 
     modelListModel = new QStringListModel(this);
     QStringList list;
@@ -291,13 +291,16 @@ void kpoAppGui::on_depthImageThresholdSlider_valueChanged(int value)
     std::cout << "depth_image_threshold_ = " << depth_image_threshold_ << std::endl;
 }
 
-void kpoAppGui::on_contourSelected(std::vector<cv::Point> contour)
+void kpoAppGui::on_contourSelected(Contour contour)
 {
-//    pause();
-
     std::cout << "selected contour with " << contour.size() << std::endl;
 
-    match_contours_.push_back(contour);
+    std::string objectname =  ui_->objectNameTextInput->text().toStdString();
+
+    kpoObjectContour object;
+    object.contour = contour;
+
+    contour_objects_.push_back(object);
 }
 
 QImage kpoAppGui::MatToQImage(const Mat& mat)

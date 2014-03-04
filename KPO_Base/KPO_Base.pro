@@ -19,7 +19,8 @@ SOURCES += \
     kpoOscSender.cpp \
     kpoMatcherThread.cpp \
     kpoBaseApp.cpp \
-    kpoAnalyzerThread.cpp
+    kpoAnalyzerThread.cpp \
+    BlobFinder.cpp
 
 HEADERS += KPO_Base_global.h \
     kpoOscSender.h \
