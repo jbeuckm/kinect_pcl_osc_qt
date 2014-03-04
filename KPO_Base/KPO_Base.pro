@@ -103,6 +103,11 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/deb
 else:symbian: LIBS += -lboost_thread
 else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lboost_thread
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lboost_serialization
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lboost_serialization
+else:symbian: LIBS += -lboost_serialization
+else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lboost_serialization
+
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/lib/release/ -lpcl_filters
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/lib/debug/ -lpcl_filters

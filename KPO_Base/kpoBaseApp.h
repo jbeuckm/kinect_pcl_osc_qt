@@ -41,6 +41,14 @@
 #include "KPO_Base_global.h"
 #include "BlobFinder.h"
 
+#include <fstream>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <iostream>
+#include <sstream>
+
 class KPO_BASESHARED_EXPORT kpoBaseApp
 {
 public:
@@ -63,6 +71,9 @@ public:
     cv::Mat scene_image_;
 
     QString contours_folder_;
+    void loadContourFiles();
+    kpoObjectContour load_contour_file(string file_path);
+    void save_contour_file(kpoObjectContour object_contour, string file_path);
 
     cv::Mat scene_depth_image_;
     int depth_image_threshold_;
@@ -86,7 +97,7 @@ public:
     QString models_folder_;
 
     void loadModelFiles();
-    void loadExemplar(string filepath, int object_id);
+    void load_model_cloud(string filepath, int object_id);
     boost::threadpool::pool analyzer_thread_pool;
     void modelCloudAnalyzed(kpoCloudDescription od);
 

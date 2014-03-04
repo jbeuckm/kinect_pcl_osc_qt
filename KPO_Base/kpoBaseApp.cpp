@@ -127,7 +127,7 @@ void kpoBaseApp::loadModelFiles()
 
         std::cout << "object_id " << object_id << std::endl;
 
-        loadExemplar(models_folder_.toStdString() + "/" + filename, object_id);
+        load_model_cloud(models_folder_.toStdString() + "/" + filename, object_id);
     }
 
     if (THREADED_ANALYSIS) {
@@ -137,8 +137,8 @@ void kpoBaseApp::loadModelFiles()
 
 
 
-// load a raw model cap and process it into a matchable set of keypoints, descriptors
-void kpoBaseApp::loadExemplar(string filename, int object_id)
+// load a raw model capture and process it into a matchable set of keypoints, descriptors
+void kpoBaseApp::load_model_cloud(string filename, int object_id)
 {
     pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
 
@@ -359,3 +359,58 @@ void kpoBaseApp::sceneCloudAnalyzed(kpoCloudDescription od)
         }
     }
 }
+
+
+
+void kpoBaseApp::loadContourFiles()
+{
+    std::cout << "kpoBaseApp::loadContourFiles() with " << contours_folder_.toStdString() << std::endl;
+
+    QStringList nameFilter("*.path");
+    QDir directory(contours_folder_);
+    QStringList contour_files = directory.entryList(nameFilter);
+
+    int count = contour_files.length();
+    std::cout << "will load " << count << " contour files." << std::endl;
+
+    for (int i=0; i<count; i++) {
+
+        QString qs_filename = contour_files[i];
+        string filename = qs_filename.toStdString();
+
+        std::cout << "reading " << filename << std::endl;
+
+        load_contour_file(contours_folder_.toStdString() + "/" + filename);
+    }
+}
+
+
+kpoObjectContour kpoBaseApp::load_contour_file(string file_path)
+{
+    kpoObjectContour object_contour;
+
+    {
+      // Create and input archive
+      std::ifstream ifs(file_path.c_str());
+      boost::archive::text_iarchive ar(ifs);
+
+      // Load data
+      ar & object_contour;
+    }
+
+    return object_contour;
+}
+
+void kpoBaseApp::save_contour_file(kpoObjectContour object_contour, string file_path)
+{
+    {
+      // Create an output archive
+      std::ofstream ofs(file_path.c_str());
+      boost::archive::text_oarchive ar(ofs);
+
+     // Write data
+      ar & object_contour;
+    }
+}
+
+

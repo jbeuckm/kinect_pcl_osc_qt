@@ -6,6 +6,14 @@
 #include <pcl/point_types.h>
 #include <opencv/cv.h>
 
+#include <fstream>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <iostream>
+#include <sstream>
+
 typedef pcl::PointXYZRGBA PointType;
 
 typedef pcl::PointCloud<PointType> Cloud;
@@ -50,6 +58,23 @@ struct kpoObjectContour
         return (error < c.error);
     }
 };
+
+
+namespace boost {
+namespace serialization {
+
+template<typename Archive>
+void serialize(Archive& ar, kpoObjectContour& o, const unsigned int version) {
+  ar & o.filename & o.object_id & o.contour;
+}
+
+template<typename Archive>
+void serialize(Archive& ar, cv::Point& o, const unsigned int version) {
+  ar & o.x & o.y;
+}
+
+} // namespace serialization
+} // namespace boost
 
 
 // Useful macros

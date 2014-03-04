@@ -289,6 +289,8 @@ void kpoAppGui::on_depthImageThresholdSlider_valueChanged(int value)
 
 void kpoAppGui::on_contourSelected(Contour contour)
 {
+    pause();
+
     std::cout << "selected contour with " << contour.size() << std::endl;
 
     std::string objectname =  ui_->contourObjectIdTextInput->text().toStdString();
@@ -303,6 +305,7 @@ void kpoAppGui::on_contourSelected(Contour contour)
 
     contour_objects_.push_back(object);
 }
+
 
 QImage kpoAppGui::MatToQImage(const Mat& mat)
 {
