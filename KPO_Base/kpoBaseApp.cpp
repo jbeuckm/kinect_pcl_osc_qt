@@ -224,8 +224,6 @@ void kpoBaseApp::depth_callback (const boost::shared_ptr< openni_wrapper::DepthI
 }
 void kpoBaseApp::processDepthBlobs(BlobFinder bf)
 {
-    std::cout << "processDepthBlobs()" << std::endl;
-
     for( int i = 0; i < bf.numBlobs; i++ )
     {
         if (bf.radius[i] > 15) {
@@ -246,7 +244,7 @@ void kpoBaseApp::findMatchingContours(Contour scene_contour)
         double error2 = cv::matchShapes(scene_contour, test_object.contour, CV_CONTOURS_MATCH_I2, 0);
         double error3 = cv::matchShapes(scene_contour, test_object.contour, CV_CONTOURS_MATCH_I3, 0);
 
-        std::cout << error1 << " " << error2 << " " << error3 << std::endl;
+//        std::cout << error1 << " " << error2 << " " << error3 << std::endl;
     }
 }
 

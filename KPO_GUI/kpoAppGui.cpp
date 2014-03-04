@@ -160,12 +160,10 @@ void kpoAppGui::drawRgbImage()
 
 int main (int argc, char ** argv)
 {
-    // Initialize QT
     QApplication app (argc, argv);
 
-    // Open the first available camera
     pcl::OpenNIGrabber grabber ("#1");
-    // Check if an RGB stream is provided
+
     if (!grabber.providesCallback<pcl::OpenNIGrabber::sig_cb_openni_point_cloud> ())
     {
         PCL_ERROR ("Device #1 does not provide an RGB stream!\n");
@@ -260,7 +258,6 @@ void kpoAppGui::on_downsamplingRadiusSlider_valueChanged(int value)
 {
     keypoint_downsampling_radius_ = float(value) / 10000.0f;
 
-//    pcl_functions_.setDownsamplingRadius(keypoint_downsampling_radius_);
     ui_->downsamplingRadiusEdit->setText(QString::number(keypoint_downsampling_radius_, 'g', 3));
 }
 
@@ -272,7 +269,6 @@ void kpoAppGui::on_browseForModelsButton_clicked()
                                                     "/home",
                                                     QFileDialog::ShowDirsOnly
                                                     | QFileDialog::DontResolveSymlinks);
-
     if (!dir.isEmpty()) {
         models_folder_ = dir;
         ui_->modelsFolderEdit->setText(dir);
@@ -297,8 +293,13 @@ void kpoAppGui::on_contourSelected(Contour contour)
 
     std::string objectname =  ui_->contourObjectIdTextInput->text().toStdString();
 
+    QString qstr(objectname.c_str());
+    int object_id = qstr.replace(QRegExp("[a-z]"), "").toInt();
+    std::cout << "object id = " << object_id << std::endl;
+
     kpoObjectContour object;
     object.contour = contour;
+    object.object_id = object_id;
 
     contour_objects_.push_back(object);
 }
@@ -348,7 +349,6 @@ void kpoAppGui::on_browseContoursFolderButton_clicked()
                                                     "/home",
                                                     QFileDialog::ShowDirsOnly
                                                     | QFileDialog::DontResolveSymlinks);
-
     if (!dir.isEmpty()) {
         contours_folder_ = dir;
         ui_->contoursFolderTextInput->setText(dir);
