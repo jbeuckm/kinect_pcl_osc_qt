@@ -66,6 +66,8 @@ public:
     int depth_image_threshold_;
     BlobFinder depth_blob_finder;
 
+    std::vector< std::vector<cv::Point> > match_contours_;
+
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;
     NormalCloud::Ptr scene_normals_;

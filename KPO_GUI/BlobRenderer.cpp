@@ -45,6 +45,19 @@ void BlobRenderer::addPath(std::vector<cv::Point> contour)
     paths.append(path);
 }
 
+std::vector<cv::Point> BlobRenderer::path2vector(QPainterPath path)
+{
+    std::vector<cv::Point> contour;
+
+    for (int i=0; i<path.elementCount(); i++) {
+        QPainterPath::Element el = path.elementAt(i);
+        cv::Point p(el.x, el.y);
+        contour.push_back(p);
+    }
+
+    return contour;
+}
+
 void BlobRenderer::paintEvent(QPaintEvent *e /* event */)
 {
     QPainter painter(this);
@@ -93,7 +106,7 @@ void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
             QPainterPath poly = paths.at(i);
 
             if (poly.contains(mousePos)) {
-                emit contourSelected(poly);
+                emit contourSelected(path2vector(poly));
                 break;
             }
         }

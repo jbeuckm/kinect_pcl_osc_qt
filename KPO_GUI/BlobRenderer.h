@@ -25,6 +25,8 @@ public:
     void addPath(std::vector<cv::Point>);
     QVector<QPainterPath> paths;
 
+    std::vector<cv::Point> path2vector(QPainterPath path);
+
 public slots:
     void setPen(const QPen &pen);
     void setBrush(const QBrush &brush);
@@ -38,7 +40,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
 
 signals:
-    void contourSelected(QPainterPath contour);
+    void contourSelected( std::vector<cv::Point> path );
 
 private:
     QPen pen;
