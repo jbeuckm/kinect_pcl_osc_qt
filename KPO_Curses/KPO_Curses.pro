@@ -8,8 +8,8 @@ QT       += core
 QT       -= gui
 
 TARGET = kpoAppCurses
-CONFIG   += console
-CONFIG   -= app_bundle
+#CONFIG   += console
+#CONFIG   -= app_bundle
 
 TEMPLATE = app
 
@@ -158,3 +158,5 @@ else:unix: LIBS += -L$$PWD/../../../../usr/lib/ -lpcl_surface
 INCLUDEPATH += $$PWD/../../../../usr/include/pcl-1.7
 DEPENDPATH += $$PWD/../../../../usr/include/pcl-1.7
 
+
+LIBS += -lncurses

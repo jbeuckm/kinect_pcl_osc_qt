@@ -380,7 +380,8 @@ void kpoBaseApp::loadContourFiles()
 
         std::cout << "reading " << filename << std::endl;
 
-        load_contour_file(contours_folder_.toStdString() + "/" + filename);
+        kpoObjectContour obj = load_contour_file(contours_folder_.toStdString() + "/" + filename);
+        contour_objects_.push_back(obj);
     }
 }
 
