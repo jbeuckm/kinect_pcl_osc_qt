@@ -38,8 +38,6 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
   public:
     kpoAppGui (pcl::OpenNIGrabber& grabber);
 
-
-
   protected:
     QTimer *vis_timer_;
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_;

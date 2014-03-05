@@ -83,9 +83,11 @@ int main(int argc, char *argv[])
         return (-1);
     }
 
-    kpoAppCurses v (grabber);
+    kpoAppCurses *v = new kpoAppCurses(grabber);
 
     int rv = app.exec ();
+
+    delete v;
 
     endwin();
     return (rv);

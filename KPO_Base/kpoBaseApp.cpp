@@ -31,11 +31,9 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
 
     grabber_downsampling_radius_ = .005f;
 
-    QString pwd("");
-    char * PWD;
-    PWD = getenv ("PWD");
-    pwd.append(PWD);
-    m_sSettingsFile = QString::fromUtf8( (pwd.toStdString() + "settings.ini").c_str() );
+
+    QDir dir;
+    m_sSettingsFile = dir.absolutePath() + "/settings.ini";
 
     model_index = 0;
 
@@ -76,6 +74,7 @@ void kpoBaseApp::loadSettings()
     match_models_ = false;
 
     loadModelFiles();
+    loadContourFiles();
 
     process_scene_ = settings.value("process_scene_", false).toBool();
     match_models_ = settings.value("match_models_", false).toBool();
