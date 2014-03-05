@@ -11,6 +11,9 @@
 #include <linux/cdk.h>
 
 
+WINDOW * win;
+int counter = 0;
+
 class Worker : public QObject
 {
     Q_OBJECT
@@ -24,8 +27,11 @@ class Worker : public QObject
     }
     void timerEvent(QTimerEvent * ev) {
         if (ev->timerId() != m_timer.timerId()) return;
-        printw("*");
+
+        mvwprintw(win, 0, 0, "%d", counter);
         refresh();
+
+        counter++;
     }
 
 public:
@@ -99,12 +105,23 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
     
     Worker w;
-    WINDOW * win = initscr();
+    win = initscr();
     clear();
     cbreak(); // all input is available immediately
     noecho(); // no echo
     keypad(win, true); // special keys are interpreted and returned as single int from getch()
     nodelay(win, true); // getch() is a non-blocking call
+
+
+    char mesg[]="Kinect > PCL > OSC";		/* message to be appeared on the screen */
+    int row,col;				/* to store the number of rows and *
+                        * the number of colums of the screen */
+    getmaxyx(stdscr,row,col);		/* get the number of rows and columns */
+    mvprintw(row/2,(col-strlen(mesg))/2,"%s",mesg);
+                                       /* print the message at the center of the screen */
+    mvprintw(row-2,0,"This screen has %d rows and %d columns\n",row,col);
+
+
 
 
     // Open the first available camera
