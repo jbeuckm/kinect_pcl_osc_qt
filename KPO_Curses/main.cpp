@@ -8,7 +8,7 @@
 #include <csignal>
 #include <stdio.h>
 #include <signal.h>
-//#include <linux/cdk.h>
+#include <linux/cdk.h>
 
 
 class Worker : public QObject

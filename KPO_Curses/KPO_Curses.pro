@@ -10,6 +10,7 @@ QT       -= gui
 TARGET = kpoAppCurses
 #CONFIG   += console
 #CONFIG   -= app_bundle
+CONFIG += no_keywords
 
 LIBS += -lncurses
 

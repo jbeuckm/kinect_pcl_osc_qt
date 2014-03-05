@@ -234,6 +234,8 @@ void kpoBaseApp::processDepthBlobs(BlobFinder bf)
             findMatchingContours(bf.contours[i]);
         }
     }
+
+    std::cout << std::endl;
 }
 
 bool operator <(const kpoObjectContour& a, const kpoObjectContour& b) { return (a.error < b.error); }
@@ -245,14 +247,10 @@ void kpoBaseApp::findMatchingContours(Contour scene_contour)
         contour_objects_[i].error = cv::matchShapes(scene_contour, test_object.contour, CV_CONTOURS_MATCH_I3, 0);
     }
 
-    std::sort(contour_objects_.begin(), contour_objects_.end());
+    // find the match with minimum error
+    kpoObjectContour min = *(std::min_element(contour_objects_.begin(), contour_objects_.end()));
 
-    for (int i=0; i<contour_objects_.size(); i++) {
-        kpoObjectContour test_object = contour_objects_[i];
-//        std::cout << test_object.object_id << " ";
-    }
-
-//    std::cout << std::endl;
+    std::cout << min.object_id << " ";
 }
 
 
