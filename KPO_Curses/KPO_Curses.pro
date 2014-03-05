@@ -11,6 +11,9 @@ TARGET = kpoAppCurses
 #CONFIG   += console
 #CONFIG   -= app_bundle
 
+LIBS += -lncurses
+
+
 TEMPLATE = app
 
 
@@ -159,4 +162,3 @@ INCLUDEPATH += $$PWD/../../../../usr/include/pcl-1.7
 DEPENDPATH += $$PWD/../../../../usr/include/pcl-1.7
 
 
-LIBS += -lncurses

@@ -5,6 +5,7 @@
 
 #include "kpoAppCurses.h"
 #include <ncurses.h>
+//#include "cdk.h"
 
 
 class Worker : public QObject
@@ -34,9 +35,32 @@ public:
 
 
 
+#include <streambuf>
+
+class buffer
+    : public std::streambuf
+{
+    std::ostream&   os;
+    std::streambuf* buf;
+public:
+    buffer(std::ostream& os) : os(os), buf(os.rdbuf())
+    { }
+
+    ~buffer()
+    {
+        os.rdbuf(buf);
+    }
+};
+
+
 
 int main(int argc, char *argv[])
 {
+    buffer b(std::cout);
+    std::ofstream file("file.txt");
+
+    std::cout.rdbuf(file.rdbuf());
+
     QCoreApplication app(argc, argv);
     
     Worker w;
