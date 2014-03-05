@@ -31,8 +31,11 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
 
     grabber_downsampling_radius_ = .005f;
 
-    QDir dir;
-    m_sSettingsFile = dir.absolutePath() + "/settings.ini";
+    QString pwd("");
+    char * PWD;
+    PWD = getenv ("PWD");
+    pwd.append(PWD);
+    m_sSettingsFile = QString::fromUtf8( (pwd.toStdString() + "settings.ini").c_str() );
 
     model_index = 0;
 
@@ -247,10 +250,10 @@ void kpoBaseApp::findMatchingContours(Contour scene_contour)
 
     for (int i=0; i<contour_objects_.size(); i++) {
         kpoObjectContour test_object = contour_objects_[i];
-        std::cout << test_object.object_id << " ";
+//        std::cout << test_object.object_id << " ";
     }
 
-    std::cout << std::endl;
+//    std::cout << std::endl;
 }
 
 

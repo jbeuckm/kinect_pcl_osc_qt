@@ -304,6 +304,11 @@ void kpoAppGui::on_contourSelected(Contour contour)
     object.object_id = object_id;
 
     contour_objects_.push_back(object);
+
+    string path = contours_folder_.toStdString() +"/" + objectname + ".path";
+    std::cout << "will save file " << path << std::endl;
+
+    save_contour_file(object, path);
 }
 
 

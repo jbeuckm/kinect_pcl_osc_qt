@@ -45,7 +45,7 @@ void BlobRenderer::addPath(Contour contour)
     paths.append(path);
 }
 
-Contour BlobRenderer::path2vector(QPainterPath path)
+Contour BlobRenderer::path2contour(QPainterPath path)
 {
     Contour contour;
 
@@ -96,7 +96,7 @@ void BlobRenderer::mousePressEvent ( QMouseEvent * e )
 }
 void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
 {
-    std::cout << (float)(e->x()) << std::endl;
+    std::cout << "e->x() = " << (float)(e->x()) << std::endl;
 
     // check if cursor not moved since click beginning
     if ((m_mouseClick) && (e->pos() == m_lastPoint))
@@ -106,7 +106,7 @@ void BlobRenderer::mouseReleaseEvent ( QMouseEvent * e )
             QPainterPath poly = paths.at(i);
 
             if (poly.contains(mousePos)) {
-                emit contourSelected(path2vector(poly));
+                emit contourSelected(path2contour(poly));
                 break;
             }
         }

@@ -5,7 +5,7 @@
 
 #include "kpoAppCurses.h"
 #include <ncurses.h>
-//#include "cdk.h"
+//#include <linux/cdk.h>
 
 
 class Worker : public QObject
@@ -24,6 +24,7 @@ class Worker : public QObject
         printw("*");
         refresh();
     }
+
 public:
     Worker(QObject * parent = 0) : QObject(parent) {
         connect(new QSocketNotifier(0, QSocketNotifier::Read, this),
@@ -42,6 +43,7 @@ class buffer
 {
     std::ostream&   os;
     std::streambuf* buf;
+
 public:
     buffer(std::ostream& os) : os(os), buf(os.rdbuf())
     { }

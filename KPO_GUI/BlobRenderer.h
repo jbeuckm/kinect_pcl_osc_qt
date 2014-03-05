@@ -26,7 +26,7 @@ public:
     void addPath(Contour path);
     QVector<QPainterPath> paths;
 
-    Contour path2vector(QPainterPath path);
+    Contour path2contour(QPainterPath path);
 
 public slots:
     void setPen(const QPen &pen);
