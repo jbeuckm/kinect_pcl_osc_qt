@@ -5,6 +5,9 @@
 
 #include "kpoAppCurses.h"
 #include <ncurses.h>
+#include <csignal>
+#include <stdio.h>
+#include <signal.h>
 //#include <linux/cdk.h>
 
 
@@ -55,6 +58,35 @@ public:
 };
 
 
+kpoAppCurses *v;
+
+
+struct CleanExit{
+    CleanExit() {
+
+        signal(SIGINT, &CleanExit::exitQt);
+        signal(SIGKILL, &CleanExit::exitQt);
+        signal(SIGSTOP, &CleanExit::exitQt);
+        signal(SIGTERM, &CleanExit::exitQt);
+//        signal(SIGSEGV, &CleanExit::exitQt);
+
+#ifdef SIGBREAK
+    signal(SIGBREAK, &CleanExit::exitQt);
+#endif
+#ifdef SIGHUP
+    signal(SIGHUP, &CleanExit::exitQt);
+#endif
+#ifdef SIGQUIT
+    signal(SIGQUIT, &CleanExit::exitQt);
+#endif
+    }
+
+    static void exitQt(int sig) {
+        v->saveSettings();
+        QCoreApplication::exit(0);
+    }
+};
+
 
 int main(int argc, char *argv[])
 {
@@ -63,6 +95,7 @@ int main(int argc, char *argv[])
 
     std::cout.rdbuf(file.rdbuf());
 
+    CleanExit cleanExit;
     QCoreApplication app(argc, argv);
     
     Worker w;
@@ -83,7 +116,7 @@ int main(int argc, char *argv[])
         return (-1);
     }
 
-    kpoAppCurses *v = new kpoAppCurses(grabber);
+    v = new kpoAppCurses(grabber);
 
     int rv = app.exec ();
 
