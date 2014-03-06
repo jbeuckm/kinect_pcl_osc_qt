@@ -88,7 +88,7 @@ void kpoOscSender::sendContour(unsigned object_id, double error)
     p << osc::BeginBundleImmediate
       << osc::BeginMessage( "/kinect/contour" );
 
-    p << (int)object_id << (float)error;
+    p << (int)object_id << (float)(1.0/error);
 
     p << osc::EndMessage;
 

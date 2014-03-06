@@ -59,7 +59,8 @@ void kpoBaseApp::loadSettings()
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
     depth_threshold_ = settings.value("depth_threshold_", 1.031).toDouble();
-    depth_image_threshold_ = settings.value("depth_image_threshold_", 125).toInt();
+    depth_image_threshold_ = settings.value("depth_image_threshold_", 128).toInt();
+    std::cout << "depth_image_threshold_ = " << depth_image_threshold_ << std::endl;
 
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
 
