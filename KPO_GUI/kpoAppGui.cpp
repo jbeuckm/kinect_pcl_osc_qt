@@ -58,6 +58,10 @@ kpoAppGui::kpoAppGui (pcl::OpenNIGrabber& grabber)
 void kpoAppGui::loadSettings()
 {
     kpoBaseApp::loadSettings();
+
+    if (ui_->depthImageThresholdSlider) {
+        ui_->depthImageThresholdSlider->setValue(depth_image_threshold_);
+    }
 /*
     if (ui_->depthThresholdSlider) {
         ui_->depthThresholdSlider->setValue(depth_threshold_ * 1000);

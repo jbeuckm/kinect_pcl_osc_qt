@@ -77,3 +77,22 @@ void kpoOscSender::sendObject(int object_id, float x, float y, float z)
 }
 
 
+void kpoOscSender::sendContour(unsigned object_id, double error)
+{
+    if (!setup_) return;
+
+    char buffer[OUTPUT_BUFFER_SIZE];
+
+    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
+
+    p << osc::BeginBundleImmediate
+      << osc::BeginMessage( "/kinect/contour" );
+
+    p << (int)object_id << (float)error;
+
+    p << osc::EndMessage;
+
+    transmitSocket->Send( p.Data(), p.Size() );
+}
+
+

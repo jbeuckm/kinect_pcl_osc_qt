@@ -59,6 +59,7 @@ void kpoBaseApp::loadSettings()
     QSettings settings(m_sSettingsFile, QSettings::NativeFormat);
 
     depth_threshold_ = settings.value("depth_threshold_", 1.031).toDouble();
+    depth_image_threshold_ = settings.value("depth_image_threshold_", 125).toInt();
 
     keypoint_downsampling_radius_ = settings.value("keypoint_downsampling_radius_", .0075).toDouble();
 
@@ -88,6 +89,7 @@ void kpoBaseApp::saveSettings()
 
     std::cout << "depth_threshold_ = " << depth_threshold_ << std::endl;
     settings.setValue("depth_threshold_", depth_threshold_);
+    settings.setValue("depth_image_threshold_", depth_image_threshold_);
 
     settings.setValue("keypoint_downsampling_radius_", keypoint_downsampling_radius_);
 
@@ -249,6 +251,8 @@ void kpoBaseApp::findMatchingContours(Contour scene_contour)
 
     // find the match with minimum error
     kpoObjectContour min = *(std::min_element(contour_objects_.begin(), contour_objects_.end()));
+
+    osc_sender->sendContour(min.object_id, min.error);
 
     std::cout << min.object_id << " ";
 }

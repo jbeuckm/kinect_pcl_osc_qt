@@ -32,6 +32,8 @@ public:
 
     void sendBlob(float x, float y, float size);
 
+    void sendContour(unsigned object_id, double error);
+
 };
 
 #endif // OSCSENDER_H
