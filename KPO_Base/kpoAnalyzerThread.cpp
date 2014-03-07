@@ -41,10 +41,12 @@ void kpoAnalyzerThread::operator ()()
         std::cout << "cloud too small" << std::endl;
         return;
     }
-    if (scene_cloud_->size() > 35000) {
+    /*
+    if (scene_cloud_->size() > 40000) {
         std::cout << "cloud too large" << std::endl;
         return;
     }
+    */
     std::cout << "cloud has " << scene_cloud_->size() << " points" << std::endl;
 
 

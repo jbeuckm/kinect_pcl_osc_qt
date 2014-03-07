@@ -148,6 +148,7 @@ public:
       cv_depth = cv::Mat(2, sizes, CV_16UC1, (void*) pDepthMap);
     }
 
+    Cloud::Ptr bb_hull_cloud_;
     Cloud::Ptr boundingbox_ptr;
     std::vector<pcl::Vertices> bb_polygons;
     void build_bounding_box();

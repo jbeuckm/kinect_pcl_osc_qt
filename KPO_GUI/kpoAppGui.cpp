@@ -104,6 +104,13 @@ void kpoAppGui::updateView()
         vis_->removePointCloud("scene_cloud_", 0);
         vis_->addPointCloud (scene_cloud_, "scene_cloud_");
 
+
+        vis_->removePointCloud("bounding_box_", 0);
+        pcl::visualization::PointCloudColorHandlerCustom<PointType> bounding_box_color_handler (bb_hull_cloud_, 0, 0, 255);
+        vis_->addPointCloud (bb_hull_cloud_, bounding_box_color_handler, "bounding_box_");
+        vis_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "bounding_box_");
+
+
         vis_->removePointCloud("scene_keypoints", 0);
         if (process_scene_ && scene_keypoints_) {
             pcl::visualization::PointCloudColorHandlerCustom<PointType> scene_keypoints_color_handler (scene_keypoints_, 0, 0, 255);

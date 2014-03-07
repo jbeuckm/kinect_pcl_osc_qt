@@ -12,6 +12,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     , analyzer_thread_pool(1)
     , osc_sender (new kpoOscSender())
     , boundingbox_ptr (new Cloud)
+    , bb_hull_cloud_ (new Cloud)
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -454,14 +455,14 @@ void kpoBaseApp::save_contour_file(kpoObjectContour object_contour, string file_
 void kpoBaseApp::build_bounding_box()
 {
     pcl::PointCloud<pcl::PointXYZ> bb;
-    bb.push_back(pcl::PointXYZ(-3.5, -3.5, 1.79216));
-    bb.push_back(pcl::PointXYZ(3.5, -3.5, 1.79216));
-    bb.push_back(pcl::PointXYZ(3.5, 3.5, 1.79216));
-    bb.push_back(pcl::PointXYZ(-3.5, 3.5, 1.79216));
-    bb.push_back(pcl::PointXYZ(-3.5, -3.5, 0.483439));
-    bb.push_back(pcl::PointXYZ(3.5, -3.5, 0.483439));
-    bb.push_back(pcl::PointXYZ(3.5, 3.5, 0.483439));
-    bb.push_back(pcl::PointXYZ(-3.5, 3.5, 0.483439));
+    bb.push_back(pcl::PointXYZ(-.7, -.7, 1.5));
+    bb.push_back(pcl::PointXYZ(.7, -.7, 1.5));
+    bb.push_back(pcl::PointXYZ(.7, .7, 1.5));
+    bb.push_back(pcl::PointXYZ(-.7, .7, 1.5));
+    bb.push_back(pcl::PointXYZ(-.7, -.7, -1.0));
+    bb.push_back(pcl::PointXYZ(.7, -.7, -1.0));
+    bb.push_back(pcl::PointXYZ(.7, .7, -1.0));
+    bb.push_back(pcl::PointXYZ(-.7, .7, -1.0));
 
     pcl::copyPointCloud(bb, *boundingbox_ptr);
 
@@ -469,10 +470,7 @@ void kpoBaseApp::build_bounding_box()
     hull.setInputCloud(boundingbox_ptr);
     hull.setDimension(3);
 
-    Cloud::Ptr surface_hull (new Cloud);
-
-
-    hull.reconstruct(*surface_hull, bb_polygons);
+    hull.reconstruct(*bb_hull_cloud_, bb_polygons);
 }
 
 void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &input_cloud, CloudPtr &output_cloud)
