@@ -2,7 +2,7 @@
 
 #include "BlobFinder.h"
 
-#define THREADED_ANALYSIS true
+#define THREADED_ANALYSIS false
 
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
@@ -179,15 +179,22 @@ void kpoBaseApp::load_model_cloud(string filename, int object_id)
 
 void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
 {
-    QMutexLocker locker (&mtx_);
 
     std::cout << "modelCloudAnalyzed()" << std::endl;
 
-    Cloud::Ptr keypoints(&(od.keypoints));
-    DescriptorCloud::Ptr descriptors(&(od.descriptors));
-    RFCloud::Ptr reference_frames(&(od.reference_frames));
+    Cloud *keypoints = new Cloud();
+    pcl::copyPointCloud(od.keypoints, *keypoints);
+    Cloud::Ptr keypoints_ptr(keypoints);
 
-    kpoMatcherThread *matcher = new kpoMatcherThread(keypoints, descriptors, reference_frames);
+    DescriptorCloud *descriptors = new DescriptorCloud();
+    pcl::copyPointCloud(od.descriptors, *descriptors);
+    DescriptorCloud::Ptr descriptors_ptr(descriptors);
+
+    RFCloud *reference_frames= new RFCloud();
+    pcl::copyPointCloud(od.reference_frames, *reference_frames);
+    RFCloud::Ptr reference_frames_ptr(reference_frames);
+
+    kpoMatcherThread *matcher = new kpoMatcherThread(keypoints_ptr, descriptors_ptr, reference_frames_ptr);
 
     boost::shared_ptr<kpoMatcherThread> model_thread(matcher);
     model_thread->object_id = od.object_id;
@@ -196,7 +203,13 @@ void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
     MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1, _2, _3);
     model_thread->setMatchCallback(f);
 
-    matcher_threads.push_back(model_thread);
+    if (THREADED_ANALYSIS) {
+        QMutexLocker locker (&mtx_);
+        matcher_threads.push_back(model_thread);
+    }
+    else {
+        matcher_threads.push_back(model_thread);
+    }
 
 }
 

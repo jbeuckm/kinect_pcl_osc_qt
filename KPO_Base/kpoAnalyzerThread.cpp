@@ -90,6 +90,7 @@ void kpoAnalyzerThread::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_
 void kpoAnalyzerThread::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals)
 {
     pcl::NormalEstimation<PointType, NormalType> norm_est;
+
     if (false) {
         norm_est.setKSearch (16);
     }
