@@ -338,7 +338,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     CloudPtr cropped(new Cloud());
     crop_bounding_box_(scene_cloud_, cropped);
-
+pcl::copyPointCloud(*cropped, *scene_cloud_);
 
     osc_sender->send("/kinect/pointcloud/size", scene_cloud_->size());
 
@@ -489,23 +489,7 @@ void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output
 
     pcl::copyPointCloud(*out_cloud, *output_cloud);
     std::cout << "bb " << cloud->size() << " --> " << output_cloud->size() << std::endl;
-/*
-    boundingbox_ptr->clear();
-    objects->clear();
 
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9035, 7.80552, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.4452, 7.61189, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.5215, 9.40126, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9798, 9.59489, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9035, 7.80552, -1.79216)); // Duplicate of row 1
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9035, 7.80552, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.4452, 7.61189, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.5215, 9.40126, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9798, 9.59489, 0.483439));
-
-    bb_filter.setHullCloud(boundingbox_ptr);
-    bb_filter.filter(*objects);
-*/
 }
 
 

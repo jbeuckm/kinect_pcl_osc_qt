@@ -102,6 +102,8 @@ void kpoAppGui::updateView()
         QMutexLocker locker (&mtx_);
 
         vis_->removePointCloud("scene_cloud_", 0);
+        pcl::visualization::PointCloudColorHandlerCustom<PointType> scene_color_handler (scene_cloud_, 255, 0, 255);
+        vis_->addPointCloud (scene_cloud_, scene_color_handler, "scene_cloud_");
         vis_->addPointCloud (scene_cloud_, "scene_cloud_");
 
         vis_->removePointCloud("scene_keypoints", 0);
