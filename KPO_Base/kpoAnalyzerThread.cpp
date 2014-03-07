@@ -32,7 +32,6 @@ void kpoAnalyzerThread::copyInputCloud(CloudPtr cloud, std::string filename_, un
 
 void kpoAnalyzerThread::operator ()()
 {
-
     Cloud cleanCloud;
     removeNoise(scene_cloud_, cleanCloud);
     pcl::copyPointCloud(cleanCloud, *scene_cloud_);
@@ -74,11 +73,6 @@ void kpoAnalyzerThread::operator ()()
     callback_(od);
 }
 
-
-void kpoAnalyzerThread::setDownsamplingRadius(float _radius)
-{
-    downsampling_radius_ = _radius;
-}
 
 
 void kpoAnalyzerThread::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud)

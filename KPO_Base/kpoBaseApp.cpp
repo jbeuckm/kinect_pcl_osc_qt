@@ -197,6 +197,7 @@ void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
     model_thread->setMatchCallback(f);
 
     matcher_threads.push_back(model_thread);
+
 }
 
 void kpoBaseApp::matchesFound(int object_id, Eigen::Vector3f translation, Eigen::Matrix3f rotation)

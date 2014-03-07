@@ -32,7 +32,7 @@
 #include "kpo_types.h"
 
 
-typedef boost::function< void(kpoCloudDescription) > AnalyzerCallback;
+typedef boost::function<void(kpoCloudDescription)> AnalyzerCallback;
 
 
 class kpoAnalyzerThread
@@ -48,8 +48,8 @@ public:
 
     void operator ()();
 
-    CloudPtr scene_cloud_;
-    CloudPtr scene_keypoints_;
+    Cloud::Ptr scene_cloud_;
+    Cloud::Ptr scene_keypoints_;
     NormalCloud::Ptr scene_normals_;
     DescriptorCloud::Ptr scene_descriptors_;
     RFCloud::Ptr scene_refs_;
@@ -60,7 +60,6 @@ public:
 
     void estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals);
 
-    void setDownsamplingRadius(float _radius);
     void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
 
     void computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);

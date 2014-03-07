@@ -30,8 +30,9 @@ typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::PointCloud<RFType> RFCloud;
 
-struct kpoCloudDescription
+class kpoCloudDescription
 {
+public:
     std::string filename;
     unsigned object_id;
 
