@@ -147,6 +147,9 @@ public:
       int sizes[2] = {rows, cols};
       cv_depth = cv::Mat(2, sizes, CV_16UC1, (void*) pDepthMap);
     }
+
+    Cloud bounding_box_;
+    void crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output_cloud);
 };
 
 #endif // KPOBASEAPP_H
