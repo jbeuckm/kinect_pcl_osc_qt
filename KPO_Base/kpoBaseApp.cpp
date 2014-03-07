@@ -335,6 +335,10 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);
 
+    CloudPtr cropped(new Cloud());
+    crop_bounding_box_(scene_cloud_, cropped);
+
+
     osc_sender->send("/kinect/pointcloud/size", scene_cloud_->size());
 
     if (process_scene_) {
@@ -446,17 +450,17 @@ void kpoBaseApp::save_contour_file(kpoObjectContour object_contour, string file_
 #include <pcl/surface/convex_hull.h>
 #include <pcl/filters/crop_hull.h>
 
-void crop_bounding_box_(const CloudPtr &cloud, CloudPtr &output_cloud)
+void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output_cloud)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr boundingbox_ptr (new pcl::PointCloud<pcl::PointXYZ>);
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9035, 7.80552, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.4452, 7.61189, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.5215, 9.40126, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9798, 9.59489, -1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9035, 7.80552, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.4452, 7.61189, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(27.5215, 9.40126, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(22.9798, 9.59489, 0.483439));
+    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, -.35, 1.79216));
+    boundingbox_ptr->push_back(pcl::PointXYZ(.35, -.35, 1.79216));
+    boundingbox_ptr->push_back(pcl::PointXYZ(.35, .35, 1.79216));
+    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, .35, 1.79216));
+    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, -.35, 0.483439));
+    boundingbox_ptr->push_back(pcl::PointXYZ(.35, -.35, 0.483439));
+    boundingbox_ptr->push_back(pcl::PointXYZ(.35, .35, 0.483439));
+    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, .35, 0.483439));
 
     pcl::ConvexHull<pcl::PointXYZ> hull;
     hull.setInputCloud(boundingbox_ptr);
@@ -465,15 +469,11 @@ void crop_bounding_box_(const CloudPtr &cloud, CloudPtr &output_cloud)
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr surface_hull (new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud (new pcl::PointCloud<pcl::PointXYZ>);
     pcl::copyPointCloud(*cloud, *input_cloud);
 
 
     hull.reconstruct(*surface_hull, polygons);
 
-    for(int i = 0; i < polygons.size(); i++) {
-        std::cout << polygons[i] << std::endl;
-    }
 
 //    Cloud::Ptr objects (new Cloud);
     pcl::CropHull<pcl::PointXYZ> bb_filter;
@@ -482,6 +482,8 @@ void crop_bounding_box_(const CloudPtr &cloud, CloudPtr &output_cloud)
     bb_filter.setInputCloud(input_cloud);
     bb_filter.setHullIndices(polygons);
     bb_filter.setHullCloud(boundingbox_ptr);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud (new pcl::PointCloud<pcl::PointXYZ>);
     bb_filter.filter(*out_cloud);
 
     pcl::copyPointCloud(*out_cloud, *output_cloud);
