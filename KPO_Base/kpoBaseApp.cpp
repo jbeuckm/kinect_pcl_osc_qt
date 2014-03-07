@@ -11,6 +11,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     , matcher_thread_pool(8)
     , analyzer_thread_pool(1)
     , osc_sender (new kpoOscSender())
+    , boundingbox_ptr (new pcl::PointCloud<pcl::PointXYZ>)
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -30,7 +31,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     depth_image_threshold_ = 128;
 
     grabber_downsampling_radius_ = .005f;
-
+    build_bounding_box();
 
     QDir dir;
     m_sSettingsFile = dir.absolutePath() + "/settings.ini";
@@ -450,9 +451,8 @@ void kpoBaseApp::save_contour_file(kpoObjectContour object_contour, string file_
 #include <pcl/surface/convex_hull.h>
 #include <pcl/filters/crop_hull.h>
 
-void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output_cloud)
+void kpoBaseApp::build_bounding_box()
 {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr boundingbox_ptr (new pcl::PointCloud<pcl::PointXYZ>);
     boundingbox_ptr->push_back(pcl::PointXYZ(-.35, -.35, 1.79216));
     boundingbox_ptr->push_back(pcl::PointXYZ(.35, -.35, 1.79216));
     boundingbox_ptr->push_back(pcl::PointXYZ(.35, .35, 1.79216));
@@ -465,22 +465,23 @@ void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output
     pcl::ConvexHull<pcl::PointXYZ> hull;
     hull.setInputCloud(boundingbox_ptr);
     hull.setDimension(3);
-    std::vector<pcl::Vertices> polygons;
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr surface_hull (new pcl::PointCloud<pcl::PointXYZ>);
+
+
+    hull.reconstruct(*surface_hull, bb_polygons);
+}
+
+void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output_cloud)
+{
     pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud (new pcl::PointCloud<pcl::PointXYZ>);
     pcl::copyPointCloud(*cloud, *input_cloud);
 
-
-    hull.reconstruct(*surface_hull, polygons);
-
-
-//    Cloud::Ptr objects (new Cloud);
     pcl::CropHull<pcl::PointXYZ> bb_filter;
 
     bb_filter.setDim(3);
     bb_filter.setInputCloud(input_cloud);
-    bb_filter.setHullIndices(polygons);
+    bb_filter.setHullIndices(bb_polygons);
     bb_filter.setHullCloud(boundingbox_ptr);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud (new pcl::PointCloud<pcl::PointXYZ>);
