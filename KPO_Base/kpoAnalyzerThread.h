@@ -1,5 +1,5 @@
-#ifndef PCL_FUNCTIONS_H
-#define PCL_FUNCTIONS_H
+#ifndef KPO_ANALYZER_THREAD
+#define KPO_ANALYZER_THREAD
 
 
 #include <pcl/point_cloud.h>
@@ -39,9 +39,10 @@ class kpoAnalyzerThread
 {
 public:
 
-    kpoAnalyzerThread(float downsampling_radius);
+    kpoAnalyzerThread();
 
     void copyInputCloud(Cloud::Ptr cloud, std::string filename, unsigned object_id);
+
     AnalyzerCallback callback_;
     void setAnalyzerCallback(AnalyzerCallback callback);
 
@@ -69,9 +70,6 @@ public:
                                  const Cloud::ConstPtr &keypoints,
                                  RFCloud::Ptr &rf);
 
-
-
-
     float downsampling_radius_;
     float shot_radius_;
     float rf_rad_;
@@ -82,14 +80,6 @@ public:
     std::string filename;
     unsigned object_id;
 
-    pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
-
-    pcl::UniformSampling<PointType> uniform_sampling;
-
-    pcl::SHOTColorEstimation<PointType, NormalType, DescriptorType> shot;
-
-    pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
-
 };
 
-#endif // PCL_FUNCTIONS_H
+#endif // KPO_ANALYZER_THREAD

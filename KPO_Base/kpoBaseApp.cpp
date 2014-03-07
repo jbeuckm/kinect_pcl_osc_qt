@@ -2,14 +2,14 @@
 
 #include "BlobFinder.h"
 
-#define THREADED_ANALYSIS false
+#define THREADED_ANALYSIS true
 
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , mtx_ ()
     , matcher_thread_pool(8)
-    , analyzer_thread_pool(8)
+    , analyzer_thread_pool(1)
     , osc_sender (new kpoOscSender())
 {
     // Start the OpenNI data acquision
@@ -154,19 +154,21 @@ void kpoBaseApp::load_model_cloud(string filename, int object_id)
 
         if (THREADED_ANALYSIS) {
 
-            kpoAnalyzerThread *kat = new kpoAnalyzerThread(keypoint_downsampling_radius_);
-            boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);
+            kpoAnalyzerThread *analyzer = new kpoAnalyzerThread();
+            boost::shared_ptr<kpoAnalyzerThread> analyzer_thread(analyzer);
 
-            analyzer->copyInputCloud(model_, filename, object_id);
+            analyzer_thread->copyInputCloud(model_, filename, object_id);
+            analyzer_thread->downsampling_radius_ = keypoint_downsampling_radius_;
 
             AnalyzerCallback ac = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
-            analyzer->setAnalyzerCallback( ac );
+            analyzer_thread->setAnalyzerCallback( ac );
 
-            analyzer_thread_pool.schedule(boost::ref( *analyzer ));
+            analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
         }
         else {
-            kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
+            kpoAnalyzerThread analyzer;
 
+            analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
             analyzer.copyInputCloud(model_, filename, object_id);
             analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1) );
 
@@ -181,7 +183,13 @@ void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
 
     std::cout << "modelCloudAnalyzed()" << std::endl;
 
-    boost::shared_ptr<kpoMatcherThread> model_thread(new kpoMatcherThread(od.keypoints, od.descriptors, od.reference_frames));
+    Cloud::Ptr keypoints(&(od.keypoints));
+    DescriptorCloud::Ptr descriptors(&(od.descriptors));
+    RFCloud::Ptr reference_frames(&(od.reference_frames));
+
+    kpoMatcherThread *matcher = new kpoMatcherThread(keypoints, descriptors, reference_frames);
+
+    boost::shared_ptr<kpoMatcherThread> model_thread(matcher);
     model_thread->object_id = od.object_id;
     model_thread->filename = od.filename;
 
@@ -319,9 +327,10 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
         if (THREADED_ANALYSIS) {
 
-            kpoAnalyzerThread *kat = new kpoAnalyzerThread(keypoint_downsampling_radius_);
+            kpoAnalyzerThread *kat = new kpoAnalyzerThread();
             boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);
 
+            analyzer->downsampling_radius_ = keypoint_downsampling_radius_;
             analyzer->copyInputCloud(scene_cloud_, "", 0);
 
             AnalyzerCallback ac = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
@@ -331,8 +340,9 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
         }
         else {
 
-            kpoAnalyzerThread analyzer(keypoint_downsampling_radius_);
+            kpoAnalyzerThread analyzer;
 
+            analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
             analyzer.copyInputCloud(scene_cloud_, "", 0);
             analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1) );
 
@@ -344,7 +354,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 void kpoBaseApp::sceneCloudAnalyzed(kpoCloudDescription od)
 {
     std::cout << "sceneCloudAnalyzed()" << std::endl;
-    std::cout << "cloud has " << od.cloud->size() << std::endl;
+    std::cout << "cloud has " << od.cloud.size() << std::endl;
 
 
     if (match_models_) {

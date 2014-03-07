@@ -3,16 +3,10 @@
 #include "kpoAnalyzerThread.h"
 
 
-kpoAnalyzerThread::kpoAnalyzerThread(float downsampling_radius = .005f)
-    : downsampling_radius_(downsampling_radius)
-    , scene_cloud_ (new Cloud())
-    , statistical_outlier_remover()
+kpoAnalyzerThread::kpoAnalyzerThread()
+    : scene_cloud_ (new Cloud())
 {
-    uniform_sampling.setRadiusSearch (downsampling_radius_);
-
-    statistical_outlier_remover.setMeanK (50);
-    statistical_outlier_remover.setStddevMulThresh (1.0);
-
+    downsampling_radius_ = .005f;
 
     shot_radius_ = 0.04f;
 
@@ -20,12 +14,6 @@ kpoAnalyzerThread::kpoAnalyzerThread(float downsampling_radius = .005f)
     cg_thresh_ = 5.0f;
 
     rf_rad_ = 0.015f;
-
-
-    shot.setRadiusSearch (shot_radius_);
-
-    rf_est.setFindHoles (true);
-    rf_est.setRadiusSearch (rf_rad_);
 }
 
 void kpoAnalyzerThread::setAnalyzerCallback(AnalyzerCallback callback)
@@ -74,11 +62,11 @@ void kpoAnalyzerThread::operator ()()
     estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
 
     kpoCloudDescription od;
-    od.cloud = scene_cloud_;
-    od.keypoints = scene_keypoints_;
-    od.normals = scene_normals_;
-    od.descriptors = scene_descriptors_;
-    od.reference_frames = scene_refs_;
+    od.cloud = *scene_cloud_;
+    od.keypoints = *scene_keypoints_;
+    od.normals = *scene_normals_;
+    od.descriptors = *scene_descriptors_;
+    od.reference_frames = *scene_refs_;
 
     od.filename = filename;
     od.object_id = object_id;
@@ -90,12 +78,16 @@ void kpoAnalyzerThread::operator ()()
 void kpoAnalyzerThread::setDownsamplingRadius(float _radius)
 {
     downsampling_radius_ = _radius;
-    uniform_sampling.setRadiusSearch (downsampling_radius_);
 }
 
 
 void kpoAnalyzerThread::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud)
 {
+    pcl::StatisticalOutlierRemoval<PointType> statistical_outlier_remover;
+
+    statistical_outlier_remover.setMeanK (50);
+    statistical_outlier_remover.setStddevMulThresh (1.0);
+
     statistical_outlier_remover.setInputCloud (cloud);
     statistical_outlier_remover.filter (filtered_cloud);
 }
@@ -119,6 +111,9 @@ void kpoAnalyzerThread::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals
 
 void kpoAnalyzerThread::downSample(const CloudConstPtr &cloud, CloudPtr &keypoints)
 {
+    pcl::UniformSampling<PointType> uniform_sampling;
+    uniform_sampling.setRadiusSearch (downsampling_radius_);
+
     pcl::PointCloud<int> sampled_indices;
 
     uniform_sampling.setInputCloud (cloud);
@@ -130,6 +125,10 @@ void kpoAnalyzerThread::downSample(const CloudConstPtr &cloud, CloudPtr &keypoin
 
 void kpoAnalyzerThread::computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors)
 {
+    pcl::SHOTColorEstimation<PointType, NormalType, DescriptorType> shot;
+
+    shot.setRadiusSearch (shot_radius_);
+
     shot.setInputCloud (keypoints);
     shot.setInputNormals (normals);
     shot.setSearchSurface (cloud);
@@ -143,6 +142,10 @@ void kpoAnalyzerThread::estimateReferenceFrames(const CloudConstPtr &cloud,
                              const CloudConstPtr &keypoints,
                              RFCloud::Ptr &rf)
 {
+    pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
+    rf_est.setFindHoles (true);
+    rf_est.setRadiusSearch (rf_rad_);
+
     if (!rf) {
         rf.reset(new RFCloud ());
     }

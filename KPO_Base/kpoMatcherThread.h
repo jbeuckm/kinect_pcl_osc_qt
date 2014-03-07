@@ -27,7 +27,7 @@ public:
     float cg_size_;
     float cg_thresh_;
 
-    void copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCloud::Ptr scene_descriptors_, RFCloud::Ptr scene_refs_);
+    void copySceneClouds(Cloud scene_keypoints_, DescriptorCloud scene_descriptors_, RFCloud scene_refs_);
 
     // to be called what matches are found
     MatchCallback callback_;

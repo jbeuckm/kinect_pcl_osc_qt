@@ -24,11 +24,11 @@ void kpoMatcherThread::setMatchCallback(MatchCallback callback)
 }
 
 
-void kpoMatcherThread::copySceneClouds(Cloud::Ptr scene_keypoints_, DescriptorCloud::Ptr scene_descriptors_, RFCloud::Ptr scene_refs_)
+void kpoMatcherThread::copySceneClouds(Cloud scene_keypoints_, DescriptorCloud scene_descriptors_, RFCloud scene_refs_)
 {
-    pcl::copyPointCloud(*scene_keypoints_, *scene_keypoints);
-    pcl::copyPointCloud(*scene_descriptors_, *scene_descriptors);
-    pcl::copyPointCloud(*scene_refs_, *scene_refs);
+    pcl::copyPointCloud(scene_keypoints_, *scene_keypoints);
+    pcl::copyPointCloud(scene_descriptors_, *scene_descriptors);
+    pcl::copyPointCloud(scene_refs_, *scene_refs);
 }
 
 

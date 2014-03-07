@@ -35,11 +35,11 @@ struct kpoCloudDescription
     std::string filename;
     unsigned object_id;
 
-    Cloud::Ptr cloud;
-    NormalCloud::Ptr normals;
-    Cloud::Ptr keypoints;
-    DescriptorCloud::Ptr descriptors;
-    RFCloud::Ptr reference_frames;
+    Cloud cloud;
+    NormalCloud normals;
+    Cloud keypoints;
+    DescriptorCloud descriptors;
+    RFCloud reference_frames;
 };
 
 
