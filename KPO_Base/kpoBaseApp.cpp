@@ -316,8 +316,6 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
         return;
     }
 
-    osc_sender->send("/kinect/pointcloud/size", cloud->size());
-
     if (matcher_thread_pool.pending() < thread_load) {
 
         process_cloud(cloud);
@@ -336,6 +334,8 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     depth_filter_.setInputCloud (cloud);
     depth_filter_.setFilterLimits(0, depth_threshold_);
     depth_filter_.filter (*scene_cloud_);
+
+    osc_sender->send("/kinect/pointcloud/size", scene_cloud_->size());
 
     if (process_scene_) {
 

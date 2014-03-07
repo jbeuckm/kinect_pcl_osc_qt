@@ -58,6 +58,7 @@ class kpoAppGui : public QMainWindow, public kpoBaseApp
 
     QImage MatToQImage(const Mat& mat);
 
+
   public slots:
 
 

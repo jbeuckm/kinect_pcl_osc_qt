@@ -146,7 +146,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>192.168.0.4</string>
+     <string>192.168.1.138</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_4">
@@ -185,7 +185,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>12345</string>
+     <string>7000</string>
     </property>
    </widget>
    <widget class="QPushButton" name="setOscTargetButton">
