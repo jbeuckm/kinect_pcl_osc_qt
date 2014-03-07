@@ -148,7 +148,7 @@ public:
       cv_depth = cv::Mat(2, sizes, CV_16UC1, (void*) pDepthMap);
     }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr boundingbox_ptr;
+    Cloud::Ptr boundingbox_ptr;
     std::vector<pcl::Vertices> bb_polygons;
     void build_bounding_box();
     void crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output_cloud);

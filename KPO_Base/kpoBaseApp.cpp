@@ -11,7 +11,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     , matcher_thread_pool(8)
     , analyzer_thread_pool(1)
     , osc_sender (new kpoOscSender())
-    , boundingbox_ptr (new pcl::PointCloud<pcl::PointXYZ>)
+    , boundingbox_ptr (new Cloud)
 {
     // Start the OpenNI data acquision
     boost::function<void (const CloudConstPtr&)> f = boost::bind (&kpoBaseApp::cloud_callback, this, _1);
@@ -453,42 +453,40 @@ void kpoBaseApp::save_contour_file(kpoObjectContour object_contour, string file_
 
 void kpoBaseApp::build_bounding_box()
 {
-    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, -.35, 1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(.35, -.35, 1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(.35, .35, 1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, .35, 1.79216));
-    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, -.35, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(.35, -.35, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(.35, .35, 0.483439));
-    boundingbox_ptr->push_back(pcl::PointXYZ(-.35, .35, 0.483439));
+    pcl::PointCloud<pcl::PointXYZ> bb;
+    bb.push_back(pcl::PointXYZ(-3.5, -3.5, 1.79216));
+    bb.push_back(pcl::PointXYZ(3.5, -3.5, 1.79216));
+    bb.push_back(pcl::PointXYZ(3.5, 3.5, 1.79216));
+    bb.push_back(pcl::PointXYZ(-3.5, 3.5, 1.79216));
+    bb.push_back(pcl::PointXYZ(-3.5, -3.5, 0.483439));
+    bb.push_back(pcl::PointXYZ(3.5, -3.5, 0.483439));
+    bb.push_back(pcl::PointXYZ(3.5, 3.5, 0.483439));
+    bb.push_back(pcl::PointXYZ(-3.5, 3.5, 0.483439));
 
-    pcl::ConvexHull<pcl::PointXYZ> hull;
+    pcl::copyPointCloud(bb, *boundingbox_ptr);
+
+    pcl::ConvexHull<PointType> hull;
     hull.setInputCloud(boundingbox_ptr);
     hull.setDimension(3);
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr surface_hull (new pcl::PointCloud<pcl::PointXYZ>);
+    Cloud::Ptr surface_hull (new Cloud);
 
 
     hull.reconstruct(*surface_hull, bb_polygons);
 }
 
-void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &cloud, CloudPtr &output_cloud)
+void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &input_cloud, CloudPtr &output_cloud)
 {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::copyPointCloud(*cloud, *input_cloud);
-
-    pcl::CropHull<pcl::PointXYZ> bb_filter;
+    pcl::CropHull<PointType> bb_filter;
 
     bb_filter.setDim(3);
     bb_filter.setInputCloud(input_cloud);
     bb_filter.setHullIndices(bb_polygons);
     bb_filter.setHullCloud(boundingbox_ptr);
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud (new pcl::PointCloud<pcl::PointXYZ>);
-    bb_filter.filter(*out_cloud);
+    bb_filter.filter(*output_cloud);
 
-    pcl::copyPointCloud(*out_cloud, *output_cloud);
-    std::cout << "bb " << cloud->size() << " --> " << output_cloud->size() << std::endl;
+    std::cout << "bb " << input_cloud->size() << " --> " << output_cloud->size() << std::endl;
 
 }
 
