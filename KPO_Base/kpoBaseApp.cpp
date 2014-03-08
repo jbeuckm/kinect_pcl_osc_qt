@@ -329,11 +329,11 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
 
 void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 {
-    QMutexLocker locker (&mtx_);
-    FPS_CALC ("computation");
-
 
     if (process_scene_) {
+
+        FPS_CALC ("computation");
+        QMutexLocker locker (&mtx_);
 
         kpoAnalyzerThread analyzer;
 
@@ -344,23 +344,25 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
             analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
         }
 
-        analyzer.copyInputCloud(*scene_cloud_, "", 0);
         analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1) );
 
         analyze_thread_count++;
+
+        analyzer.copyInputCloud(*scene_cloud_, "", 0);
         analyze_thread = new boost::thread(boost::bind(&kpoAnalyzerThread::operator(), analyzer));
+
     }
 }
 
 void kpoBaseApp::sceneCloudAnalyzed(kpoCloudDescription od)
 {
-    QMutexLocker locker (&mtx_);
 
     std::cout << "sceneCloudAnalyzed()" << std::endl;
     std::cout << "cloud has " << od.cloud.size() << std::endl;
 
     if (match_models_) {
 
+        QMutexLocker locker (&mtx_);
 
         int batch = thread_load - thread_pool.pending();
 

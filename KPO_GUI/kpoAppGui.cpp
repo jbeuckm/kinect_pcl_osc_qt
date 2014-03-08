@@ -248,7 +248,8 @@ void kpoAppGui::on_loadRawCloudButton_clicked()
         pcl::PCDReader reader;
         reader.read<PointType> (filename.toStdString(), *cloud);
 
-        process_cloud(cloud);
+//        process_cloud(cloud);
+        pcl::copyPointCloud(*cloud, *scene_cloud_);
         updateView();
     }
 }
