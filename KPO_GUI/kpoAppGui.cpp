@@ -211,7 +211,7 @@ void kpoAppGui::on_saveCloudButton_clicked()
 
     std::replace( objectname.begin(), objectname.end(), ' ', '_');
 
-    QString defaultFilename = QString::fromUtf8(objectname.c_str()) + QString(".pcd");
+    QString defaultFilename = QString::fromUtf8("/myshare/pointclouds/objects/") + QString::fromUtf8(objectname.c_str()) + QString(".pcd");
 
     QString filename = QFileDialog::getSaveFileName(this, tr("Save Pointcloud"),
                                                     defaultFilename,

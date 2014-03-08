@@ -2,8 +2,6 @@
 
 #include "BlobFinder.h"
 
-#define THREADED_ANALYSIS 0
-
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
@@ -157,29 +155,14 @@ void kpoBaseApp::load_model_cloud(string filename, int object_id)
 
     if (model_cloud_->size() != 0) {
 
-        if (false) {
 
-            kpoAnalyzerThread *analyzer = new kpoAnalyzerThread();
-            boost::shared_ptr<kpoAnalyzerThread> analyzer_thread(analyzer);
+        kpoAnalyzerThread analyzer;
 
-            analyzer_thread->downsampling_radius_ = keypoint_downsampling_radius_;
+        analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
+        analyzer.copyInputCloud(*model_cloud_, filename, object_id);
+        analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1) );
 
-            AnalyzerCallback ac = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
-            analyzer_thread->setAnalyzerCallback( ac );
-
-            analyzer_thread->copyInputCloud(*model_cloud_, filename, object_id);
-            thread_pool.schedule(boost::ref( *analyzer_thread ));
-
-        }
-        else {
-            kpoAnalyzerThread analyzer;
-
-            analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
-            analyzer.copyInputCloud(*model_cloud_, filename, object_id);
-            analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1) );
-
-            analyzer();
-        }
+        analyzer();
     }
 }
 
@@ -208,16 +191,10 @@ void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
     MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1, _2, _3);
     matcher_thread->setMatchCallback(f);
 
-#pragma omp critical(dataupdate)
-{
-    if (THREADED_ANALYSIS) {
-        QMutexLocker locker (&mtx_);
-        matcher_threads.push_back(matcher_thread);
+    #pragma omp critical(dataupdate)
+    {
+            matcher_threads.push_back(matcher_thread);
     }
-    else {
-        matcher_threads.push_back(matcher_thread);
-    }
-}
 
 }
 
@@ -324,8 +301,24 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
         return;
     }
 
-//    if (thread_pool.pending() < thread_load) {
-    if (analyze_thread_count < 2) {
+
+    if (process_scene_) {
+        QMutexLocker locker (&mtx_);
+
+        scene_cloud_.reset (new Cloud);
+
+        depth_filter_.setInputCloud (cloud);
+        depth_filter_.setFilterLimits(0, depth_threshold_);
+        depth_filter_.filter (*scene_cloud_);
+
+        CloudPtr cropped(new Cloud());
+        crop_bounding_box_(scene_cloud_, cropped);
+        pcl::copyPointCloud(*cropped, *scene_cloud_);
+
+        osc_sender->send("/kinect/pointcloud/size", scene_cloud_->size());
+    }
+
+    if (analyze_thread_count < 1) {
 
         process_cloud(cloud);
 
@@ -339,44 +332,23 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
     QMutexLocker locker (&mtx_);
     FPS_CALC ("computation");
 
-    scene_cloud_.reset (new Cloud);
-
-    depth_filter_.setInputCloud (cloud);
-    depth_filter_.setFilterLimits(0, depth_threshold_);
-    depth_filter_.filter (*scene_cloud_);
-
-    CloudPtr cropped(new Cloud());
-    crop_bounding_box_(scene_cloud_, cropped);
-    pcl::copyPointCloud(*cropped, *scene_cloud_);
-
-    osc_sender->send("/kinect/pointcloud/size", scene_cloud_->size());
 
     if (process_scene_) {
 
-        if (THREADED_ANALYSIS) {
+        kpoAnalyzerThread analyzer;
 
-            kpoAnalyzerThread *kat = new kpoAnalyzerThread();
-            boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);
-
-            analyzer->downsampling_radius_ = keypoint_downsampling_radius_;
-            analyzer->copyInputCloud(*scene_cloud_, "", 0);
-
-            AnalyzerCallback ac = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
-            analyzer->setAnalyzerCallback( ac );
-
-            thread_pool.schedule(boost::ref( *analyzer ));
+        if (scene_cloud_->size() > 35000) {
+            analyzer.downsampling_radius_ = (float)scene_cloud_->size() / 500000.0;
         }
         else {
-
-            kpoAnalyzerThread analyzer;
-
             analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
-            analyzer.copyInputCloud(*scene_cloud_, "", 0);
-            analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1) );
-
-            analyze_thread_count++;
-            analyze_thread = new boost::thread(boost::bind(&kpoAnalyzerThread::operator(), analyzer));
         }
+
+        analyzer.copyInputCloud(*scene_cloud_, "", 0);
+        analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1) );
+
+        analyze_thread_count++;
+        analyze_thread = new boost::thread(boost::bind(&kpoAnalyzerThread::operator(), analyzer));
     }
 }
 
@@ -496,8 +468,6 @@ void kpoBaseApp::crop_bounding_box_(const CloudConstPtr &input_cloud, CloudPtr &
     bb_filter.setHullCloud(boundingbox_ptr);
 
     bb_filter.filter(*output_cloud);
-
-    std::cout << "bb " << input_cloud->size() << " --> " << output_cloud->size() << std::endl;
 
 }
 
