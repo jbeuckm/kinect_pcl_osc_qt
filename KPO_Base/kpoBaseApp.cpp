@@ -2,14 +2,13 @@
 
 #include "BlobFinder.h"
 
-#define THREADED_ANALYSIS false
+#define THREADED_ANALYSIS 0
 
 
 kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     : grabber_(grabber)
     , mtx_ ()
-    , matcher_thread_pool(8)
-    , analyzer_thread_pool(1)
+    , thread_pool(8)
     , osc_sender (new kpoOscSender())
     , boundingbox_ptr (new Cloud)
     , bb_hull_cloud_ (new Cloud)
@@ -44,6 +43,7 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
 
     thread_load = 12;
 
+    analyze_thread_count = 0;
     grabber_.start ();
 }
 
@@ -123,23 +123,26 @@ void kpoBaseApp::loadModelFiles()
         thread_load = count;
     }
 
-    for (int i=0; i<count; i++) {
+    #pragma omp parallel
+    {
+        #pragma omp for
 
-        QString qs_filename = model_files[i];
-        string filename = qs_filename.toStdString();
+        for (int i=0; i<count; i++) {
 
-        std::cout << "reading " << filename << std::endl;
+            QString qs_filename = model_files[i];
+            string filename = qs_filename.toStdString();
 
-        int object_id = qs_filename.replace(QRegExp("[a-z]*.pcd"), "").toInt();
+            std::cout << "reading " << filename << std::endl;
 
-        std::cout << "object_id " << object_id << std::endl;
+            int object_id = qs_filename.replace(QRegExp("[a-z]*.pcd"), "").toInt();
 
-        load_model_cloud(models_folder_.toStdString() + "/" + filename, object_id);
+            std::cout << "object_id " << object_id << std::endl;
+
+            load_model_cloud(models_folder_.toStdString() + "/" + filename, object_id);
+        }
+
     }
 
-    if (THREADED_ANALYSIS) {
-        analyzer_thread_pool.wait();
-    }
 }
 
 
@@ -147,31 +150,32 @@ void kpoBaseApp::loadModelFiles()
 // load a raw model capture and process it into a matchable set of keypoints, descriptors
 void kpoBaseApp::load_model_cloud(string filename, int object_id)
 {
-    pcl::PointCloud<PointType>::Ptr model_(new pcl::PointCloud<PointType>());
+    pcl::PointCloud<PointType>::Ptr model_cloud_(new pcl::PointCloud<PointType>());
 
     pcl::PCDReader reader;
-    reader.read<PointType> (filename, *model_);
+    reader.read<PointType> (filename, *model_cloud_);
 
-    if (model_->size() != 0) {
+    if (model_cloud_->size() != 0) {
 
-        if (THREADED_ANALYSIS) {
+        if (false) {
 
             kpoAnalyzerThread *analyzer = new kpoAnalyzerThread();
             boost::shared_ptr<kpoAnalyzerThread> analyzer_thread(analyzer);
 
-            analyzer_thread->copyInputCloud(model_, filename, object_id);
             analyzer_thread->downsampling_radius_ = keypoint_downsampling_radius_;
 
             AnalyzerCallback ac = boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1);
             analyzer_thread->setAnalyzerCallback( ac );
 
-            analyzer_thread_pool.schedule(boost::ref( *analyzer_thread ));
+            analyzer_thread->copyInputCloud(*model_cloud_, filename, object_id);
+            thread_pool.schedule(boost::ref( *analyzer_thread ));
+
         }
         else {
             kpoAnalyzerThread analyzer;
 
             analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
-            analyzer.copyInputCloud(model_, filename, object_id);
+            analyzer.copyInputCloud(*model_cloud_, filename, object_id);
             analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::modelCloudAnalyzed, this, _1) );
 
             analyzer();
@@ -181,7 +185,6 @@ void kpoBaseApp::load_model_cloud(string filename, int object_id)
 
 void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
 {
-
     std::cout << "modelCloudAnalyzed()" << std::endl;
 
     Cloud *keypoints = new Cloud();
@@ -198,20 +201,23 @@ void kpoBaseApp::modelCloudAnalyzed(kpoCloudDescription od)
 
     kpoMatcherThread *matcher = new kpoMatcherThread(keypoints_ptr, descriptors_ptr, reference_frames_ptr);
 
-    boost::shared_ptr<kpoMatcherThread> model_thread(matcher);
-    model_thread->object_id = od.object_id;
-    model_thread->filename = od.filename;
+    boost::shared_ptr<kpoMatcherThread> matcher_thread(matcher);
+    matcher_thread->object_id = od.object_id;
+    matcher_thread->filename = od.filename;
 
     MatchCallback f = boost::bind (&kpoBaseApp::matchesFound, this, _1, _2, _3);
-    model_thread->setMatchCallback(f);
+    matcher_thread->setMatchCallback(f);
 
+#pragma omp critical(dataupdate)
+{
     if (THREADED_ANALYSIS) {
         QMutexLocker locker (&mtx_);
-        matcher_threads.push_back(model_thread);
+        matcher_threads.push_back(matcher_thread);
     }
     else {
-        matcher_threads.push_back(model_thread);
+        matcher_threads.push_back(matcher_thread);
     }
+}
 
 }
 
@@ -318,9 +324,11 @@ void kpoBaseApp::cloud_callback (const CloudConstPtr& cloud)
         return;
     }
 
-    if (matcher_thread_pool.pending() < thread_load) {
+//    if (thread_pool.pending() < thread_load) {
+    if (analyze_thread_count < 2) {
 
         process_cloud(cloud);
+
     }
 
 }
@@ -339,7 +347,7 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
 
     CloudPtr cropped(new Cloud());
     crop_bounding_box_(scene_cloud_, cropped);
-pcl::copyPointCloud(*cropped, *scene_cloud_);
+    pcl::copyPointCloud(*cropped, *scene_cloud_);
 
     osc_sender->send("/kinect/pointcloud/size", scene_cloud_->size());
 
@@ -351,35 +359,38 @@ pcl::copyPointCloud(*cropped, *scene_cloud_);
             boost::shared_ptr<kpoAnalyzerThread> analyzer(kat);
 
             analyzer->downsampling_radius_ = keypoint_downsampling_radius_;
-            analyzer->copyInputCloud(scene_cloud_, "", 0);
+            analyzer->copyInputCloud(*scene_cloud_, "", 0);
 
             AnalyzerCallback ac = boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1);
             analyzer->setAnalyzerCallback( ac );
 
-            analyzer_thread_pool.schedule(boost::ref( *analyzer ));
+            thread_pool.schedule(boost::ref( *analyzer ));
         }
         else {
 
             kpoAnalyzerThread analyzer;
 
             analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
-            analyzer.copyInputCloud(scene_cloud_, "", 0);
+            analyzer.copyInputCloud(*scene_cloud_, "", 0);
             analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1) );
 
-            analyzer();
+            analyze_thread_count++;
+            analyze_thread = new boost::thread(boost::bind(&kpoAnalyzerThread::operator(), analyzer));
         }
     }
 }
 
 void kpoBaseApp::sceneCloudAnalyzed(kpoCloudDescription od)
 {
+    QMutexLocker locker (&mtx_);
+
     std::cout << "sceneCloudAnalyzed()" << std::endl;
     std::cout << "cloud has " << od.cloud.size() << std::endl;
 
-
     if (match_models_) {
 
-        int batch = thread_load - matcher_thread_pool.pending();
+
+        int batch = thread_load - thread_pool.pending();
 
         for (unsigned i=0; i<batch; i++) {
 
@@ -387,12 +398,14 @@ void kpoBaseApp::sceneCloudAnalyzed(kpoCloudDescription od)
 
             matcher->copySceneClouds(od.keypoints, od.descriptors, od.reference_frames);
 
-            matcher_thread_pool.schedule(boost::ref( *matcher ));
+            thread_pool.schedule(boost::ref( *matcher ));
 
             model_index = (model_index + 1) % matcher_threads.size();
 
         }
     }
+
+    analyze_thread_count--;
 }
 
 

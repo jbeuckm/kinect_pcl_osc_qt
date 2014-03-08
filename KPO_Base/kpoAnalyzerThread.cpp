@@ -7,7 +7,6 @@ kpoAnalyzerThread::kpoAnalyzerThread()
     : scene_cloud_ (new Cloud())
 {
     downsampling_radius_ = .005f;
-
     shot_radius_ = 0.04f;
 
     cg_size_ = 0.01f;
@@ -22,44 +21,45 @@ void kpoAnalyzerThread::setAnalyzerCallback(AnalyzerCallback callback)
 }
 
 
-void kpoAnalyzerThread::copyInputCloud(CloudPtr cloud, std::string filename_, unsigned object_id_)
+void kpoAnalyzerThread::copyInputCloud(const Cloud &cloud, std::string filename_, unsigned object_id_)
 {
     filename = filename_;
     object_id = object_id_;
 
-    pcl::copyPointCloud(*cloud, *scene_cloud_);
+    pcl::copyPointCloud(cloud, *scene_cloud_);
 }
 
 void kpoAnalyzerThread::operator ()()
 {
+    std::cout << "cloud has " << scene_cloud_->size() << " points" << std::endl;
+
     Cloud cleanCloud;
     removeNoise(scene_cloud_, cleanCloud);
     pcl::copyPointCloud(cleanCloud, *scene_cloud_);
 
 
+    std::cout << "filtered cloud has " << scene_cloud_->size() << " points" << std::endl;
+
     if (scene_cloud_->size() < 25) {
         std::cout << "cloud too small" << std::endl;
         return;
     }
-    /*
+/*
     if (scene_cloud_->size() > 40000) {
         std::cout << "cloud too large" << std::endl;
         return;
     }
-    */
-    std::cout << "cloud has " << scene_cloud_->size() << " points" << std::endl;
-
-
-    scene_normals_.reset (new NormalCloud ());
+*/
+    NormalCloud::Ptr scene_normals_(new NormalCloud());
     estimateNormals(scene_cloud_, scene_normals_);
 
-    scene_keypoints_.reset(new Cloud ());
+    Cloud::Ptr scene_keypoints_(new Cloud());
     downSample(scene_cloud_, scene_keypoints_);
 
-    scene_descriptors_.reset(new DescriptorCloud ());
+    DescriptorCloud::Ptr scene_descriptors_(new DescriptorCloud());
     computeShotDescriptors(scene_cloud_, scene_keypoints_, scene_normals_, scene_descriptors_);
 
-    scene_refs_.reset(new RFCloud ());
+    RFCloud::Ptr scene_refs_(new RFCloud());
     estimateReferenceFrames(scene_cloud_, scene_normals_, scene_keypoints_, scene_refs_);
 
     kpoCloudDescription od;
@@ -89,7 +89,7 @@ void kpoAnalyzerThread::removeNoise(const CloudConstPtr &cloud, Cloud &filtered_
 }
 
 
-void kpoAnalyzerThread::estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals)
+void kpoAnalyzerThread::estimateNormals(const CloudConstPtr &cloud, NormalCloudPtr &normals)
 {
     pcl::NormalEstimation<PointType, NormalType> norm_est;
 

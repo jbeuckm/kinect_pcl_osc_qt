@@ -12,6 +12,10 @@ TEMPLATE = lib
 
 DEFINES += KPO_BASE_LIBRARY
 
+QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS +=  -fopenmp
+QMAKE_CFLAGS_DEBUG += -fopenmp
+QMAKE_CFLAGS_RELEASE += -fopenmp
 
 #CONFIG += c++11
 

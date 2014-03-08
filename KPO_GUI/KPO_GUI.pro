@@ -9,6 +9,10 @@ QT       += core gui
 TARGET = kpoAppGui
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS +=  -fopenmp
+QMAKE_CFLAGS_DEBUG += -fopenmp
+QMAKE_CFLAGS_RELEASE += -fopenmp
 
 SOURCES += kpoAppGui.cpp \
     BlobRenderer.cpp

@@ -26,9 +26,11 @@ typedef NormalCloud::Ptr NormalCloudPtr;
 
 typedef pcl::SHOT1344 DescriptorType;
 typedef pcl::PointCloud<DescriptorType> DescriptorCloud;
+typedef DescriptorCloud::Ptr DescriptorCloudPtr;
 
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::PointCloud<RFType> RFCloud;
+typedef RFCloud::Ptr RFCloudPtr;
 
 class kpoCloudDescription
 {

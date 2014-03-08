@@ -12,11 +12,15 @@ TARGET = kpoAppCurses
 #CONFIG   -= app_bundle
 CONFIG += no_keywords
 
+QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS +=  -fopenmp
+QMAKE_CFLAGS_DEBUG += -fopenmp
+QMAKE_CFLAGS_RELEASE += -fopenmp
+
+
 LIBS += -lncurses
 
-
 TEMPLATE = app
-
 
 SOURCES += main.cpp \
     kpoAppCurses.cpp

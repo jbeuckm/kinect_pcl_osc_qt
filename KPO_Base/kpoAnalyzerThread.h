@@ -41,34 +41,6 @@ public:
 
     kpoAnalyzerThread();
 
-    void copyInputCloud(Cloud::Ptr cloud, std::string filename, unsigned object_id);
-
-    AnalyzerCallback callback_;
-    void setAnalyzerCallback(AnalyzerCallback callback);
-
-    void operator ()();
-
-    Cloud::Ptr scene_cloud_;
-    Cloud::Ptr scene_keypoints_;
-    NormalCloud::Ptr scene_normals_;
-    DescriptorCloud::Ptr scene_descriptors_;
-    RFCloud::Ptr scene_refs_;
-
-    void removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud);
-
-    double computeCloudResolution (const CloudConstPtr &cloud);
-
-    void estimateNormals(CloudPtr &cloud, NormalCloudPtr &normals);
-
-    void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
-
-    void computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
-
-    void estimateReferenceFrames(const Cloud::ConstPtr &cloud,
-                                 const NormalCloud::ConstPtr &normals,
-                                 const Cloud::ConstPtr &keypoints,
-                                 RFCloud::Ptr &rf);
-
     float downsampling_radius_;
     float shot_radius_;
     float rf_rad_;
@@ -78,6 +50,30 @@ public:
 
     std::string filename;
     unsigned object_id;
+
+    Cloud::Ptr scene_cloud_;
+
+    void copyInputCloud(const Cloud &cloud, std::string filename, unsigned object_id);
+
+    AnalyzerCallback callback_;
+    void setAnalyzerCallback(AnalyzerCallback callback);
+
+    void operator ()();
+
+    void removeNoise(const CloudConstPtr &cloud, Cloud &filtered_cloud);
+
+    double computeCloudResolution (const CloudConstPtr &cloud);
+
+    void estimateNormals(const CloudConstPtr &cloud, NormalCloudPtr &normals);
+
+    void downSample(const CloudConstPtr &cloud, CloudPtr &keypoints);
+
+    void computeShotDescriptors(const CloudConstPtr &cloud, const CloudConstPtr &keypoints, const NormalCloud::ConstPtr &normals, DescriptorCloud::Ptr &descriptors);
+
+    void estimateReferenceFrames(const Cloud::ConstPtr &cloud,
+                                 const NormalCloud::ConstPtr &normals,
+                                 const Cloud::ConstPtr &keypoints,
+                                 RFCloud::Ptr &rf);
 
 };
 

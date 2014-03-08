@@ -98,7 +98,7 @@ public:
 
     void loadModelFiles();
     void load_model_cloud(string filepath, int object_id);
-    boost::threadpool::pool analyzer_thread_pool;
+//    boost::threadpool::pool analyzer_thread_pool;
     void modelCloudAnalyzed(kpoCloudDescription od);
 
     virtual void loadSettings();
@@ -112,7 +112,7 @@ public:
     bool process_scene_;
     bool match_models_;
 
-    boost::threadpool::pool matcher_thread_pool;
+    boost::threadpool::pool thread_pool;
     std::vector< boost::shared_ptr<kpoMatcherThread> > matcher_threads;
     unsigned thread_load;
     int model_index;
@@ -124,6 +124,8 @@ public:
 
     void cloud_callback (const CloudConstPtr& cloud);
     void process_cloud (const CloudConstPtr& cloud);
+    boost::thread *analyze_thread;
+    int analyze_thread_count;
 
     void image_callback (const boost::shared_ptr<openni_wrapper::Image> &image);
     void depth_callback (const boost::shared_ptr< openni_wrapper::DepthImage > &depth_image);
