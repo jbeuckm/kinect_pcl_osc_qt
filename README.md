@@ -1,7 +1,7 @@
-kinect_pcl_osc
-==============
+kinect_pcl_osc_qt
+=================
 
-This will read depth data from a Kinect with OpenNI, analyze it with PCL and build an object recognizer with one of the local feature algorithms, probably SHOT.
+An object recognition and reporting engine built for "Autonomous" by Peter Sowinski. A Qt interface allows manually triggered capture of object depth contours and pointclouds. Then the saved object models are correlated with the live camera input to find the objects in the scene.
 
 Context:
 ==============
