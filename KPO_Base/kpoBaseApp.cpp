@@ -40,8 +40,12 @@ kpoBaseApp::kpoBaseApp (pcl::OpenNIGrabber& grabber)
     loadSettings();
 
     thread_load = 12;
-
     analyze_thread_count = 0;
+
+    last_cloud_size = 0;
+    last_snapshot_time = QDateTime::currentMSecsSinceEpoch();
+    need_image_cap = false;
+
     grabber_.start ();
 }
 
@@ -154,7 +158,6 @@ void kpoBaseApp::load_model_cloud(string filename, int object_id)
     reader.read<PointType> (filename, *model_cloud_);
 
     if (model_cloud_->size() != 0) {
-
 
         kpoAnalyzerThread analyzer;
 
@@ -289,6 +292,23 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
         QMutexLocker locker (&mtx_);
 
         openniImage2opencvMat((XnRGB24Pixel*)rgb_buffer, scene_image_, image_height_, image_width_);
+
+        if (need_image_cap) {
+            std::cout << "need_image_cap " << need_image_cap << std::endl;
+            cv::Mat rgb_image_;
+            cv::cvtColor(scene_image_, rgb_image_, CV_BGR2RGB);
+
+            uint timestamp = QDateTime::currentMSecsSinceEpoch();
+            if (timestamp - last_snapshot_time > 30000) {
+                last_snapshot_time = timestamp;
+                QString filename = QString::fromUtf8("/myshare/autonomous_snapshots/");
+                filename += QString::number(timestamp);
+                filename += QString::fromUtf8(".png");
+
+                cv::imwrite(filename.toStdString().c_str(), rgb_image_);
+                need_image_cap = 0;
+            }
+        }
     }
 
 }
@@ -343,6 +363,12 @@ void kpoBaseApp::process_cloud (const CloudConstPtr& cloud)
         else {
             analyzer.downsampling_radius_ = keypoint_downsampling_radius_;
         }
+
+        std::cout << "abs cloud difference = " << abs((int)scene_cloud_->size() - last_cloud_size) << endl;
+        if (abs((int)scene_cloud_->size() - last_cloud_size) > 500) {
+            need_image_cap = 1;
+        }
+        last_cloud_size = scene_cloud_->size();
 
         analyzer.setAnalyzerCallback( boost::bind (&kpoBaseApp::sceneCloudAnalyzed, this, _1) );
 

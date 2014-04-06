@@ -82,6 +82,9 @@ public:
     std::vector< kpoObjectContour > contour_objects_;
     void findMatchingContours(Contour scene_contour);
 
+    int last_cloud_size;
+    uint last_snapshot_time;
+    bool need_image_cap;
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;
     NormalCloud::Ptr scene_normals_;
