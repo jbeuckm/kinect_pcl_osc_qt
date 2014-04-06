@@ -10,8 +10,7 @@ Two recognition methods are used to find objects in the OpenNI stream:
 2. The incoming pointcloud is cropped to a set rectangular prism to avoid extra processing of the irrelevant surroundings. [A PCL pipeline](http://pointclouds.org/documentation/tutorials/correspondence_grouping.php#correspondence-grouping) is used to correlate sampled keypoints and SHOT descriptors with those in a set of known models. If matches are found with their 6DOF pose, object ID and x,y,z are sent to OSC path /kinect/object.
 
 
-Context:
-==============
+### Known working configuration: ###
 
 PCL 1.7, VTK 5.8, Qt Creator, Ubuntu 12.04
 
