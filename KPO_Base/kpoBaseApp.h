@@ -83,7 +83,7 @@ public:
     void findMatchingContours(Contour scene_contour);
 
     int last_cloud_size;
-    uint last_snapshot_time;
+    qint64 last_snapshot_time;
     bool need_image_cap;
     CloudPtr scene_cloud_;
     CloudPtr scene_keypoints_;

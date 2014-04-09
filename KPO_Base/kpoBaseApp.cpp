@@ -298,7 +298,7 @@ void kpoBaseApp::image_callback (const boost::shared_ptr<openni_wrapper::Image> 
             cv::Mat rgb_image_;
             cv::cvtColor(scene_image_, rgb_image_, CV_BGR2RGB);
 
-            uint timestamp = QDateTime::currentMSecsSinceEpoch();
+            qint64 timestamp = QDateTime::currentMSecsSinceEpoch();
             if (timestamp - last_snapshot_time > 30000) {
                 last_snapshot_time = timestamp;
                 QString filename = QString::fromUtf8("/myshare/autonomous_snapshots/");
